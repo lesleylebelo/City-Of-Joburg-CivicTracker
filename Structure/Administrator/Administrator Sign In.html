@@ -12,17 +12,17 @@
          </header>
 
          <main>
-            <form>
+            <form id = "Admin-SignIn-Form">
                 <div>
-                    <label for = "EmpID/Email">Employee ID / Email</label>
-                    <input type = "text" id = "EmpID/Email" name = "EmpID/Email" placeholder = "Enter ID or Email" required>
+                    <label for = "empNum">Employee Number</label>
+                    <input type = "number" id = "empNum" name = "empNum" placeholder = "Enter Employee Number">
                 </div>
 
                 <br>
 
                 <div>
-                    <label for = "EmpPassword">Password</label>
-                    <input type = "password" id = "EmpPassword" name = "EmpPassword" placeholder = "Enter Password" required>
+                    <label for = "empPassword">Password</label>
+                    <input type = "password" id = "empPassword" name = "empPassword" placeholder = "Enter Password">
                 </div>
 
                 <div>
@@ -33,12 +33,17 @@
                 <br>
 
                 <div>
-                    <a href = "#">
-                        <button>Sign In</button>
-                    </a>
+                     <button type = "submit">Sign In</button>
                 </div>
             </form>
+
+            <div>
+                <p id = "Admin-Login-Error"></p>
+            </div>
+
          </main>
+
+         <script src = "../../Functionality/Administrator/Administrator Sign In.js"></script>
     </body>
     <footer></footer>
 </html>
