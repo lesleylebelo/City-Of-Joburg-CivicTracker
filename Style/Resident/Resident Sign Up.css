@@ -1,3 +1,4 @@
+/*
 * {
   margin: 0;
   padding: 0;
@@ -9,7 +10,7 @@ body {
   min-height: 100vh;
   color: #ffffff;
 
-  /* JOHANNESBURG BACKGROUND + GRADIENT */
+  /* JOHANNESBURG BACKGROUND + GRADIENT *
   background:
     linear-gradient(
       to bottom,
@@ -25,7 +26,7 @@ body {
   background-attachment: fixed;
 }
 
-/* NAVBAR */
+/* NAVBAR *
 .navbar {
   width: 100%;
   padding: 22px 56px;
@@ -80,7 +81,7 @@ nav a.active {
   color: #ffd2db;
 }
 
-/* LAYOUT */
+/* LAYOUT *
 .auth-page {
   width: 90%;
   margin: 60px auto;
@@ -90,7 +91,7 @@ nav a.active {
   align-items: center;
 }
 
-/* TEXT SIDE */
+/* TEXT SIDE *
 .hero-text h2 {
   font-size: 3rem;
   color: #ffc9d1;
@@ -109,7 +110,7 @@ nav a.active {
   font-size: 1.1rem;
 }
 
-/* CARD */
+/* CARD *
 .auth-card {
   background: rgba(255, 255, 255, 0.15);
   padding: 30px;
@@ -118,7 +119,7 @@ nav a.active {
   border: 1px solid rgba(255,255,255,0.3);
 }
 
-/* TABS */
+/* TABS *
 .tabs {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -139,7 +140,7 @@ nav a.active {
   background: #1f9fc2;
 }
 
-/* FORM */
+/* FORM *
 .form-section {
   display: none;
 }
@@ -179,7 +180,7 @@ nav a.active {
   cursor: pointer;
 }
 
-/* OPTIONS */
+/* OPTIONS *
 .form-options {
   display: flex;
   justify-content: space-between;
@@ -196,7 +197,7 @@ nav a.active {
   text-decoration: none;
 }
 
-/* BUTTON */
+/* BUTTON *
 .primary-btn {
   width: 100%;
   padding: 12px;
@@ -212,7 +213,7 @@ nav a.active {
   opacity: 0.9;
 }
 
-/* MESSAGES */
+/* MESSAGES *
 .error {
   color: pink;
   font-size: 0.8rem;
@@ -223,9 +224,10 @@ nav a.active {
   margin-top: 10px;
 }
 
-/* RESPONSIVE */
+/* RESPONSIVE *
 @media (max-width: 800px) {
   .auth-page {
     grid-template-columns: 1fr;
   }
-}
+}*
+

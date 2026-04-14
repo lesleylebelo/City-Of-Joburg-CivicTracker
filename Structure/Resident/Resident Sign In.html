@@ -1,61 +1,64 @@
+<!--
+Please do not use any css and javascript code or properties on this document. It is strictly for html only!!!
+For styling and DOM, please use respective documents linked  to this document. Thank you!!
+-->
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang= "en-ZA">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Joburg Civil Tracking</title>
-
-  <!-- CSS -->
-  <link rel="stylesheet" href="styles.css" />
-
+  <title>Resident Sign-In</title>
+  <link rel="stylesheet" href="/Structure/Resident/Resident Sign In.html" />
   <!-- Icons -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-  />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
 </head>
+
 <body>
-
-  <!-- NAVBAR -->
-  <header class="navbar">
-    <div class="brand">
-      <div class="logo-box">Jo'burg</div>
-      <h1>Joburg Civil Tracking</h1>
-    </div>
-
-    <nav>
-      <a href="#">Home</a>
-      <a href="#">Report Issue</a>
-      <a href="#">Projects</a>
-      <a href="#">Notices</a>
-      <a href="#" class="active">Login</a>
-    </nav>
+  <header>
+      <a href = "../Landing Page.html">Home</a>
+      <h3>Resident Access</h3>
   </header>
 
-  <!-- MAIN -->
-  <main class="auth-page">
+  <main>
+      <form id = "Resident-SignIn-Form">
+          <div>
+            <label for = "resEmail">Email</label>
+            <input type = "email" id = "resEmail" name = "resEmail" placeholder = "Enter Email">
+          </div><br>
 
-    <!-- LEFT TEXT -->
-    <section class="hero-text">
-      <p class="tag">Resident Access Portal</p>
-      <h2>Your Voice, Your City, Your Impact</h2>
-      <p class="subtext">
-        Register, sign in, report issues, and stay updated with city services.
-      </p>
-    </section>
+          <div>
+            <label for = "resPassword">Password</label>
+            <input type = "password" id = "resPassword" name = "resPassword" placeholder = "Enter Password">
+          </div><br>
 
-    <!-- FORM CARD -->
-    <section class="auth-wrapper">
-      <div class="auth-card">
+          <div>
+            <button type = "submit">Sign In</button>
+          </div>
+      </form>
 
-        <!-- TABS -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="login">Sign In</button>
-          <button class="tab-btn" data-tab="register">Register</button>
-          <button class="tab-btn" data-tab="forgot">Forgot Password</button>
-        </div>
+      <div>
+        <p id = "Resident-Login-Error"></p>
+      </div>
 
-        <!-- SIGN IN -->
+      <div>
+        Don't have an account? 
+        <a href = "Resident Sign Up.html">Resident Sign Up</a>
+      </div>
+
+      <div> 
+        <a href = "Forgot Password.html">Forgot Password</a>
+      </div>
+
+  </main>
+ 
+  <footer></footer>
+  <script src="/Functionality/Resident/Resident Sign In.js"></script>
+</body>
+</html>
+
+
+        <!-- 
         <form id="loginForm" class="form-section active">
           <h3>Sign In</h3>
 
@@ -93,89 +96,7 @@
           <p class="success-msg" id="loginSuccess"></p>
         </form>
 
-        <!-- REGISTER -->
-        <form id="registerForm" class="form-section">
-          <h3>Register</h3>
-
-          <div class="split">
-            <div class="input-group">
-              <label>First Name</label>
-              <div class="input-icon">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" id="firstName" placeholder="First name" />
-              </div>
-              <small class="error" id="firstNameError"></small>
-            </div>
-
-            <div class="input-group">
-              <label>Last Name</label>
-              <div class="input-icon">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" id="lastName" placeholder="Last name" />
-              </div>
-              <small class="error" id="lastNameError"></small>
-            </div>
-          </div>
-
-          <div class="input-group">
-            <label>Email</label>
-            <div class="input-icon">
-              <i class="fa-solid fa-envelope"></i>
-              <input type="email" id="registerEmail" placeholder="Enter email" />
-            </div>
-            <small class="error" id="registerEmailError"></small>
-          </div>
-
-          <div class="input-group">
-            <label>Password</label>
-            <div class="input-icon password-wrap">
-              <i class="fa-solid fa-lock"></i>
-              <input type="password" id="registerPassword" placeholder="Create password" />
-              <button type="button" class="show-password" data-target="registerPassword">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-            </div>
-            <small class="error" id="registerPasswordError"></small>
-          </div>
-
-          <div class="input-group">
-            <label>Confirm Password</label>
-            <div class="input-icon password-wrap">
-              <i class="fa-solid fa-lock"></i>
-              <input type="password" id="confirmPassword" placeholder="Confirm password" />
-              <button type="button" class="show-password" data-target="confirmPassword">
-                <i class="fa-solid fa-eye"></i>
-              </button>
-            </div>
-            <small class="error" id="confirmPasswordError"></small>
-          </div>
-
-          <button type="submit" class="primary-btn">Register</button>
-          <p class="success-msg" id="registerSuccess"></p>
-        </form>
-
-        <!-- FORGOT PASSWORD -->
-        <form id="forgotForm" class="form-section">
-          <h3>Forgot Password</h3>
-
-          <div class="input-group">
-            <label>Email</label>
-            <div class="input-icon">
-              <i class="fa-solid fa-envelope"></i>
-              <input type="email" id="forgotEmail" placeholder="Enter email" />
-            </div>
-            <small class="error" id="forgotEmailError"></small>
-          </div>
-
-          <button type="submit" class="primary-btn">Send Reset Link</button>
-          <p class="success-msg" id="forgotSuccess"></p>
-        </form>
-
       </div>
     </section>
   </main>
-
-  <!-- EXTERNAL JS -->
-  <script src="script.js"></script>
-</body>
-</html>
+-->
