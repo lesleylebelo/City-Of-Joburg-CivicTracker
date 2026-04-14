@@ -1,4 +1,4 @@
-const tabButtons = document.querySelectorAll(".tab-btn");
+/*const tabButtons = document.querySelectorAll(".tab-btn");
 const formSections = document.querySelectorAll(".form-section");
 const switchLinks = document.querySelectorAll(".link-switch");
 const showPasswordButtons = document.querySelectorAll(".show-password");
@@ -173,4 +173,4 @@ window.addEventListener("load", () => {
     document.getElementById("loginEmail").value = savedEmail;
     document.getElementById("rememberMe").checked = true;
   }
-});
+});*/
