@@ -1,0 +1,66 @@
+<!--
+Please do not use any css and javascript code or properties on this document. It is strictly for html only!!!
+For styling and DOM, please use respective documents linked to this document. Thank you!!
+-->
+
+<!DOCTYPE html>
+<html lang="en-ZA">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Resident Account Registration | CivicTrack</title>
+        <link rel="stylesheet" href="Res_Sign_up.css">
+    </head>
+    <body>
+        <header>
+            <a href="Landing_Page.html">Back to Home</a>
+            <h3>Create Resident Account</h3>
+        </header>
+
+        <main>
+            <form id="Resident-SignUp-Form">
+                <div>
+                    <label for="resFullNames">Full Names</label>
+                    <input type="text" id="resFullNames" name="resFullNames" placeholder="Enter your full names" required>
+                </div>
+
+                <div>
+                    <label for="resEmail">Email Address</label>
+                    <input type="email" id="resEmail" name="resEmail" placeholder="Enter your email address" required>
+                </div>
+
+                <div>
+                    <label for="resPhone">Phone Number</label>
+                    <input type="tel" id="resPhone" name="resPhone" placeholder="Enter your phone number" required>
+                </div>
+
+                <div>
+                    <label for="resPassword">Password</label>
+                    <input type="password" id="resPassword" name="resPassword" placeholder="Create a password" required>
+                </div>
+
+                <div>
+                    <label for="resConfirmPassword">Confirm Password</label>
+                    <input type="password" id="resConfirmPassword" name="resConfirmPassword" placeholder="Re-enter your password" required>
+                </div>
+
+                <div class="link-row">
+                    Already have an account?
+                    <a href="Resident_Sign_In.html">Sign In</a>
+                </div>
+
+                <div>
+                    <button type="submit" id="Resident-SignUp-Btn">Sign Up</button>
+                </div>
+            </form>
+
+            <div>
+                <p id="Resident-SignUp-Error"></p>
+            </div>
+        </main>
+
+        <footer></footer>
+
+        <script src="Res_Sign_up.js"></script>
+    </body>
+</html>
