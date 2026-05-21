@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Resident Dashboard | CivicTrack</title>
+        <link rel="stylesheet" href="Dashboard.css">
+    </head>
+    <body>
+
+        <!-- ── Sidebar ── -->
+        <aside id="sidebar">
+            <div id="sidebar-logo">
+                <img src="/Client/Assets/Images/Joburg Logo.jpg" alt="City of Joburg" id="sidebar-logo-img">
+                <div id="sidebar-brand-text">
+                    <span id="sidebar-coj">City of Joburg</span>
+                    <span id="sidebar-civictrack">CivicTrack</span>
+                </div>
+            </div>
+
+            <div id="portal-label">Resident Portal</div>
+
+            <nav id="sidebar-nav">
+                <a href="#" class="nav-link active" id="nav-dashboard" data-section="dashboard">
+                    <span class="nav-icon">⊞</span> Dashboard
+                </a>
+                <a href="#" class="nav-link" id="nav-report" data-section="report">
+                    <span class="nav-icon">⚑</span> Report Issue
+                </a>
+                <a href="#" class="nav-link" id="nav-projects" data-section="projects">
+                    <span class="nav-icon">◈</span> Development Projects
+                </a>
+                <a href="#" class="nav-link" id="nav-notices" data-section="notices">
+                    <span class="nav-icon">☰</span> Notices
+                </a>
+                <a href="#" class="nav-link" id="nav-polls" data-section="polls">
+                    <span class="nav-icon">◉</span> Polls
+                </a>
+                <a href="#" class="nav-link" id="nav-events" data-section="events">
+                    <span class="nav-icon">◷</span> Events
+                </a>
+            </nav>
+
+            <div id="sidebar-bottom">
+                <a href="#" class="nav-link" id="nav-settings">
+                    <span class="nav-icon">⚙</span> Settings
+                </a>
+                <a href="/Client/Pages/Resident/Sign-In/Sign-In.html" class="nav-link" id="nav-logout">
+                    <span class="nav-icon">⏻</span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ── Main Content ── -->
+        <div id="main-wrapper">
+
+            <!-- Top Bar -->
+            <header id="topbar">
+                <h1 id="page-title">Dashboard</h1>
+                <div id="topbar-user">
+                    <div id="topbar-user-info">
+                        <span id="topbar-name">Loading...</span>
+                        <span id="topbar-location">Johannesburg</span>
+                    </div>
+                    <div id="topbar-avatar">R</div>
+                </div>
+            </header>
+
+            <!-- Hero Welcome Banner -->
+            <section id="welcome-banner">
+                <div id="welcome-text">
+                    <h2 id="welcome-heading">Hi, <span id="welcome-name">Resident</span></h2>
+                    <p id="welcome-sub">Your area is operating normally today. Check below for recent updates.</p>
+                </div>
+            </section>
+
+            <!-- Dashboard Sections -->
+            <div id="dashboard-content">
+
+                <!-- SECTION: Dashboard Home -->
+                <section class="dash-section active" id="section-dashboard">
+                    <div id="home-grid">
+
+                        <!-- Recent Notices -->
+                        <div id="notices-feed">
+                            <div class="section-header">
+                                <h3>Recent Notices</h3>
+                                <a href="#" class="view-all" data-target="notices">View all</a>
+                            </div>
+                            <div id="notices-list">
+                                <div class="notice-card">
+                                    <div class="notice-thumb">🔧</div>
+                                    <div class="notice-body">
+                                        <span class="notice-badge maintenance">Maintenance</span>
+                                        <span class="notice-time">2h ago</span>
+                                        <h4>Scheduled Road Maintenance</h4>
+                                        <p>Pothole repair will be carried out on University Rd as part of ongoing maintenance on 26 April 2026.</p>
+                                    </div>
+                                </div>
+                                <div class="notice-card">
+                                    <div class="notice-thumb">🏗️</div>
+                                    <div class="notice-body">
+                                        <span class="notice-badge project">New Project</span>
+                                        <span class="notice-time">Yesterday</span>
+                                        <h4>New Building Development</h4>
+                                        <p>Construction of a new shopping centre in Melville commencing 30 May.</p>
+                                    </div>
+                                </div>
+                                <div class="notice-card">
+                                    <div class="notice-thumb">📋</div>
+                                    <div class="notice-body">
+                                        <span class="notice-badge issue">Reported Issue</span>
+                                        <span class="notice-time">3 days ago</span>
+                                        <h4>Status Update</h4>
+                                        <p>Our maintenance team has received and logged your report and conducted an inspection of the affected area.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <a href="#" class="view-older">View older...</a>
+                        </div>
+
+                        <!-- Upcoming Events -->
+                        <div id="events-feed">
+                            <div class="section-header">
+                                <h3>Upcoming Events</h3>
+                                <a href="#" class="view-all" data-target="events">View all</a>
+                            </div>
+                            <div id="events-list">
+                                <div class="event-card">
+                                    <div class="event-date">
+                                        <span class="event-day">24</span>
+                                        <span class="event-month">Aug</span>
+                                    </div>
+                                    <div class="event-info">
+                                        <h4>Community Clean-Up &amp; Repair Day</h4>
+                                        <p class="event-time">09h00 – 13h00</p>
+                                        <p>Municipality officials team up with residents to clean up streets and fix minor issues.</p>
+                                    </div>
+                                </div>
+                                <div class="event-card">
+                                    <div class="event-date">
+                                        <span class="event-day">05</span>
+                                        <span class="event-month">May</span>
+                                    </div>
+                                    <div class="event-info">
+                                        <h4>Infrastructure Feedback Workshop</h4>
+                                        <p class="event-time">10h00 – 14h00</p>
+                                        <p>Residents discuss road conditions, water issues, electricity outages, and suggest improvements.</p>
+                                    </div>
+                                </div>
+                                <div class="event-card">
+                                    <div class="event-date">
+                                        <span class="event-day">02</span>
+                                        <span class="event-month">Jun</span>
+                                    </div>
+                                    <div class="event-info">
+                                        <h4>Community Safety &amp; Services Meetup</h4>
+                                        <p class="event-time">09h00 – 12h00</p>
+                                        <p>A gathering focused on safety issues with local officials and community leaders.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </section>
+
+                <!-- SECTION: Report Issue -->
+                <section class="dash-section" id="section-report">
+                    <div class="section-header">
+                        <h3>Report an Issue</h3>
+                    </div>
+                    <form id="Report-Issue-Form">
+                        <div class="form-group">
+                            <label for="issueTitle">Issue Title</label>
+                            <input type="text" id="issueTitle" placeholder="e.g. Large pothole on Main Street">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="issueCategory">Category</label>
+                                <select id="issueCategory">
+                                    <option value="">Select category</option>
+                                    <option>Pothole</option>
+                                    <option>Broken Streetlight</option>
+                                    <option>Water Leak</option>
+                                    <option>Sewage</option>
+                                    <option>Illegal Dumping</option>
+                                    <option>Vandalism</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="issuePriority">Priority</label>
+                                <select id="issuePriority">
+                                    <option>Low</option>
+                                    <option selected>Medium</option>
+                                    <option>High</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="issueLocation">Location Address</label>
+                            <input type="text" id="issueLocation" placeholder="e.g. 15 Main Street, Soweto">
+                        </div>
+                        <div class="form-group">
+                            <label for="issueDescription">Description</label>
+                            <textarea id="issueDescription" rows="4" placeholder="Describe the issue in detail..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="issueImage">Upload Photo (optional)</label>
+                            <input type="file" id="issueImage" accept="image/*">
+                        </div>
+                        <button type="submit" id="Submit-Issue-Btn">Submit Report</button>
+                        <p id="Report-Issue-Error"></p>
+                        <p id="Report-Issue-Success"></p>
+                    </form>
+                </section>
+
+                <!-- SECTION: Development Projects -->
+                <section class="dash-section" id="section-projects">
+                    <div class="section-header">
+                        <h3>Development Projects</h3>
+                    </div>
+                    <div id="projects-list" class="cards-grid">
+                        <p class="loading-text">Loading projects...</p>
+                    </div>
+                </section>
+
+                <!-- SECTION: Notices -->
+                <section class="dash-section" id="section-notices">
+                    <div class="section-header">
+                        <h3>Notices</h3>
+                    </div>
+                    <div id="full-notices-list" class="cards-grid">
+                        <p class="loading-text">Loading notices...</p>
+                    </div>
+                </section>
+
+                <!-- SECTION: Polls -->
+                <section class="dash-section" id="section-polls">
+                    <div class="section-header">
+                        <h3>Community Polls</h3>
+                    </div>
+                    <div id="polls-list" class="cards-grid">
+                        <p class="loading-text">Loading polls...</p>
+                    </div>
+                </section>
+
+                <!-- SECTION: Events -->
+                <section class="dash-section" id="section-events">
+                    <div class="section-header">
+                        <h3>Events</h3>
+                    </div>
+                    <div id="full-events-list" class="cards-grid">
+                        <p class="loading-text">Loading events...</p>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+        <script src="Dashboard.js"></script>
+    </body>
+</html>

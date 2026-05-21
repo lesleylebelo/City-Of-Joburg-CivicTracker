@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en-ZA">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard | CivicTrack</title>
+        <link rel="stylesheet" href="Dashboard.css">
+    </head>
+    <body>
+
+        <!-- ── Sidebar ── -->
+        <aside id="sidebar">
+            <div id="sidebar-logo">
+                <img src="/Client/Assets/Images/Joburg Logo.jpg" alt="City of Joburg" id="sidebar-logo-img">
+                <div id="sidebar-brand-text">
+                    <span id="sidebar-coj">City of Joburg</span>
+                    <span id="sidebar-civictrack">CivicTrack</span>
+                </div>
+            </div>
+
+            <div id="portal-label">Administrator Portal</div>
+
+            <nav id="sidebar-nav">
+                <a href="#" class="nav-link active" data-section="dashboard">
+                    <span class="nav-icon">⊞</span> Dashboard
+                </a>
+                <a href="#" class="nav-link" data-section="issues">
+                    <span class="nav-icon">⚑</span> Manage Issues
+                </a>
+                <a href="#" class="nav-link" data-section="projects">
+                    <span class="nav-icon">◈</span> Development Projects
+                </a>
+                <a href="#" class="nav-link" data-section="notices">
+                    <span class="nav-icon">☰</span> Notices
+                </a>
+                <a href="#" class="nav-link" data-section="polls">
+                    <span class="nav-icon">◉</span> Polls
+                </a>
+                <a href="#" class="nav-link" data-section="events">
+                    <span class="nav-icon">◷</span> Events
+                </a>
+                <a href="#" class="nav-link" data-section="analytics">
+                    <span class="nav-icon">▦</span> Analytics
+                </a>
+            </nav>
+
+            <div id="sidebar-bottom">
+                <a href="/Client/Pages/Administrator/Sign-In/Sign-In.html" class="nav-link" id="nav-logout">
+                    <span class="nav-icon">⏻</span> Logout
+                </a>
+            </div>
+        </aside>
+
+        <!-- ── Main Content ── -->
+        <div id="main-wrapper">
+
+            <!-- Top Bar -->
+            <header id="topbar">
+                <h1 id="page-title">Dashboard</h1>
+                <div id="topbar-user">
+                    <div id="topbar-user-info">
+                        <span id="topbar-name">Loading...</span>
+                        <span id="topbar-role">Administrator</span>
+                    </div>
+                    <div id="topbar-avatar">A</div>
+                </div>
+            </header>
+
+            <!-- Dashboard Sections -->
+            <div id="dashboard-content">
+
+                <!-- SECTION: Dashboard Home -->
+                <section class="dash-section active" id="section-dashboard">
+
+                    <!-- Stat Cards -->
+                    <div id="stat-cards">
+                        <div class="stat-card" id="stat-issues">
+                            <div class="stat-icon">⚑</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="count-issues">—</span>
+                                <span class="stat-label">Total Issues</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" id="stat-pending">
+                            <div class="stat-icon">⏳</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="count-pending">—</span>
+                                <span class="stat-label">Pending Issues</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" id="stat-projects">
+                            <div class="stat-icon">◈</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="count-projects">—</span>
+                                <span class="stat-label">Active Projects</span>
+                            </div>
+                        </div>
+                        <div class="stat-card" id="stat-residents">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-info">
+                                <span class="stat-number" id="count-residents">—</span>
+                                <span class="stat-label">Registered Residents</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Issues Table -->
+                    <div class="dash-card" id="recent-issues-card">
+                        <div class="section-header">
+                            <h3>Recent Issues</h3>
+                            <a href="#" class="view-all" data-target="issues">View all</a>
+                        </div>
+                        <div id="recent-issues-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Title</th>
+                                        <th>Category</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-issues-body">
+                                    <tr><td colspan="5" class="loading-text">Loading issues...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Bottom row: Recent Notices + Upcoming Events -->
+                    <div id="bottom-grid">
+                        <div class="dash-card">
+                            <div class="section-header">
+                                <h3>Recent Notices</h3>
+                                <a href="#" class="view-all" data-target="notices">View all</a>
+                            </div>
+                            <div id="admin-notices-list">
+                                <p class="loading-text">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="dash-card">
+                            <div class="section-header">
+                                <h3>Upcoming Events</h3>
+                                <a href="#" class="view-all" data-target="events">View all</a>
+                            </div>
+                            <div id="admin-events-list">
+                                <p class="loading-text">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- SECTION: Manage Issues -->
+                <section class="dash-section" id="section-issues">
+                    <div class="section-header">
+                        <h3>Manage Issues</h3>
+                        <div id="issue-filters">
+                            <select id="filterStatus">
+                                <option value="">All Statuses</option>
+                                <option>Pending</option>
+                                <option>In Progress</option>
+                                <option>Resolved</option>
+                                <option>Rejected</option>
+                            </select>
+                            <select id="filterCategory">
+                                <option value="">All Categories</option>
+                                <option>Pothole</option>
+                                <option>Broken Streetlight</option>
+                                <option>Water Leak</option>
+                                <option>Sewage</option>
+                                <option>Illegal Dumping</option>
+                                <option>Vandalism</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="issues-table-wrapper">
+                        <table id="issues-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Category</th>
+                                    <th>Priority</th>
+                                    <th>Location</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="issues-body">
+                                <tr><td colspan="8" class="loading-text">Loading issues...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- SECTION: Development Projects -->
+                <section class="dash-section" id="section-projects">
+                    <div class="section-header">
+                        <h3>Development Projects</h3>
+                        <button class="add-btn" id="Add-Project-Btn">+ Add Project</button>
+                    </div>
+
+                    <!-- Add Project Form -->
+                    <div id="add-project-form" class="admin-form" style="display:none;">
+                        <h4>New Development Project</h4>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="projectTitle" placeholder="Project title">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="projectCategory">
+                                    <option>Road Construction</option>
+                                    <option>Building Construction</option>
+                                    <option>Water Infrastructure</option>
+                                    <option>Electrical Infrastructure</option>
+                                    <option>Parks & Recreation</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select id="projectStatus">
+                                    <option>Planned</option>
+                                    <option>In Progress</option>
+                                    <option>On Hold</option>
+                                    <option>Completed</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Location Address</label>
+                            <input type="text" id="projectLocation" placeholder="Project location">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Start Date</label>
+                                <input type="date" id="projectStartDate">
+                            </div>
+                            <div class="form-group">
+                                <label>Expected End Date</label>
+                                <input type="date" id="projectEndDate">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="projectDescription" rows="3" placeholder="Project description..."></textarea>
+                        </div>
+                        <button type="button" id="Submit-Project-Btn">Save Project</button>
+                        <p id="Project-Error"></p>
+                        <p id="Project-Success"></p>
+                    </div>
+
+                    <div id="projects-list" class="cards-grid">
+                        <p class="loading-text">Loading projects...</p>
+                    </div>
+                </section>
+
+                <!-- SECTION: Notices -->
+                <section class="dash-section" id="section-notices">
+                    <div class="section-header">
+                        <h3>Notices</h3>
+                        <button class="add-btn" id="Add-Notice-Btn">+ Add Notice</button>
+                    </div>
+                    <div id="add-notice-form" class="admin-form" style="display:none;">
+                        <h4>New Notice</h4>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="noticeTitle" placeholder="Notice title">
+                        </div>
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="noticeCategory">
+                                <option>General</option>
+                                <option>Water</option>
+                                <option>Electricity</option>
+                                <option>Roads</option>
+                                <option>Safety</option>
+                                <option>Health</option>
+                                <option>Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Content</label>
+                            <textarea id="noticeContent" rows="4" placeholder="Notice content..."></textarea>
+                        </div>
+                        <button type="button" id="Submit-Notice-Btn">Publish Notice</button>
+                        <p id="Notice-Error"></p>
+                        <p id="Notice-Success"></p>
+                    </div>
+                    <div id="notices-list" class="cards-grid">
+                        <p class="loading-text">Loading notices...</p>
+                    </div>
+                </section>
+
+                <!-- SECTION: Polls -->
+                <section class="dash-section" id="section-polls">
+                    <div class="section-header">
+                        <h3>Community Polls</h3>
+                        <button class="add-btn" id="Add-Poll-Btn">+ Add Poll</button>
+                    </div>
+                    <div id="add-poll-form" class="admin-form" style="display:none;">
+                        <h4>New Poll</h4>
+                        <div class="form-group">
+                            <label>Question</label>
+                            <input type="text" id="pollQuestion" placeholder="Poll question">
+                        </div>
+                        <div class="form-group">
+                            <label>Description (optional)</label>
+                            <textarea id="pollDescription" rows="2" placeholder="Additional context..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="datetime-local" id="pollEndDate">
+                        </div>
+                        <div class="form-group">
+                            <label>Options (one per line)</label>
+                            <textarea id="pollOptions" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
+                        </div>
+                        <button type="button" id="Submit-Poll-Btn">Create Poll</button>
+                        <p id="Poll-Error"></p>
+                        <p id="Poll-Success"></p>
+                    </div>
+                    <div id="polls-list" class="cards-grid">
+                        <p class="loading-text">Loading polls...</p>
+                    </div>
+                </section>
+
+                <!-- SECTION: Events -->
+                <section class="dash-section" id="section-events">
+                    <div class="section-header">
+                        <h3>Events</h3>
+                        <button class="add-btn" id="Add-Event-Btn">+ Add Event</button>
+                    </div>
+                    <div id="add-event-form" class="admin-form" style="display:none;">
+                        <h4>New Event</h4>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" id="eventTitle" placeholder="Event title">
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="eventCategory">
+                                    <option>Community Meeting</option>
+                                    <option>Public Hearing</option>
+                                    <option>Maintenance</option>
+                                    <option>Festival</option>
+                                    <option>Health</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Event Date</label>
+                                <input type="date" id="eventDate">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Start Time</label>
+                                <input type="time" id="eventStartTime">
+                            </div>
+                            <div class="form-group">
+                                <label>End Time</label>
+                                <input type="time" id="eventEndTime">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Location</label>
+                            <input type="text" id="eventLocation" placeholder="Event location">
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="eventDescription" rows="3" placeholder="Event description..."></textarea>
+                        </div>
+                        <button type="button" id="Submit-Event-Btn">Create Event</button>
+                        <p id="Event-Error"></p>
+                        <p id="Event-Success"></p>
+                    </div>
+                    <div id="events-list" class="cards-grid">
+                        <p class="loading-text">Loading events...</p>
+                    </div>
+                </section>
+
+                <!-- SECTION: Analytics -->
+                <section class="dash-section" id="section-analytics">
+                    <div class="section-header">
+                        <h3>Analytics</h3>
+                    </div>
+                    <div id="analytics-grid">
+                        <div class="dash-card">
+                            <h4 class="analytics-title">Issues by Category</h4>
+                            <div id="chart-category" class="chart-container">
+                                <p class="loading-text">Loading...</p>
+                            </div>
+                        </div>
+                        <div class="dash-card">
+                            <h4 class="analytics-title">Issues by Status</h4>
+                            <div id="chart-status" class="chart-container">
+                                <p class="loading-text">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </div>
+        </div>
+
+        <script src="Dashboard.js"></script>
+    </body>
+</html>
