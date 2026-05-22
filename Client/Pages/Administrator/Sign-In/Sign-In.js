@@ -1,27 +1,102 @@
-document.getElementById("Admin-SignIn-Form").addEventListener("submit", async function(e) {
+// =============================================
+// CIVICTRACK - ADMINISTRATOR SIGN IN
+// =============================================
+
+// ─────────────────────────────────────────────
+// FORM ELEMENTS
+// ─────────────────────────────────────────────
+const form = document.getElementById("Admin-SignIn-Form");
+
+const empNum = document.getElementById("empNum");
+const empPassword = document.getElementById("empPassword");
+const errorMsg = document.getElementById("Admin-Login-Error");
+
+const submitBtn = form.querySelector("button[type='submit']");
+
+// ─────────────────────────────────────────────
+// VALID STATE MANAGEMENT
+// ─────────────────────────────────────────────
+let validState = {
+    empNum: false,
+    password: false
+};
+
+function setState(input, isValid) {
+    input.classList.remove("valid", "invalid");
+    input.classList.add(isValid ? "valid" : "invalid");
+}
+
+function updateSubmitState() {
+    const allValid = validState.empNum && validState.password;
+    submitBtn.disabled = !allValid;
+    
+    if (allValid) {
+        submitBtn.classList.remove("disabled");
+    } else {
+        submitBtn.classList.add("disabled");
+    }
+}
+
+// ─────────────────────────────────────────────
+// GLOBAL FEEDBACK SYSTEM
+// ─────────────────────────────────────────────
+function showFeedback(message, type = "info") {
+    let el = document.querySelector(".civic-feedback");
+
+    if (!el) {
+        el = document.createElement("div");
+        el.className = "civic-feedback";
+        document.body.appendChild(el);
+    }
+
+    el.textContent = message;
+    el.className = `civic-feedback ${type} show`;
+
+    setTimeout(() => {
+        el.classList.remove("show");
+    }, 2200);
+}
+
+// ─────────────────────────────────────────────
+// LIVE VALIDATION LISTENERS
+// ─────────────────────────────────────────────
+
+// EMPLOYEE NUMBER
+empNum.addEventListener("input", () => {
+    const value = Number(empNum.value.trim());
+    
+    validState.empNum = !isNaN(value) && value > 0 && empNum.value.trim() !== "";
+    setState(empNum, validState.empNum);
+    updateSubmitState();
+});
+
+// PASSWORD
+empPassword.addEventListener("input", () => {
+    validState.password = empPassword.value.length >= 8;
+    setState(empPassword, validState.password);
+    updateSubmitState();
+});
+
+// ─────────────────────────────────────────────
+// FORM SUBMISSION PROCESS
+// ─────────────────────────────────────────────
+form.addEventListener("submit", async function(e) {
     e.preventDefault();
 
-    const employeeNumber   = document.getElementById("empNum").value.trim();
-    const employeePassword = document.getElementById("empPassword").value;
-    const errorMsg         = document.getElementById("Admin-Login-Error");
+    const employeeNumber   = empNum.value.trim();
+    const employeePassword = empPassword.value;
 
-    if (employeeNumber === "" || employeePassword === "") {
-        errorMsg.textContent = "All fields are required!";
+    if (!employeeNumber || !employeePassword) {
+        showFeedback("All fields are required!", "error");
         return;
     }
 
-    if (isNaN(employeeNumber) || Number(employeeNumber) <= 0) {
-        errorMsg.textContent = "Employee Number must be a positive numeric value!";
+    if (!validState.empNum || !validState.password) {
+        showFeedback("Fix validation errors before continuing", "error");
         return;
     }
 
-    if (employeePassword.length < 8) {
-        errorMsg.textContent = "Password must be at least 8 characters!";
-        return;
-    }
-
-    errorMsg.style.color = "#F5C518";
-    errorMsg.textContent = "Signing in...";
+    showFeedback("Signing you in...", "info");
 
     try {
         const response = await fetch("/api/auth/admin/login", {
@@ -33,24 +108,25 @@ document.getElementById("Admin-SignIn-Form").addEventListener("submit", async fu
         const data = await response.json();
 
         if (!response.ok) {
-            errorMsg.style.color = "#FF5252";
-            errorMsg.textContent = data.message || "Login failed!";
+            showFeedback(data.message || "Login failed!", "error");
             return;
         }
 
-        // Save token and admin info
+        // Save session authentication state
         localStorage.setItem("civictrack_token", data.token);
         localStorage.setItem("civictrack_user",  JSON.stringify(data.admin));
 
-        errorMsg.style.color = "#4CAF50";
-        errorMsg.textContent = "Login successful! Redirecting...";
+        showFeedback("Login successful! Redirecting...", "success");
 
         setTimeout(() => {
-            window.location.href = "Admin_Dashboard.html";
-        }, 1000);
+            // Updated to use consistent path strategy matching your architecture
+            window.location.href = "/Pages/Administrator/Dashboard/Dashboard.html";
+        }, 1200);
 
     } catch (err) {
-        errorMsg.style.color = "#FF5252";
-        errorMsg.textContent = "Could not connect to server. Please try again.";
+        showFeedback("Could not connect to server. Please try again.", "error");
     }
 });
+
+// INITIALIZE INTERFACE STATE
+updateSubmitState();

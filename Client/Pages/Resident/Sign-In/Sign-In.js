@@ -32,10 +32,13 @@ function setState(input, isValid) {
 
 function updateSubmitState() {
     const allValid = validState.email && validState.password;
-
     submitBtn.disabled = !allValid;
-    submitBtn.style.opacity = allValid ? "1" : "0.5";
-    submitBtn.style.cursor = allValid ? "pointer" : "not-allowed";
+    
+    if (allValid) {
+        submitBtn.classList.remove("disabled");
+    } else {
+        submitBtn.classList.add("disabled");
+    }
 }
 
 // ─────────────────────────────────────────────
@@ -50,8 +53,8 @@ function showFeedback(message, type = "info") {
         document.body.appendChild(el);
     }
 
-    el.className = `civic-feedback ${type} show`;
     el.textContent = message;
+    el.className = `civic-feedback ${type} show`;
 
     setTimeout(() => {
         el.classList.remove("show");
@@ -63,9 +66,7 @@ function showFeedback(message, type = "info") {
 // ─────────────────────────────────────────────
 resEmail.addEventListener("input", () => {
     validState.email = emailPattern.test(resEmail.value.trim());
-
     setState(resEmail, validState.email);
-
     updateSubmitState();
 });
 
@@ -74,9 +75,7 @@ resEmail.addEventListener("input", () => {
 // ─────────────────────────────────────────────
 resPassword.addEventListener("input", () => {
     validState.password = resPassword.value.length >= 8;
-
     setState(resPassword, validState.password);
-
     updateSubmitState();
 });
 
@@ -115,14 +114,15 @@ form.addEventListener("submit", async function (e) {
             return;
         }
 
-        // Save auth
+        // Save auth data locally
         localStorage.setItem("civictrack_token", data.token);
         localStorage.setItem("civictrack_user", JSON.stringify(data.resident));
 
         showFeedback("Welcome back. Login successful.", "success");
 
         setTimeout(() => {
-            window.location.href = "Resident_Dashboard.html";
+            // Update this path to match your exact Resident Dashboard layout folder if needed
+            window.location.href = "/Pages/Resident/Dashboard/Dashboard.html";
         }, 1200);
 
     } catch (err) {

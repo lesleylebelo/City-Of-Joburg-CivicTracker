@@ -2,7 +2,7 @@
    CIVICTRACK - ADMINISTRATOR SIGN IN
    ============================================= */
 
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
+@import url('https://googleapis.com');
 
 :root {
     --gold: #F5C518;
@@ -15,6 +15,7 @@
     --white-muted: #C8C8C8;
     --white-dim: #8A8A8A;
     --error: #FF5252;
+    --success: #4CAF50;
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Barlow', sans-serif;
     --font-condensed: 'Barlow Condensed', sans-serif;
@@ -114,6 +115,7 @@ main {
 #Admin-SignIn-Form::after {
     content: 'Municipal officials only';
     display: block;
+    font-family: var(--font-body);
     font-size: 12px;
     color: var(--white-dim);
     letter-spacing: 0.08em;
@@ -154,7 +156,16 @@ main {
     box-shadow: 0 0 0 3px rgba(245,197,24,0.12);
 }
 
+/* Live validation input states */
+#Admin-SignIn-Form input.valid {
+    border: 2px solid var(--success) !important;
+}
+#Admin-SignIn-Form input.invalid {
+    border: 2px solid var(--error) !important;
+}
+
 #Admin-SignIn-Form > div:has(a) {
+    font-family: var(--font-body);
     font-size: 12px;
     color: var(--white-dim);
     margin-top: -8px;
@@ -163,6 +174,7 @@ main {
 #Admin-SignIn-Form a {
     color: var(--gold);
     text-decoration: none;
+    font-family: var(--font-body);
     font-weight: 600;
     font-size: 12px;
     transition: color 0.2s;
@@ -184,13 +196,23 @@ main {
     cursor: pointer;
     transition: background 0.25s, transform 0.15s, box-shadow 0.25s;
 }
-#Admin-SignIn-Form button[type="submit"]:hover {
+#Admin-SignIn-Form button[type="submit"]:hover:enabled {
     background: var(--gold-light);
     transform: translateY(-1px);
     box-shadow: var(--shadow-gold);
 }
 
+#Admin-SignIn-Form button[type="submit"]:disabled,
+#Admin-SignIn-Form button[type="submit"].disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: var(--gold) !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 #Admin-Login-Error {
+    font-family: var(--font-body);
     color: var(--error);
     font-size: 12px;
     min-height: 16px;
@@ -203,4 +225,49 @@ footer {
     padding: 16px 48px;
     border-top: 1px solid rgba(245,197,24,0.1);
     background: rgba(30,30,30,0.6);
+}
+
+/* ─────────────────────────────
+   GLOBAL TOAST FEEDBACK SYSTEM
+───────────────────────────── */
+.civic-feedback {
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    min-width: 280px;
+    max-width: 420px;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-family: var(--font-condensed);
+    font-size: 13px;
+    letter-spacing: 0.06em;
+    text-align: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.35s ease;
+}
+
+.civic-feedback.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+}
+
+.civic-feedback.success {
+    background: rgba(76, 175, 80, 0.12);
+    border: 1px solid rgba(76, 175, 80, 0.6);
+    color: var(--success);
+}
+
+.civic-feedback.error {
+    background: rgba(255, 82, 82, 0.12);
+    border: 1px solid rgba(255, 82, 82, 0.6);
+    color: var(--error);
+}
+
+.civic-feedback.info {
+    background: rgba(245, 197, 24, 0.12);
+    border: 1px solid rgba(245, 197, 24, 0.5);
+    color: var(--gold);
 }

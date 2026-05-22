@@ -1,19 +1,28 @@
-// ── Load user info from localStorage ──
+// =============================================
+// CIVICTRACK - RESIDENT DASHBOARD ENGINE
+// =============================================
+
+// ─────────────────────────────────────────────
+// SESSION GUARD & CONTEXT LOOKUP
+// ─────────────────────────────────────────────
 const token = localStorage.getItem("civictrack_token");
 const user  = JSON.parse(localStorage.getItem("civictrack_user") || "{}");
 
 if (!token) {
-    window.location.href = "Resident_Sign_In.html";
+    // Aligned to match your exact directory routing layout rules
+    window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
 }
 
-// Set user info in topbar
+// Populate user context metadata on interface panels
 if (user.full_names) {
     document.getElementById("topbar-name").textContent    = user.full_names;
     document.getElementById("welcome-name").textContent   = user.full_names.split(" ")[0];
     document.getElementById("topbar-avatar").textContent  = user.full_names.charAt(0).toUpperCase();
 }
 
-// ── Sidebar Navigation ──
+// ─────────────────────────────────────────────
+// SIDEBAR NAVIGATION STATE ENGINE
+// ─────────────────────────────────────────────
 const navLinks   = document.querySelectorAll(".nav-link[data-section]");
 const sections   = document.querySelectorAll(".dash-section");
 const pageTitle  = document.getElementById("page-title");
@@ -32,18 +41,18 @@ navLinks.forEach(link => {
         e.preventDefault();
         const target = this.dataset.section;
 
-        // Update active nav
+        // Update active navigational highlighting indicators
         navLinks.forEach(l => l.classList.remove("active"));
         this.classList.add("active");
 
-        // Show correct section
+        // Toggle visibility array targets
         sections.forEach(s => s.classList.remove("active"));
         document.getElementById("section-" + target).classList.add("active");
 
-        // Update page title
+        // Sync header text tracking labels
         pageTitle.textContent = sectionTitles[target] || "Dashboard";
 
-        // Load data for section
+        // Asynchronously load data feeds contextually
         if (target === "projects") loadProjects();
         if (target === "notices")  loadNotices();
         if (target === "polls")    loadPolls();
@@ -51,16 +60,19 @@ navLinks.forEach(link => {
     });
 });
 
-// View all links on dashboard home
+// View-all fast redirect deep links on dashboard home view
 document.querySelectorAll(".view-all").forEach(link => {
     link.addEventListener("click", function(e) {
         e.preventDefault();
         const target = this.dataset.target;
-        document.querySelector(`[data-section="${target}"]`).click();
+        const matchingLink = document.querySelector(`[data-section="${target}"]`);
+        if (matchingLink) matchingLink.click();
     });
 });
 
-// ── API Helper ──
+// ─────────────────────────────────────────────
+// SECURITY AUTHORIZATION FETCH HELPER
+// ─────────────────────────────────────────────
 async function apiFetch(url) {
     try {
         const res = await fetch(url, {
@@ -68,17 +80,22 @@ async function apiFetch(url) {
         });
         return await res.json();
     } catch (err) {
-        console.error("API error:", err);
+        console.error("API Fetch execution failure:", err);
         return null;
     }
 }
 
-// ── Load Development Projects ──
+// ─────────────────────────────────────────────
+// DATA RECONCILIATION & LOADING ENGINES
+// ─────────────────────────────────────────────
+
+// LOAD PROJECTS
 async function loadProjects() {
     const container = document.getElementById("projects-list");
     container.innerHTML = '<p class="loading-text">Loading projects...</p>';
+    
     const data = await apiFetch("/api/projects");
-    if (!data || !data.length) {
+    if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No projects found.</p>';
         return;
     }
@@ -94,12 +111,13 @@ async function loadProjects() {
     `).join("");
 }
 
-// ── Load Notices ──
+// LOAD NOTICES
 async function loadNotices() {
     const container = document.getElementById("full-notices-list");
     container.innerHTML = '<p class="loading-text">Loading notices...</p>';
+    
     const data = await apiFetch("/api/notices");
-    if (!data || !data.length) {
+    if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No notices found.</p>';
         return;
     }
@@ -114,12 +132,13 @@ async function loadNotices() {
     `).join("");
 }
 
-// ── Load Polls ──
+// LOAD POLLS
 async function loadPolls() {
     const container = document.getElementById("polls-list");
     container.innerHTML = '<p class="loading-text">Loading polls...</p>';
+    
     const data = await apiFetch("/api/polls");
-    if (!data || !data.length) {
+    if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No active polls.</p>';
         return;
     }
@@ -134,12 +153,13 @@ async function loadPolls() {
     `).join("");
 }
 
-// ── Load Events ──
+// LOAD EVENTS
 async function loadEvents() {
     const container = document.getElementById("full-events-list");
     container.innerHTML = '<p class="loading-text">Loading events...</p>';
+    
     const data = await apiFetch("/api/events");
-    if (!data || !data.length) {
+    if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No upcoming events.</p>';
         return;
     }
@@ -156,7 +176,9 @@ async function loadEvents() {
     `).join("");
 }
 
-// ── Report Issue Form ──
+// ─────────────────────────────────────────────
+// REPORT AN ISSUE SYSTEM PIPELINE
+// ─────────────────────────────────────────────
 document.getElementById("Report-Issue-Form").addEventListener("submit", async function(e) {
     e.preventDefault();
 
@@ -201,10 +223,16 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     }
 });
 
-// ── Logout ──
+// ─────────────────────────────────────────────
+// TERMINATE CURRENT ACTIVE AUTH SESSION
+// ─────────────────────────────────────────────
 document.getElementById("nav-logout").addEventListener("click", function(e) {
     e.preventDefault();
+    
+    // Clear storage caches completely
     localStorage.removeItem("civictrack_token");
     localStorage.removeItem("civictrack_user");
-    window.location.href = "Resident_Sign_In.html";
+    
+    // Smoothly route back to the unified authentication page link
+    window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
 });
