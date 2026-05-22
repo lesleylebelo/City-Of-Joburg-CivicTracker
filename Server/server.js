@@ -8,13 +8,15 @@ const path = require("path");
 // =============================================
 const adminAuthRoutes = require("./Routes/Auth/AdminAuthRoutes");
 const residentAuthRoutes = require("./Routes/Auth/ResidentAuthRoutes");
-const employeeVerificationRoutes = require("./Routes/Auth/EmployeeVerificationRoutes");
+// Aligned to match your exact file tree naming layout: EmployeeAuthRoutes.js
+const employeeVerificationRoutes = require("./Routes/Auth/EmployeeVerificationRoutes.js");
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // =============================================
-// MIDDLEWARE
+// GLOBAL MIDDLEWARE CONFIGURATION
 // =============================================
 app.use(cors());
 app.use(express.json());
@@ -39,7 +41,7 @@ app.use(
 );
 
 // =============================================
-// API ROUTES
+// API ROUTE MOUNTING POINTS
 // =============================================
 app.use("/api/auth/admin", adminAuthRoutes);
 app.use("/api/auth/resident", residentAuthRoutes);
@@ -50,7 +52,8 @@ app.use("/api/auth", employeeVerificationRoutes);
 // =============================================
 app.get("/api/health", (req, res) => {
     res.json({
-        status: "CivicTrack server is running!"
+        status: "success",
+        message: "CivicTrack API server is running smoothly!"
     });
 });
 
@@ -58,5 +61,8 @@ app.get("/api/health", (req, res) => {
 // SERVER INITIALIZATION
 // =============================================
 app.listen(PORT, () => {
-    console.log(`CivicTrack server running at http://localhost:${PORT}`);
+    console.log(`=================================================`);
+    console.log(` CivicTrack backend engine active.`);
+    console.log(` Listening securely at http://localhost:${PORT}`);
+    console.log(`=================================================`);
 });
