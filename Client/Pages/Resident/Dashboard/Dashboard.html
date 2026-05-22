@@ -173,12 +173,12 @@
                     <form id="Report-Issue-Form">
                         <div class="form-group">
                             <label for="issueTitle">Issue Title</label>
-                            <input type="text" id="issueTitle" placeholder="e.g. Large pothole on Main Street">
+                            <input type="text" id="issueTitle" placeholder="e.g. Large pothole on Main Street" required>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="issueCategory">Category</label>
-                                <select id="issueCategory">
+                                <select id="issueCategory" required>
                                     <option value="">Select category</option>
                                     <option>Pothole</option>
                                     <option>Broken Streetlight</option>
@@ -191,20 +191,38 @@
                             </div>
                             <div class="form-group">
                                 <label for="issuePriority">Priority</label>
-                                <select id="issuePriority">
+                                <select id="issuePriority" required>
                                     <option>Low</option>
                                     <option selected>Medium</option>
                                     <option>High</option>
                                 </select>
                             </div>
                         </div>
+                        
+                        <!-- Location Selection Container -->
                         <div class="form-group">
-                            <label for="issueLocation">Location Address</label>
-                            <input type="text" id="issueLocation" placeholder="e.g. 15 Main Street, Soweto">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                <label for="issueLocation" style="margin-bottom: 0;">Location Address</label>
+                                <button type="button" id="Map-Locate-Btn" class="map-action-btn">
+                                    <span style="margin-right: 4px;"></span> Use My Location
+                                </button>
+                            </div>
+                            <input type="text" id="issueLocation" placeholder="Type address or select on map below..." required>
+                            
+                            <!-- Bounding Indicators / Lat & Lng Buffers -->
+                            <input type="hidden" id="issueLat" name="issueLat">
+                            <input type="hidden" id="issueLng" name="issueLng">
                         </div>
+
+                        <!-- Interactive Map Frame Canvas Component -->
+                        <div class="form-group">
+                            <label>Geographic Verification (Drag pin or click map to reposition)</label>
+                            <div id="issueMap"></div>
+                        </div>
+
                         <div class="form-group">
                             <label for="issueDescription">Description</label>
-                            <textarea id="issueDescription" rows="4" placeholder="Describe the issue in detail..."></textarea>
+                            <textarea id="issueDescription" rows="4" placeholder="Describe the issue in detail..." required></textarea>
                         </div>
                         <div class="form-group">
                             <label for="issueImage">Upload Photo (optional)</label>
@@ -260,5 +278,8 @@
         </div>
 
         <script src="Dashboard.js"></script>
+        
+        <!-- Google Maps JS Web Infrastructure Dependency -->
+        <script src="https://googleapis.com" async defer></script>
     </body>
 </html>
