@@ -1,56 +1,212 @@
 // =============================================
 // CIVICTRACK - ADMINISTRATOR SIGN UP
-// Validates employee number against database
-// before allowing registration
 // =============================================
 
-document.getElementById("Admin-SignUp-Form").addEventListener("submit", async function(e) {
+// ─────────────────────────────────────────────
+// FEEDBACK NOTIFICATION SYSTEM
+// ─────────────────────────────────────────────
+function showFeedback(message, type = "info", duration = 2500) {
+    let el = document.querySelector(".civic-feedback");
+
+    if (!el) {
+        el = document.createElement("div");
+        el.className = "civic-feedback";
+        document.body.appendChild(el);
+    }
+
+    el.textContent = message;
+    el.className = `civic-feedback ${type}`;
+
+    requestAnimationFrame(() => el.classList.add("show"));
+
+    setTimeout(() => {
+        el.classList.remove("show");
+    }, duration);
+}
+
+// ─────────────────────────────────────────────
+// FORM ELEMENTS
+// ─────────────────────────────────────────────
+const form = document.getElementById("Admin-SignUp-Form");
+
+const fnames = document.getElementById("fnames");
+const empEmail = document.getElementById("empEmail");
+const empNumber = document.getElementById("empNumber");
+const empPassword = document.getElementById("empPassword");
+const empConfirmPassword = document.getElementById("empConfirmPassword");
+
+const submitBtn = document.getElementById("Admin-SignUp-Btn");
+
+// ─────────────────────────────────────────────
+// PATTERNS
+// ─────────────────────────────────────────────
+const namePattern = /^[a-zA-Z\s]{2,}$/;
+const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-]{2,6}$/;
+const passPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+
+// ─────────────────────────────────────────────
+// ERROR & STRENGTH ELEMENTS (INLINE CLASSES)
+// ─────────────────────────────────────────────
+function createErrorEl(input) {
+    let el = document.createElement("small");
+    el.className = "error-text";
+    input.parentNode.appendChild(el);
+    return el;
+}
+
+const nameError = createErrorEl(fnames);
+const emailError = createErrorEl(empEmail);
+const empNumError = createErrorEl(empNumber);
+const passError = createErrorEl(empPassword);
+const confirmError = createErrorEl(empConfirmPassword);
+
+const strengthEl = document.createElement("small");
+strengthEl.className = "strength-text";
+empPassword.parentNode.appendChild(strengthEl);
+
+// ─────────────────────────────────────────────
+// PASSWORD STRENGTH SCORING
+// ─────────────────────────────────────────────
+function getStrength(password) {
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/\d/.test(password)) score++;
+    if (/[!@#$%^&*]/.test(password)) score++;
+    return score;
+}
+
+// ─────────────────────────────────────────────
+// VALID STATE MANAGEMENT
+// ─────────────────────────────────────────────
+let validState = {
+    name: false,
+    email: false,
+    empNum: false,
+    password: false,
+    confirm: false
+};
+
+function setValidationStatus(input, isValid) {
+    if (isValid) {
+        input.classList.remove("invalid");
+        input.classList.add("valid");
+    } else {
+        input.classList.remove("valid");
+        input.classList.add("invalid");
+    }
+}
+
+function updateSubmitState() {
+    const allValid = Object.values(validState).every(Boolean);
+    submitBtn.disabled = !allValid;
+    
+    if (allValid) {
+        submitBtn.classList.remove("disabled");
+    } else {
+        submitBtn.classList.add("disabled");
+    }
+}
+
+// ─────────────────────────────────────────────
+// LIVE VALIDATION LISTENERS
+// ─────────────────────────────────────────────
+
+// FULL NAMES
+fnames.addEventListener("input", () => {
+    const value = fnames.value.trim();
+
+    validState.name =
+        namePattern.test(value) &&
+        value.split(" ").filter(Boolean).length >= 2;
+
+    nameError.textContent = validState.name ? "" : "Enter first and last name";
+    setValidationStatus(fnames, validState.name);
+    updateSubmitState();
+});
+
+// EMAIL
+empEmail.addEventListener("input", () => {
+    validState.email = emailPattern.test(empEmail.value.trim());
+
+    emailError.textContent = validState.email ? "" : "Invalid email format";
+    setValidationStatus(empEmail, validState.email);
+    updateSubmitState();
+});
+
+// EMPLOYEE NUMBER
+empNumber.addEventListener("input", () => {
+    const value = Number(empNumber.value.trim());
+
+    validState.empNum = !isNaN(value) && value > 0 && empNumber.value.trim() !== "";
+
+    empNumError.textContent = validState.empNum
+        ? ""
+        : "Employee Number must be a positive number";
+
+    setValidationStatus(empNumber, validState.empNum);
+    updateSubmitState();
+});
+
+// PASSWORD
+empPassword.addEventListener("input", () => {
+    const value = empPassword.value;
+
+    validState.password = passPattern.test(value);
+
+    const strength = getStrength(value);
+    const levels = ["Weak", "Weak", "Fair", "Good", "Strong"];
+    
+    strengthEl.textContent = value ? `Strength: ${levels[strength]}` : "";
+    strengthEl.className = `strength-text strength-${levels[strength].toLowerCase()}`;
+
+    passError.textContent = validState.password
+        ? ""
+        : "Min 8 chars, 1 uppercase, 1 number";
+
+    setValidationStatus(empPassword, validState.password);
+    
+    if (empConfirmPassword.value) {
+        validState.confirm = empConfirmPassword.value === value;
+        confirmError.textContent = validState.confirm ? "" : "Passwords do not match";
+        setValidationStatus(empConfirmPassword, validState.confirm);
+    }
+
+    updateSubmitState();
+});
+
+// CONFIRM PASSWORD
+empConfirmPassword.addEventListener("input", () => {
+    validState.confirm = empConfirmPassword.value === empPassword.value;
+
+    confirmError.textContent = validState.confirm
+        ? ""
+        : "Passwords do not match";
+
+    setValidationStatus(empConfirmPassword, validState.confirm);
+    updateSubmitState();
+});
+
+// ─────────────────────────────────────────────
+// FORM SUBMISSION PROCESS
+// ─────────────────────────────────────────────
+form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const employeeFullNames     = document.getElementById("fnames").value.trim();
-    const employeeEmail         = document.getElementById("empEmail").value.trim();
-    const employeeNumber        = document.getElementById("empNumber").value.trim();
-    const employeePassword      = document.getElementById("empPassword").value;
-    const employeeConfirmPwd    = document.getElementById("empConfirmPassword").value;
-    const errorMsg              = document.getElementById("Admin-SignUp-Error");
-
-    // ── Step 1: All fields filled ──
-    if (!employeeFullNames || !employeeEmail || !employeeNumber || !employeePassword || !employeeConfirmPwd) {
-        errorMsg.textContent = "All fields must be filled!";
+    if (!Object.values(validState).every(Boolean)) {
+        showFeedback("Please fix validation errors before submitting.", "error");
         return;
     }
 
-    // ── Step 2: Valid email format ──
-    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
-    if (!emailPattern.test(employeeEmail)) {
-        errorMsg.textContent = "Please enter a valid email address!";
-        return;
-    }
+    showFeedback("Verifying employee number...", "info");
 
-    // ── Step 3: Employee number is numeric and positive ──
-    if (isNaN(employeeNumber) || Number(employeeNumber) <= 0) {
-        errorMsg.textContent = "Employee Number must be a positive numeric value!";
-        return;
-    }
-
-    // ── Step 4: Password strength ──
-    const passPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
-    if (!passPattern.test(employeePassword)) {
-        errorMsg.textContent = "Password must be at least 8 characters with one uppercase letter and one number!";
-        return;
-    }
-
-    // ── Step 5: Passwords match ──
-    if (employeePassword !== employeeConfirmPwd) {
-        errorMsg.textContent = "Passwords do not match!";
-        return;
-    }
-
-    // ── Step 6: Check employee number against database ──
-    errorMsg.style.color = "#F5C518";
-    errorMsg.textContent = "Verifying employee number...";
+    const employeeFullNames = fnames.value.trim();
+    const employeeEmail = empEmail.value.trim();
+    const employeeNumber = empNumber.value.trim();
+    const employeePassword = empPassword.value;
 
     try {
+        // Step 1: Verify employee number against database
         const response = await fetch("/api/auth/verify-employee", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -60,49 +216,47 @@ document.getElementById("Admin-SignUp-Form").addEventListener("submit", async fu
         const data = await response.json();
 
         if (!response.ok) {
-            errorMsg.style.color = "#FF5252";
-            errorMsg.textContent = data.message || "Employee number not recognised!";
+            showFeedback(data.message || "Employee number not recognised!", "error");
             return;
         }
 
         if (data.is_registered) {
-            errorMsg.style.color = "#FF5252";
-            errorMsg.textContent = "This employee number already has a registered account!";
+            showFeedback("This employee number already has a registered account!", "error");
             return;
         }
 
-        // ── Step 7: Submit registration ──
-        errorMsg.textContent = "Registering your account...";
+        // Step 2: Submit registration
+        showFeedback("Registering your account...", "info");
 
         const registerResponse = await fetch("/api/auth/admin/register", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                full_names:      employeeFullNames,
-                email:           employeeEmail,
+                full_names: employeeFullNames,
+                email: employeeEmail,
                 employee_number: employeeNumber,
-                password:        employeePassword
+                password: employeePassword
             })
         });
 
         const registerData = await registerResponse.json();
 
         if (!registerResponse.ok) {
-            errorMsg.style.color = "#FF5252";
-            errorMsg.textContent = registerData.message || "Registration failed. Please try again.";
+            showFeedback(registerData.message || "Registration failed. Please try again.", "error");
             return;
         }
 
-        // ── Success ──
-        errorMsg.style.color = "#4CAF50";
-        errorMsg.textContent = "Account created successfully! Redirecting to sign in...";
+        // Success Workflow
+        showFeedback("Account created successfully! Redirecting...", "success", 2500);
 
-        setTimeout(function () {
-            window.location.href = "Administrator Sign In.html";
-        }, 2000);
+        setTimeout(() => {
+            window.location.href = "/Pages/Administrator/Sign-In/Sign-In.html";
+        }, 2500);
 
     } catch (error) {
-        errorMsg.style.color = "#FF5252";
-        errorMsg.textContent = "Could not connect to server. Please try again.";
+        showFeedback("Could not connect to server. Please try again.", "error");
     }
 });
+
+// INITIALIZE SYSTEM STATE
+updateSubmitState();
