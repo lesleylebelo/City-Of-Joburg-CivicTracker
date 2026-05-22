@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
+@import url('https://googleapis.com');
 
 :root {
     --gold: #F5C518;
@@ -501,6 +501,38 @@ body {
 
 .form-group select option { background: var(--charcoal-card); }
 .form-group textarea { resize: vertical; }
+
+/* ── GOOGLE MAP ARCHITECTURE UPGRADES ── */
+#issueMap {
+    width: 100%;
+    height: 320px;
+    background: var(--charcoal-mid);
+    border: 1px solid var(--charcoal-border);
+    border-radius: var(--radius);
+}
+
+.map-action-btn {
+    background: transparent;
+    border: 1px solid rgba(245,197,24,0.3);
+    color: var(--gold);
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 6px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    transition: all 0.2s ease;
+}
+
+.map-action-btn:hover {
+    background: var(--gold-dim);
+    border-color: var(--gold);
+    color: var(--gold-light);
+}
 
 #Submit-Issue-Btn {
     padding: 13px 36px;

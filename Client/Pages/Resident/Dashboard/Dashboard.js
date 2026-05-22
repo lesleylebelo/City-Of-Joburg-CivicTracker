@@ -9,7 +9,6 @@ const token = localStorage.getItem("civictrack_token");
 const user  = JSON.parse(localStorage.getItem("civictrack_user") || "{}");
 
 if (!token) {
-    // Aligned to match your exact directory routing layout rules
     window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
 }
 
@@ -41,26 +40,27 @@ navLinks.forEach(link => {
         e.preventDefault();
         const target = this.dataset.section;
 
-        // Update active navigational highlighting indicators
         navLinks.forEach(l => l.classList.remove("active"));
         this.classList.add("active");
 
-        // Toggle visibility array targets
         sections.forEach(s => s.classList.remove("active"));
         document.getElementById("section-" + target).classList.add("active");
 
-        // Sync header text tracking labels
         pageTitle.textContent = sectionTitles[target] || "Dashboard";
 
-        // Asynchronously load data feeds contextually
         if (target === "projects") loadProjects();
         if (target === "notices")  loadNotices();
         if (target === "polls")    loadPolls();
         if (target === "events")   loadEvents();
+        
+        // Trigger map recalculation layout fix when section becomes visible
+        if (target === "report" && map) {
+            google.maps.event.trigger(map, "resize");
+            map.setCenter(marker.getPosition());
+        }
     });
 });
 
-// View-all fast redirect deep links on dashboard home view
 document.querySelectorAll(".view-all").forEach(link => {
     link.addEventListener("click", function(e) {
         e.preventDefault();
@@ -88,12 +88,9 @@ async function apiFetch(url) {
 // ─────────────────────────────────────────────
 // DATA RECONCILIATION & LOADING ENGINES
 // ─────────────────────────────────────────────
-
-// LOAD PROJECTS
 async function loadProjects() {
     const container = document.getElementById("projects-list");
     container.innerHTML = '<p class="loading-text">Loading projects...</p>';
-    
     const data = await apiFetch("/api/projects");
     if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No projects found.</p>';
@@ -111,11 +108,9 @@ async function loadProjects() {
     `).join("");
 }
 
-// LOAD NOTICES
 async function loadNotices() {
     const container = document.getElementById("full-notices-list");
     container.innerHTML = '<p class="loading-text">Loading notices...</p>';
-    
     const data = await apiFetch("/api/notices");
     if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No notices found.</p>';
@@ -132,11 +127,9 @@ async function loadNotices() {
     `).join("");
 }
 
-// LOAD POLLS
 async function loadPolls() {
     const container = document.getElementById("polls-list");
     container.innerHTML = '<p class="loading-text">Loading polls...</p>';
-    
     const data = await apiFetch("/api/polls");
     if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No active polls.</p>';
@@ -153,11 +146,9 @@ async function loadPolls() {
     `).join("");
 }
 
-// LOAD EVENTS
 async function loadEvents() {
     const container = document.getElementById("full-events-list");
     container.innerHTML = '<p class="loading-text">Loading events...</p>';
-    
     const data = await apiFetch("/api/events");
     if (!data || !Array.isArray(data) || !data.length) {
         container.innerHTML = '<p class="loading-text">No upcoming events.</p>';
@@ -177,7 +168,162 @@ async function loadEvents() {
 }
 
 // ─────────────────────────────────────────────
-// REPORT AN ISSUE SYSTEM PIPELINE
+// GOOGLE MAPS INTEGRATION ENGINE (WITH CITY BOUNDS)
+// ─────────────────────────────────────────────
+let map, marker, autocomplete, geocoder;
+
+// Johannesburg Center Default point coordinates
+const JOBURG_CENTER = { lat: -26.2041, lng: 28.0473 };
+
+// strict bounding box constraints for City of Johannesburg municipal limits
+const JOBURG_BOUNDS = {
+    north: -25.90,
+    south: -26.40,
+    west:  27.70,
+    east:  28.20
+};
+
+function initIssueMap() {
+    geocoder = new google.maps.Geocoder();
+
+    // Dark styled map configuration layout matrix
+    const darkMapStyle = [
+        { elementType: "geometry", stylers: [{ color: "#212121" }] },
+        { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+        { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+        { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
+        { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
+        { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+        { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] },
+        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
+        { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#373737" }] },
+        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3c3c3c" }] },
+        { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] }
+    ];
+
+    map = new google.maps.Map(document.getElementById("issueMap"), {
+        center: JOBURG_CENTER,
+        zoom: 12,
+        styles: darkMapStyle,
+        mapTypeControl: false,
+        streetViewControl: false
+    });
+
+    marker = new google.maps.Marker({
+        position: JOBURG_CENTER,
+        map: map,
+        draggable: true,
+        animation: google.maps.Animation.DROP
+    });
+
+    // Initialize the search input text autocomplete rules
+    const locationInput = document.getElementById("issueLocation");
+    autocomplete = new google.maps.places.Autocomplete(locationInput, {
+        bounds: JOBURG_BOUNDS,
+        strictBounds: true,
+        componentRestrictions: { country: "za" },
+        fields: ["address_components", "geometry", "formatted_address"]
+    });
+
+    // Event link: User selects a search suggestion
+    autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) {
+            return;
+        }
+
+        if (!validateMunicipalJurisdiction(place.address_components)) {
+            flagGeographicalViolation();
+            return;
+        }
+
+        // Reposition pin map viewport frame
+        map.setCenter(place.geometry.location);
+        map.setZoom(16);
+        marker.setPosition(place.geometry.location);
+        updateCoordinateBuffers(place.geometry.location.lat(), place.geometry.location.lng());
+    });
+
+    // Event link: User clicks on the map canvas
+    map.addListener("click", (e) => {
+        reverseGeocodePosition(e.latLng);
+    });
+
+    // Event link: User drags the map canvas marker pin
+    marker.addListener("dragend", () => {
+        reverseGeocodePosition(marker.getPosition());
+    });
+
+    // Geolocation action hook click execution
+    document.getElementById("Map-Locate-Btn").addEventListener("click", () => {
+        if (navigator.geolocation) {
+            document.getElementById("Report-Issue-Error").textContent = "Locating device position...";
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+                    reverseGeocodePosition(new google.maps.LatLng(coords.lat, coords.lng));
+                },
+                () => {
+                    document.getElementById("Report-Issue-Error").textContent = "Location access denied by your device browser.";
+                }
+            );
+        }
+    });
+}
+
+// Convert spatial coords back into textual string configurations
+function reverseGeocodePosition(latLng) {
+    geocoder.geocode({ location: latLng }, (results, status) => {
+        if (status === "OK" && results[0]) {
+            if (!validateMunicipalJurisdiction(results[0].address_components)) {
+                flagGeographicalViolation();
+                return;
+            }
+            document.getElementById("issueLocation").value = results[0].formatted_address;
+            marker.setPosition(latLng);
+            map.panTo(latLng);
+            updateCoordinateBuffers(latLng.lat(), latLng.lng());
+            document.getElementById("Report-Issue-Error").textContent = "";
+        } else {
+            console.error("Geocoder lookup execution failure:", status);
+        }
+    });
+}
+
+// Ensure the chosen node resolves to the Johannesburg area registry
+function validateMunicipalJurisdiction(components) {
+    if (!components) return false;
+    
+    // Scan address metadata array blocks for explicit municipal context markers
+    return components.some(c => 
+        c.long_name.toLowerCase().includes("johannesburg") || 
+        c.short_name.toLowerCase().includes("j_hb") || 
+        c.long_name.toLowerCase().includes("joburg")
+    );
+}
+
+function flagGeographicalViolation() {
+    const errorEl = document.getElementById("Report-Issue-Error");
+    errorEl.textContent = "Error: CivicTrack only accepts issues within the City of Johannesburg municipal area!";
+    
+    const inputField = document.getElementById("issueLocation");
+    inputField.value = "";
+    inputField.classList.add("shake");
+    setTimeout(() => inputField.classList.remove("shake"), 400);
+
+    updateCoordinateBuffers("", "");
+    marker.setPosition(JOBURG_CENTER);
+    map.setCenter(JOBURG_CENTER);
+    map.setZoom(12);
+}
+
+function updateCoordinateBuffers(lat, lng) {
+    document.getElementById("issueLat").value = lat;
+    document.getElementById("issueLng").value = lng;
+}
+
+// ─────────────────────────────────────────────
+// REPORT AN ISSUE FORM SUBMISSION PIPELINE
 // ─────────────────────────────────────────────
 document.getElementById("Report-Issue-Form").addEventListener("submit", async function(e) {
     e.preventDefault();
@@ -187,6 +333,9 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     const priority    = document.getElementById("issuePriority").value;
     const location    = document.getElementById("issueLocation").value.trim();
     const description = document.getElementById("issueDescription").value.trim();
+    const latitude    = document.getElementById("issueLat").value;
+    const longitude   = document.getElementById("issueLng").value;
+    
     const errorMsg    = document.getElementById("Report-Issue-Error");
     const successMsg  = document.getElementById("Report-Issue-Success");
 
@@ -198,6 +347,12 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
         return;
     }
 
+    // Force map selection verification to protect backend query structures
+    if (!latitude || !longitude) {
+        errorMsg.textContent = "Please verify your location address using a valid map pin selection or suggestion dropdown.";
+        return;
+    }
+
     try {
         const res = await fetch("/api/issues", {
             method: "POST",
@@ -205,7 +360,15 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + token
             },
-            body: JSON.stringify({ title, category, priority, location_address: location, description })
+            body: JSON.stringify({ 
+                title, 
+                category, 
+                priority, 
+                location_address: location, 
+                description,
+                latitude: parseFloat(latitude),
+                longitude: parseFloat(longitude)
+            })
         });
 
         const data = await res.json();
@@ -217,6 +380,8 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
 
         successMsg.textContent = "Issue reported successfully!";
         document.getElementById("Report-Issue-Form").reset();
+        updateCoordinateBuffers("", "");
+        marker.setPosition(JOBURG_CENTER);
 
     } catch (err) {
         errorMsg.textContent = "Could not connect to server. Please try again.";
@@ -228,11 +393,7 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
 // ─────────────────────────────────────────────
 document.getElementById("nav-logout").addEventListener("click", function(e) {
     e.preventDefault();
-    
-    // Clear storage caches completely
     localStorage.removeItem("civictrack_token");
     localStorage.removeItem("civictrack_user");
-    
-    // Smoothly route back to the unified authentication page link
     window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
 });
