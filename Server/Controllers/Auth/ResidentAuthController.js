@@ -1,8 +1,8 @@
 const bcrypt = require("bcrypt");
 
-const { sql, poolPromise } = require("../../config/db");
+const { sql, poolPromise } = require("../../Config/db_sqlserver");
 
-const generateToken = require("../../utils/generateToken");
+const generateToken = require("../../Utils/GenerateToken");
 
 const SALT_ROUNDS = 10;
 

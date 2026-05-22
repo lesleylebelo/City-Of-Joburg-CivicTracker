@@ -5,7 +5,7 @@ const router = express.Router();
 const {
     registerResident,
     loginResident
-} = require("../../controllers/auth/residentAuthController");
+} = require("../../Controllers/Auth/ResidentAuthController");
 
 router.post("/register", registerResident);
 
