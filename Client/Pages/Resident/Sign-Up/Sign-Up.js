@@ -1,6 +1,5 @@
-
 // ─────────────────────────────────────────────
-// GLOBAL FEEDBACK SYSTEM (TOAST)
+// FEEDBACK NOTIFICATION SYSTEM
 // ─────────────────────────────────────────────
 function showFeedback(message, type = "info", duration = 2500) {
     let el = document.querySelector(".civic-feedback");
@@ -38,18 +37,16 @@ const submitBtn = form.querySelector("button[type='submit']");
 // PATTERNS
 // ─────────────────────────────────────────────
 const namePattern = /^[a-zA-Z\s]{2,}$/;
-const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-]{2,6}$/;
 const phonePattern = /^0[6-8][0-9]{8}$/;
 const passPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
 // ─────────────────────────────────────────────
-// ERROR ELEMENTS (INLINE)
+// ERROR & STRENGTH ELEMENTS (INLINE CLASSES)
 // ─────────────────────────────────────────────
 function createErrorEl(input) {
     let el = document.createElement("small");
-    el.style.color = "#FF5252";
-    el.style.display = "block";
-    el.style.marginTop = "4px";
+    el.className = "error-text";
     input.parentNode.appendChild(el);
     return el;
 }
@@ -60,14 +57,13 @@ const phoneError = createErrorEl(resPhone);
 const passError = createErrorEl(resPassword);
 const confirmError = createErrorEl(resConfirmPassword);
 
-// ─────────────────────────────────────────────
-// PASSWORD STRENGTH
-// ─────────────────────────────────────────────
 const strengthEl = document.createElement("small");
-strengthEl.style.display = "block";
-strengthEl.style.marginTop = "4px";
+strengthEl.className = "strength-text";
 resPassword.parentNode.appendChild(strengthEl);
 
+// ─────────────────────────────────────────────
+// PASSWORD STRENGTH SCORING
+// ─────────────────────────────────────────────
 function getStrength(password) {
     let score = 0;
     if (password.length >= 8) score++;
@@ -78,7 +74,7 @@ function getStrength(password) {
 }
 
 // ─────────────────────────────────────────────
-// VALID STATE
+// VALID STATE MANAGEMENT
 // ─────────────────────────────────────────────
 let validState = {
     name: false,
@@ -88,21 +84,29 @@ let validState = {
     confirm: false
 };
 
-function setBorder(input, isValid) {
-    input.style.border = isValid
-        ? "2px solid #4CAF50"
-        : "2px solid #FF5252";
+function setValidationStatus(input, isValid) {
+    if (isValid) {
+        input.classList.remove("invalid");
+        input.classList.add("valid");
+    } else {
+        input.classList.remove("valid");
+        input.classList.add("invalid");
+    }
 }
 
 function updateSubmitState() {
     const allValid = Object.values(validState).every(Boolean);
     submitBtn.disabled = !allValid;
-    submitBtn.style.opacity = allValid ? "1" : "0.5";
-    submitBtn.style.cursor = allValid ? "pointer" : "not-allowed";
+    
+    if (allValid) {
+        submitBtn.classList.remove("disabled");
+    } else {
+        submitBtn.classList.add("disabled");
+    }
 }
 
 // ─────────────────────────────────────────────
-// LIVE VALIDATION
+// LIVE VALIDATION LISTENERS
 // ─────────────────────────────────────────────
 
 // NAME
@@ -114,8 +118,7 @@ resFullNames.addEventListener("input", () => {
         value.split(" ").filter(Boolean).length >= 2;
 
     nameError.textContent = validState.name ? "" : "Enter first and last name";
-    setBorder(resFullNames, validState.name);
-
+    setValidationStatus(resFullNames, validState.name);
     updateSubmitState();
 });
 
@@ -124,8 +127,7 @@ resEmail.addEventListener("input", () => {
     validState.email = emailPattern.test(resEmail.value.trim());
 
     emailError.textContent = validState.email ? "" : "Invalid email format";
-    setBorder(resEmail, validState.email);
-
+    setValidationStatus(resEmail, validState.email);
     updateSubmitState();
 });
 
@@ -139,8 +141,7 @@ resPhone.addEventListener("input", () => {
         ? ""
         : "Use SA format e.g. 0821234567";
 
-    setBorder(resPhone, validState.phone);
-
+    setValidationStatus(resPhone, validState.phone);
     updateSubmitState();
 });
 
@@ -151,15 +152,23 @@ resPassword.addEventListener("input", () => {
     validState.password = passPattern.test(value);
 
     const strength = getStrength(value);
-
     const levels = ["Weak", "Weak", "Fair", "Good", "Strong"];
-    strengthEl.textContent = `Strength: ${levels[strength]}`;
+    
+    strengthEl.textContent = value ? `Strength: ${levels[strength]}` : "";
+    strengthEl.className = `strength-text strength-${levels[strength].toLowerCase()}`;
 
     passError.textContent = validState.password
         ? ""
         : "Min 8 chars, 1 uppercase, 1 number";
 
-    setBorder(resPassword, validState.password);
+    setValidationStatus(resPassword, validState.password);
+    
+    // Re-check confirm field if it contains a value
+    if (resConfirmPassword.value) {
+        validState.confirm = resConfirmPassword.value === value;
+        confirmError.textContent = validState.confirm ? "" : "Passwords do not match";
+        setValidationStatus(resConfirmPassword, validState.confirm);
+    }
 
     updateSubmitState();
 });
@@ -172,21 +181,15 @@ resConfirmPassword.addEventListener("input", () => {
         ? ""
         : "Passwords do not match";
 
-    setBorder(resConfirmPassword, validState.confirm);
-
+    setValidationStatus(resConfirmPassword, validState.confirm);
     updateSubmitState();
 });
 
 // ─────────────────────────────────────────────
-// SUBMIT
+// FORM SUBMISSION PROCESS
 // ─────────────────────────────────────────────
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
-
-    const resFullNamesVal = resFullNames.value.trim();
-    const resEmailVal = resEmail.value.trim();
-    const resPhoneVal = resPhone.value.trim();
-    const resPasswordVal = resPassword.value;
 
     if (!Object.values(validState).every(Boolean)) {
         showFeedback("Please fix validation errors before submitting.", "error");
@@ -194,6 +197,11 @@ form.addEventListener("submit", async (e) => {
     }
 
     showFeedback("Creating your account...", "info");
+
+    const resFullNamesVal = resFullNames.value.trim();
+    const resEmailVal = resEmail.value.trim();
+    const resPhoneVal = resPhone.value.trim();
+    const resPasswordVal = resPassword.value;
 
     try {
         const response = await fetch("/api/auth/resident/register", {
@@ -214,16 +222,16 @@ form.addEventListener("submit", async (e) => {
             return;
         }
 
-        showFeedback("Account created successfully!", "success");
+        showFeedback("Account created successfully! Redirecting...", "success", 2500);
 
         setTimeout(() => {
-            window.location.href = "Resident_Sign_In.html";
-        }, 1500);
+            window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
+        }, 2500);
 
     } catch (err) {
         showFeedback("Could not connect to server.", "error");
     }
 });
 
-// INIT
+// INITIALIZE SYSTEM STATE
 updateSubmitState();
