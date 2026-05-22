@@ -4,7 +4,7 @@ const router = express.Router();
 
 const {
     verifyEmployee
-} = require("../../controllers/auth/employeeVerificationController");
+} = require("../../Controllers/Auth/EmployeeAuthController");
 
 router.post(
     "/verify-employee",

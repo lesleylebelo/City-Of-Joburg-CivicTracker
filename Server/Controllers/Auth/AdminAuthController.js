@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 
-const { sql, poolPromise } = require("../../config/db");
+const { sql, poolPromise } = require("../../Config/db_sqlserver");
 
 const generateToken = require("../../utils/generateToken");
 

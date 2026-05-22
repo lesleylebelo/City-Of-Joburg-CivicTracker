@@ -3,7 +3,13 @@
 // Checks if an employee number is authorised
 // and not already registered
 // =============================================
-router.post("/verify-employee", async (req, res) => {
+// =============================================
+// Employee Authentication Controller
+// Handles database logic for employee tracking
+// =============================================
+const { poolPromise, sql } = require('../../Config/db_sqlserver'); // Matches your updated DB config path
+
+const verifyEmployee = async (req, res) => {
     const { employee_number } = req.body;
 
     if (!employee_number) {
@@ -41,4 +47,9 @@ router.post("/verify-employee", async (req, res) => {
         console.error("Verify employee error:", error);
         return res.status(500).json({ message: "Server error. Please try again." });
     }
-});
+};
+
+// Export the controller function so the route file can read it
+module.exports = {
+    verifyEmployee
+};
