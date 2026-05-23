@@ -1,4 +1,4 @@
-# CivicTrack — City of Johannesburg
+# CivicTrack — City of Joburg
 
 > A civic engagement web platform empowering City of Joburg residents to report municipal issues and track infrastructure development across the region.
 
