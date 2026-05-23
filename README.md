@@ -6,13 +6,13 @@
 
 ##  Overview
 
-**CivicTrack** is a web application built exclusively for residents of the **City of Johannesburg** municipality. The platform bridges the gap between residents and the city by providing a centralised space to:
+**CivicTrack** is a web application built exclusively for residents of the **City of Joburg** municipality. The platform bridges the gap between residents and the city by providing a centralised space to:
 
 - **Report** civic and municipal issues in your area
 - **Track** ongoing maintenance work and new development projects across the region
 - **Stay informed** on what's happening in your neighbourhood and beyond
 
-> This platform is geo-restricted to the City of Johannesburg municipal boundary. Submissions or access attempts from outside the region are automatically filtered by the system.
+> This platform is geo-restricted to the City of Joburg municipal boundary. Submissions or access attempts from outside the region are automatically filtered by the system.
 
 ---
 
@@ -33,7 +33,7 @@ Residents can view and follow:
 - Status updates on ongoing city projects
 
 ### Geo-Restriction
-The system restricts access or submissions to within the **City of Johannesburg** municipal boundary, ensuring all data remains relevant and region-specific.
+The system restricts access or submissions to within the **City of Joburg** municipal boundary, ensuring all data remains relevant and region-specific.
 
 ---
 
@@ -77,6 +77,6 @@ City Of Joburg CivicTracker/
 
 ## Geo-Restriction
 
-CivicTrack is designed exclusively for **City of Johannesburg** residents. The system uses location-based filtering to verify that users and submitted reports fall within the official CoJ municipal boundary. Any activity detected outside this boundary is automatically restricted.
+CivicTrack is designed exclusively for **City of Joburg** residents. The system uses location-based filtering to verify that users and submitted reports fall within the official CoJ municipal boundary. Any activity detected outside this boundary is automatically restricted.
 
 <p align="center">Built for the people of <strong>Johannesburg</strong> 🇿🇦</p>
