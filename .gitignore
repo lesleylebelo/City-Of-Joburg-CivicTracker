@@ -1,4 +1,0 @@
-# Exclude Server Dependencies and Environment files
-Server/node_modules/
-Server/.env
-Server/*.log
