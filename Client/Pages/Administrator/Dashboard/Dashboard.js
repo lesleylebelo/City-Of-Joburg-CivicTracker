@@ -396,7 +396,7 @@ document.getElementById("nav-logout").addEventListener("click", function(e) {
     e.preventDefault();
     localStorage.removeItem("civictrack_token");
     localStorage.removeItem("civictrack_user");
-    window.location.href = "Admin_sign_in.html";
+    window.location.href = "/Pages/Administrator/Sign-In/Sign-In.html";
 });
 
 // ── Initial load ──

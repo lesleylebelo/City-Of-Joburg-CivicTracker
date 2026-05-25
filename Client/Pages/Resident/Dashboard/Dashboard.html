@@ -27,6 +27,9 @@
                 <a href="#" class="nav-link" id="nav-report" data-section="report">
                     <span class="nav-icon">⚑</span> Report Issue
                 </a>
+                 <a href="#" class="nav-link" id="nav-history" data-section="history">
+                    <span class="nav-icon">⊙</span> Reported Issues
+                </a>
                 <a href="#" class="nav-link" id="nav-projects" data-section="projects">
                     <span class="nav-icon">◈</span> Development Projects
                 </a>
@@ -43,7 +46,6 @@
 
             <div id="sidebar-bottom">
                 <a href="#" class="nav-link" id="nav-settings">
-                    <span class="nav-icon">⚙</span> Settings
                 </a>
                 <a href="/Pages/Resident/Sign-In/Sign-In.html" class="nav-link" id="nav-logout">
                     <span class="nav-icon">⏻</span> Logout
@@ -89,7 +91,7 @@
                             </div>
                             <div id="notices-list">
                                 <div class="notice-card">
-                                    <div class="notice-thumb">🔧</div>
+                                    <div class="notice-thumb"></div>
                                     <div class="notice-body">
                                         <span class="notice-badge maintenance">Maintenance</span>
                                         <span class="notice-time">2h ago</span>
@@ -98,7 +100,7 @@
                                     </div>
                                 </div>
                                 <div class="notice-card">
-                                    <div class="notice-thumb">🏗️</div>
+                                    <div class="notice-thumb"></div>
                                     <div class="notice-body">
                                         <span class="notice-badge project">New Project</span>
                                         <span class="notice-time">Yesterday</span>
@@ -107,7 +109,7 @@
                                     </div>
                                 </div>
                                 <div class="notice-card">
-                                    <div class="notice-thumb">📋</div>
+                                    <div class="notice-thumb"></div>
                                     <div class="notice-body">
                                         <span class="notice-badge issue">Reported Issue</span>
                                         <span class="notice-time">3 days ago</span>
@@ -116,7 +118,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <a href="#" class="view-older">View older...</a>
+                            
                         </div>
 
                         <!-- Upcoming Events -->
@@ -173,12 +175,12 @@
                     <form id="Report-Issue-Form">
                         <div class="form-group">
                             <label for="issueTitle">Issue Title</label>
-                            <input type="text" id="issueTitle" placeholder="e.g. Large pothole on Main Street" required>
+                            <input type="text" id="issueTitle" placeholder="e.g. Large pothole on Main Street">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="issueCategory">Category</label>
-                                <select id="issueCategory" required>
+                                <select id="issueCategory">
                                     <option value="">Select category</option>
                                     <option>Pothole</option>
                                     <option>Broken Streetlight</option>
@@ -191,47 +193,42 @@
                             </div>
                             <div class="form-group">
                                 <label for="issuePriority">Priority</label>
-                                <select id="issuePriority" required>
+                                <select id="issuePriority">
                                     <option>Low</option>
                                     <option selected>Medium</option>
                                     <option>High</option>
                                 </select>
                             </div>
                         </div>
-                        
-                        <!-- Location Selection Container -->
                         <div class="form-group">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                                <label for="issueLocation" style="margin-bottom: 0;">Location Address</label>
-                                <button type="button" id="Map-Locate-Btn" class="map-action-btn">
-                                    <span style="margin-right: 4px;"></span> Use My Location
-                                </button>
-                            </div>
-                            <input type="text" id="issueLocation" placeholder="Type address or select on map below..." required>
-                            
-                            <!-- Bounding Indicators / Lat & Lng Buffers -->
-                            <input type="hidden" id="issueLat" name="issueLat">
-                            <input type="hidden" id="issueLng" name="issueLng">
+                            <label for="issueLocation">Location Address</label>
+                            <input type="text" id="issueLocation" placeholder="e.g. 15 Main Street, Soweto">
                         </div>
-
-                        <!-- Interactive Map Frame Canvas Component -->
-                        <div class="form-group">
-                            <label>Geographic Verification (Drag pin or click map to reposition)</label>
-                            <div id="issueMap"></div>
-                        </div>
-
                         <div class="form-group">
                             <label for="issueDescription">Description</label>
-                            <textarea id="issueDescription" rows="4" placeholder="Describe the issue in detail..." required></textarea>
+                            <textarea id="issueDescription" rows="4" placeholder="Describe the issue in detail..."></textarea>
                         </div>
                         <div class="form-group">
                             <label for="issueImage">Upload Photo (optional)</label>
                             <input type="file" id="issueImage" accept="image/*">
+                            <div id="image-preview-wrap" style="display:none; margin-top:10px;">
+                                <img id="image-preview" src="" alt="Preview" style="max-width:100%;max-height:200px;border-radius:4px;border:1px solid rgba(245,197,24,0.2);">
+                            </div>
                         </div>
                         <button type="submit" id="Submit-Issue-Btn">Submit Report</button>
                         <p id="Report-Issue-Error"></p>
                         <p id="Report-Issue-Success"></p>
                     </form>
+                </section>
+
+                 <!-- SECTION: My Issue History -->
+                <section class="dash-section" id="section-history">
+                    <div class="section-header">
+                        <h3>Reported Issues</h3>
+                    </div>
+                    <div id="history-list">
+                        <p class="loading-text">Loading your history...</p>
+                    </div>
                 </section>
 
                 <!-- SECTION: Development Projects -->
@@ -273,13 +270,15 @@
                         <p class="loading-text">Loading events...</p>
                     </div>
                 </section>
-
             </div>
         </div>
 
-        <script src="Dashboard.js"></script>
-        
-        <!-- Google Maps JS Web Infrastructure Dependency -->
-        <script src="https://googleapis.com" async defer></script>
+        <!-- Image Lightbox Modal -->
+        <div id="image-modal-overlay">
+            <img id="image-modal-img" src="" alt="Issue photo">
+        </div>
+
+        <!-- Google Maps Places API - replace YOUR_API_KEY with your actual key -->
+    <script src="Dashboard.js"></script>
     </body>
 </html>

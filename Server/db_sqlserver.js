@@ -4,6 +4,7 @@ require("dotenv").config();
 const config = {
     server: "localhost\\SQLEXPRESS",
     database: "civictrack_db",
+    port: 21367,
     user: "civictrack_user",
     password: "CivicTrack2026!",
     options: {

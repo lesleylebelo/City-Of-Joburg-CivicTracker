@@ -1,330 +1,224 @@
-// =============================================
-// CIVICTRACK - RESIDENT DASHBOARD ENGINE
-// =============================================
-
-// ─────────────────────────────────────────────
-// SESSION GUARD & CONTEXT LOOKUP
-// ─────────────────────────────────────────────
 const token = localStorage.getItem("civictrack_token");
 const user  = JSON.parse(localStorage.getItem("civictrack_user") || "{}");
 
-if (!token) {
-    window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
-}
+if (!token) window.location.href = "Resident_Sign_In.html";
 
-// Populate user context metadata on interface panels
 if (user.full_names) {
-    document.getElementById("topbar-name").textContent    = user.full_names;
-    document.getElementById("welcome-name").textContent   = user.full_names.split(" ")[0];
-    document.getElementById("topbar-avatar").textContent  = user.full_names.charAt(0).toUpperCase();
+    document.getElementById("topbar-name").textContent   = user.full_names;
+    document.getElementById("welcome-name").textContent  = user.full_names.split(" ")[0];
+    document.getElementById("topbar-avatar").textContent = user.full_names.charAt(0).toUpperCase();
 }
 
-// ─────────────────────────────────────────────
-// SIDEBAR NAVIGATION STATE ENGINE
-// ─────────────────────────────────────────────
-const navLinks   = document.querySelectorAll(".nav-link[data-section]");
-const sections   = document.querySelectorAll(".dash-section");
-const pageTitle  = document.getElementById("page-title");
+// ── Sidebar Navigation ──
+const navLinks  = document.querySelectorAll(".nav-link[data-section]");
+const sections  = document.querySelectorAll(".dash-section");
+const pageTitle = document.getElementById("page-title");
 
 const sectionTitles = {
-    dashboard: "Dashboard",
-    report:    "Report Issue",
-    projects:  "Development Projects",
-    notices:   "Notices",
-    polls:     "Polls",
-    events:    "Events"
+    dashboard: "Dashboard", report: "Report Issue",
+    projects: "Development Projects", notices: "Notices",
+    polls: "Polls", events: "Events", history: "My Issue History"
 };
 
 navLinks.forEach(link => {
     link.addEventListener("click", function(e) {
         e.preventDefault();
         const target = this.dataset.section;
-
         navLinks.forEach(l => l.classList.remove("active"));
         this.classList.add("active");
-
         sections.forEach(s => s.classList.remove("active"));
         document.getElementById("section-" + target).classList.add("active");
-
         pageTitle.textContent = sectionTitles[target] || "Dashboard";
-
         if (target === "projects") loadProjects();
         if (target === "notices")  loadNotices();
         if (target === "polls")    loadPolls();
         if (target === "events")   loadEvents();
-        
-        // Trigger map recalculation layout fix when section becomes visible
-        if (target === "report" && map) {
-            google.maps.event.trigger(map, "resize");
-            map.setCenter(marker.getPosition());
-        }
+        if (target === "history")  loadMyHistory();
     });
 });
 
 document.querySelectorAll(".view-all").forEach(link => {
     link.addEventListener("click", function(e) {
         e.preventDefault();
-        const target = this.dataset.target;
-        const matchingLink = document.querySelector(`[data-section="${target}"]`);
-        if (matchingLink) matchingLink.click();
+        document.querySelector(`[data-section="${this.dataset.target}"]`).click();
     });
 });
 
-// ─────────────────────────────────────────────
-// SECURITY AUTHORIZATION FETCH HELPER
-// ─────────────────────────────────────────────
-async function apiFetch(url) {
+// ── Helpers ──
+async function apiFetch(url, method = "GET", body = null) {
+    const opts = { method, headers: { "Authorization": "Bearer " + token } };
+    if (body && !(body instanceof FormData)) {
+        opts.headers["Content-Type"] = "application/json";
+        opts.body = JSON.stringify(body);
+    } else if (body instanceof FormData) {
+        opts.body = body;
+    }
     try {
-        const res = await fetch(url, {
-            headers: { "Authorization": "Bearer " + token }
-        });
-        return await res.json();
+        const res  = await fetch(url, opts);
+        const data = await res.json();
+        return { ok: res.ok, data };
     } catch (err) {
-        console.error("API Fetch execution failure:", err);
-        return null;
+        return { ok: false, data: { message: "Could not connect to server." } };
     }
 }
 
-// ─────────────────────────────────────────────
-// DATA RECONCILIATION & LOADING ENGINES
-// ─────────────────────────────────────────────
+function formatDate(d) {
+    if (!d) return "";
+    return new Date(d).toLocaleDateString("en-ZA", { day: "2-digit", month: "short", year: "numeric" });
+}
+
+function formatTime(t) {
+    if (!t) return "";
+    if (t.includes("T")) return new Date(t).toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return t.substring(0, 5);
+}
+
+function statusBadge(status) {
+    const cls = status.toLowerCase().replace(" ", "-");
+    return `<span class="history-status ${cls}">${status}</span>`;
+}
+
+// ── Load Projects ──
 async function loadProjects() {
-    const container = document.getElementById("projects-list");
-    container.innerHTML = '<p class="loading-text">Loading projects...</p>';
-    const data = await apiFetch("/api/projects");
-    if (!data || !Array.isArray(data) || !data.length) {
-        container.innerHTML = '<p class="loading-text">No projects found.</p>';
-        return;
-    }
-    container.innerHTML = data.map(p => `
+    const c = document.getElementById("projects-list");
+    c.innerHTML = '<p class="loading-text">Loading...</p>';
+    const { ok, data } = await apiFetch("/api/projects");
+    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No projects found.</p>'; return; }
+    c.innerHTML = data.map(p => `
         <div class="data-card">
-            <h4>${p.title}</h4>
-            <p>${p.description}</p>
+            <h4>${p.title}</h4><p>${p.description}</p>
             <div class="card-meta">
                 <span class="card-tag">${p.category}</span>
                 <span class="card-tag">${p.status}</span>
+                ${p.start_date ? `<span class="card-tag">${formatDate(p.start_date)}</span>` : ""}
             </div>
-        </div>
-    `).join("");
+        </div>`).join("");
 }
 
+// ── Load Notices ──
 async function loadNotices() {
-    const container = document.getElementById("full-notices-list");
-    container.innerHTML = '<p class="loading-text">Loading notices...</p>';
-    const data = await apiFetch("/api/notices");
-    if (!data || !Array.isArray(data) || !data.length) {
-        container.innerHTML = '<p class="loading-text">No notices found.</p>';
-        return;
-    }
-    container.innerHTML = data.map(n => `
+    const c = document.getElementById("full-notices-list");
+    c.innerHTML = '<p class="loading-text">Loading...</p>';
+    const { ok, data } = await apiFetch("/api/notices");
+    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No notices.</p>'; return; }
+    c.innerHTML = data.map(n => `
         <div class="data-card">
-            <h4>${n.title}</h4>
-            <p>${n.content}</p>
-            <div class="card-meta">
-                <span class="card-tag">${n.category}</span>
-            </div>
-        </div>
-    `).join("");
+            <h4>${n.title}</h4><p>${n.content}</p>
+            <div class="card-meta"><span class="card-tag">${n.category}</span></div>
+        </div>`).join("");
 }
 
+// ── Load Polls ──
 async function loadPolls() {
-    const container = document.getElementById("polls-list");
-    container.innerHTML = '<p class="loading-text">Loading polls...</p>';
-    const data = await apiFetch("/api/polls");
-    if (!data || !Array.isArray(data) || !data.length) {
-        container.innerHTML = '<p class="loading-text">No active polls.</p>';
-        return;
-    }
-    container.innerHTML = data.map(p => `
-        <div class="data-card">
-            <h4>${p.question}</h4>
-            <p>${p.description || ""}</p>
-            <div class="card-meta">
-                <span class="card-tag">${p.is_active ? "Active" : "Closed"}</span>
+    const c = document.getElementById("polls-list");
+    c.innerHTML = '<p class="loading-text">Loading...</p>';
+    const { ok, data } = await apiFetch("/api/polls");
+    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No active polls.</p>'; return; }
+    c.innerHTML = data.map(poll => `
+        <div class="poll-card" id="poll-${poll.poll_id}">
+            <div class="poll-header">
+                <h4>${poll.question}</h4>
+                ${poll.description ? `<p class="poll-desc">${poll.description}</p>` : ""}
+                <span class="poll-status ${poll.is_active ? 'active' : 'closed'}">${poll.is_active ? 'Active' : 'Closed'}</span>
             </div>
-        </div>
-    `).join("");
+            <div class="poll-options">
+                ${poll.options && poll.options.length > 0
+                    ? poll.options.map(opt => `
+                        <button class="poll-option-btn" onclick="castVote(${poll.poll_id}, ${opt.option_id}, this)">
+                            <span class="option-text">${opt.option_text}</span>
+                            <span class="option-votes">${opt.votes} vote${opt.votes !== 1 ? "s" : ""}</span>
+                        </button>`).join("")
+                    : '<p class="no-options">No options available.</p>'}
+            </div>
+            <p class="poll-feedback" id="poll-msg-${poll.poll_id}"></p>
+        </div>`).join("");
 }
 
+async function castVote(pollId, optionId, btn) {
+    const msgEl = document.getElementById(`poll-msg-${pollId}`);
+    msgEl.style.color = "#F5C518"; msgEl.textContent = "Submitting...";
+    const { ok, data } = await apiFetch(`/api/polls/${pollId}/vote`, "POST", { option_id: optionId });
+    if (ok) {
+        msgEl.style.color = "#4CAF50"; msgEl.textContent = "✓ Vote submitted!";
+        document.querySelectorAll(`#poll-${pollId} .poll-option-btn`).forEach(b => {
+            b.disabled = true; b.style.opacity = "0.6"; b.style.cursor = "default";
+        });
+        btn.style.borderColor = "#F5C518"; btn.style.background = "rgba(245,197,24,0.1)"; btn.style.opacity = "1";
+    } else {
+        msgEl.style.color = "#FF5252"; msgEl.textContent = data.message || "Failed.";
+    }
+}
+
+// ── Load Events ──
 async function loadEvents() {
-    const container = document.getElementById("full-events-list");
-    container.innerHTML = '<p class="loading-text">Loading events...</p>';
-    const data = await apiFetch("/api/events");
-    if (!data || !Array.isArray(data) || !data.length) {
-        container.innerHTML = '<p class="loading-text">No upcoming events.</p>';
-        return;
-    }
-    container.innerHTML = data.map(ev => `
-        <div class="data-card">
-            <h4>${ev.title}</h4>
-            <p>${ev.description}</p>
-            <div class="card-meta">
-                <span class="card-tag">${ev.event_date}</span>
-                <span class="card-tag">${ev.start_time}</span>
-                <span class="card-tag">${ev.category}</span>
+    const c = document.getElementById("full-events-list");
+    c.innerHTML = '<p class="loading-text">Loading...</p>';
+    const { ok, data } = await apiFetch("/api/events");
+    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No upcoming events.</p>'; return; }
+    c.innerHTML = data.map(ev => {
+        const d = new Date(ev.event_date);
+        const day = d.toLocaleDateString("en-ZA", { day: "2-digit" });
+        const mon = d.toLocaleDateString("en-ZA", { month: "short" }).toUpperCase();
+        const full = d.toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+        const st = formatTime(ev.start_time);
+        const et = ev.end_time ? " – " + formatTime(ev.end_time) : "";
+        return `<div class="data-card event-full-card">
+            <div class="event-full-header">
+                <div class="event-date-badge"><span class="event-day">${day}</span><span class="event-month">${mon}</span></div>
+                <div class="event-full-info">
+                    <h4>${ev.title}</h4>
+                    <p class="event-full-date">${full}</p>
+                    <p class="event-full-time">🕐 ${st}${et}</p>
+                    <p class="event-full-location">📍 ${ev.location_address}</p>
+                </div>
             </div>
-        </div>
-    `).join("");
+            <p class="event-full-desc">${ev.description}</p>
+            <div class="card-meta"><span class="card-tag">${ev.category}</span></div>
+        </div>`;
+    }).join("");
 }
 
-// ─────────────────────────────────────────────
-// GOOGLE MAPS INTEGRATION ENGINE (WITH CITY BOUNDS)
-// ─────────────────────────────────────────────
-let map, marker, autocomplete, geocoder;
-
-// Johannesburg Center Default point coordinates
-const JOBURG_CENTER = { lat: -26.2041, lng: 28.0473 };
-
-// strict bounding box constraints for City of Johannesburg municipal limits
-const JOBURG_BOUNDS = {
-    north: -25.90,
-    south: -26.40,
-    west:  27.70,
-    east:  28.20
-};
-
-function initIssueMap() {
-    geocoder = new google.maps.Geocoder();
-
-    // Dark styled map configuration layout matrix
-    const darkMapStyle = [
-        { elementType: "geometry", stylers: [{ color: "#212121" }] },
-        { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-        { elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
-        { elementType: "labels.text.stroke", stylers: [{ color: "#212121" }] },
-        { featureType: "administrative", elementType: "geometry", stylers: [{ color: "#757575" }] },
-        { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
-        { featureType: "road", elementType: "geometry.fill", stylers: [{ color: "#2c2c2c" }] },
-        { featureType: "road", elementType: "labels.text.fill", stylers: [{ color: "#8a8a8a" }] },
-        { featureType: "road.arterial", elementType: "geometry", stylers: [{ color: "#373737" }] },
-        { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#3c3c3c" }] },
-        { featureType: "water", elementType: "geometry", stylers: [{ color: "#000000" }] }
-    ];
-
-    map = new google.maps.Map(document.getElementById("issueMap"), {
-        center: JOBURG_CENTER,
-        zoom: 12,
-        styles: darkMapStyle,
-        mapTypeControl: false,
-        streetViewControl: false
-    });
-
-    marker = new google.maps.Marker({
-        position: JOBURG_CENTER,
-        map: map,
-        draggable: true,
-        animation: google.maps.Animation.DROP
-    });
-
-    // Initialize the search input text autocomplete rules
-    const locationInput = document.getElementById("issueLocation");
-    autocomplete = new google.maps.places.Autocomplete(locationInput, {
-        bounds: JOBURG_BOUNDS,
-        strictBounds: true,
-        componentRestrictions: { country: "za" },
-        fields: ["address_components", "geometry", "formatted_address"]
-    });
-
-    // Event link: User selects a search suggestion
-    autocomplete.addListener("place_changed", () => {
-        const place = autocomplete.getPlace();
-        if (!place.geometry || !place.geometry.location) {
-            return;
-        }
-
-        if (!validateMunicipalJurisdiction(place.address_components)) {
-            flagGeographicalViolation();
-            return;
-        }
-
-        // Reposition pin map viewport frame
-        map.setCenter(place.geometry.location);
-        map.setZoom(16);
-        marker.setPosition(place.geometry.location);
-        updateCoordinateBuffers(place.geometry.location.lat(), place.geometry.location.lng());
-    });
-
-    // Event link: User clicks on the map canvas
-    map.addListener("click", (e) => {
-        reverseGeocodePosition(e.latLng);
-    });
-
-    // Event link: User drags the map canvas marker pin
-    marker.addListener("dragend", () => {
-        reverseGeocodePosition(marker.getPosition());
-    });
-
-    // Geolocation action hook click execution
-    document.getElementById("Map-Locate-Btn").addEventListener("click", () => {
-        if (navigator.geolocation) {
-            document.getElementById("Report-Issue-Error").textContent = "Locating device position...";
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const coords = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-                    reverseGeocodePosition(new google.maps.LatLng(coords.lat, coords.lng));
-                },
-                () => {
-                    document.getElementById("Report-Issue-Error").textContent = "Location access denied by your device browser.";
-                }
-            );
-        }
-    });
+// ── Load My History ──
+async function loadMyHistory() {
+    const c = document.getElementById("history-list");
+    c.innerHTML = '<p class="loading-text">Loading your history...</p>';
+    const { ok, data } = await apiFetch("/api/issues/my-history");
+    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">You have not submitted any issues yet.</p>'; return; }
+    c.innerHTML = data.map(issue => `
+        <div class="history-card">
+            <div class="history-header">
+                <div class="history-title-block">
+                    <h4>${issue.title}</h4>
+                    <span class="history-category">${issue.category}</span>
+                </div>
+                <div class="history-meta-right">
+                    ${statusBadge(issue.status)}
+                    <span class="history-date">${formatDate(issue.created_at)}</span>
+                </div>
+            </div>
+            <p class="history-location">📍 ${issue.location_address}</p>
+            <p class="history-desc">${issue.description}</p>
+            ${issue.image_url ? `
+                <div class="history-image-wrap">
+                    <img src="${issue.image_url}" alt="Issue photo" class="history-image" onclick="openImageModal('${issue.image_url}')">
+                </div>` : ""}
+            ${issue.admin_notes ? `<div class="history-admin-note"><span>Admin Note:</span> ${issue.admin_notes}</div>` : ""}
+            ${issue.resolved_at ? `<p class="history-resolved">✓ Resolved on ${formatDate(issue.resolved_at)}</p>` : ""}
+        </div>`).join("");
 }
 
-// Convert spatial coords back into textual string configurations
-function reverseGeocodePosition(latLng) {
-    geocoder.geocode({ location: latLng }, (results, status) => {
-        if (status === "OK" && results[0]) {
-            if (!validateMunicipalJurisdiction(results[0].address_components)) {
-                flagGeographicalViolation();
-                return;
-            }
-            document.getElementById("issueLocation").value = results[0].formatted_address;
-            marker.setPosition(latLng);
-            map.panTo(latLng);
-            updateCoordinateBuffers(latLng.lat(), latLng.lng());
-            document.getElementById("Report-Issue-Error").textContent = "";
-        } else {
-            console.error("Geocoder lookup execution failure:", status);
-        }
-    });
+// ── Image lightbox ──
+function openImageModal(src) {
+    const overlay = document.getElementById("image-modal-overlay");
+    document.getElementById("image-modal-img").src = src;
+    overlay.classList.add("open");
 }
 
-// Ensure the chosen node resolves to the Johannesburg area registry
-function validateMunicipalJurisdiction(components) {
-    if (!components) return false;
-    
-    // Scan address metadata array blocks for explicit municipal context markers
-    return components.some(c => 
-        c.long_name.toLowerCase().includes("johannesburg") || 
-        c.short_name.toLowerCase().includes("j_hb") || 
-        c.long_name.toLowerCase().includes("joburg")
-    );
-}
+document.getElementById("image-modal-overlay").addEventListener("click", function() {
+    this.classList.remove("open");
+});
 
-function flagGeographicalViolation() {
-    const errorEl = document.getElementById("Report-Issue-Error");
-    errorEl.textContent = "Error: CivicTrack only accepts issues within the City of Johannesburg municipal area!";
-    
-    const inputField = document.getElementById("issueLocation");
-    inputField.value = "";
-    inputField.classList.add("shake");
-    setTimeout(() => inputField.classList.remove("shake"), 400);
-
-    updateCoordinateBuffers("", "");
-    marker.setPosition(JOBURG_CENTER);
-    map.setCenter(JOBURG_CENTER);
-    map.setZoom(12);
-}
-
-function updateCoordinateBuffers(lat, lng) {
-    document.getElementById("issueLat").value = lat;
-    document.getElementById("issueLng").value = lng;
-}
-
-// ─────────────────────────────────────────────
-// REPORT AN ISSUE FORM SUBMISSION PIPELINE
-// ─────────────────────────────────────────────
+// ── Report Issue Form (with image upload) ──
 document.getElementById("Report-Issue-Form").addEventListener("submit", async function(e) {
     e.preventDefault();
 
@@ -333,67 +227,117 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     const priority    = document.getElementById("issuePriority").value;
     const location    = document.getElementById("issueLocation").value.trim();
     const description = document.getElementById("issueDescription").value.trim();
-    const latitude    = document.getElementById("issueLat").value;
-    const longitude   = document.getElementById("issueLng").value;
-    
+    const imageFile   = document.getElementById("issueImage").files[0];
     const errorMsg    = document.getElementById("Report-Issue-Error");
     const successMsg  = document.getElementById("Report-Issue-Success");
 
-    errorMsg.textContent   = "";
-    successMsg.textContent = "";
+    errorMsg.textContent = successMsg.textContent = "";
 
     if (!title || !category || !location || !description) {
-        errorMsg.textContent = "Please fill in all required fields!";
-        return;
+        errorMsg.textContent = "Please fill in all required fields!"; return;
     }
 
-    // Force map selection verification to protect backend query structures
-    if (!latitude || !longitude) {
-        errorMsg.textContent = "Please verify your location address using a valid map pin selection or suggestion dropdown.";
-        return;
-    }
+    // Use FormData to support file upload
+    const formData = new FormData();
+    formData.append("title",            title);
+    formData.append("category",         category);
+    formData.append("priority",         priority);
+    formData.append("location_address", location);
+    formData.append("description",      description);
+    if (imageFile) formData.append("issueImage", imageFile);
 
-    try {
-        const res = await fetch("/api/issues", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + token
-            },
-            body: JSON.stringify({ 
-                title, 
-                category, 
-                priority, 
-                location_address: location, 
-                description,
-                latitude: parseFloat(latitude),
-                longitude: parseFloat(longitude)
-            })
-        });
+    const { ok, data } = await apiFetch("/api/issues", "POST", formData);
 
-        const data = await res.json();
-
-        if (!res.ok) {
-            errorMsg.textContent = data.message || "Failed to submit report.";
-            return;
-        }
-
-        successMsg.textContent = "Issue reported successfully!";
+    if (ok) {
+        successMsg.textContent = "✓ Issue reported successfully!";
         document.getElementById("Report-Issue-Form").reset();
-        updateCoordinateBuffers("", "");
-        marker.setPosition(JOBURG_CENTER);
-
-    } catch (err) {
-        errorMsg.textContent = "Could not connect to server. Please try again.";
+        document.getElementById("image-preview-wrap").style.display = "none";
+    } else {
+        errorMsg.textContent = data.message || "Failed to submit.";
     }
 });
 
-// ─────────────────────────────────────────────
-// TERMINATE CURRENT ACTIVE AUTH SESSION
-// ─────────────────────────────────────────────
+// ── Image preview before upload ──
+document.getElementById("issueImage").addEventListener("change", function() {
+    const file = this.files[0];
+    const wrap = document.getElementById("image-preview-wrap");
+    const img  = document.getElementById("image-preview");
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = e => { img.src = e.target.result; wrap.style.display = "block"; };
+        reader.readAsDataURL(file);
+    } else {
+        wrap.style.display = "none";
+    }
+});
+
+// ── Logout ──
 document.getElementById("nav-logout").addEventListener("click", function(e) {
     e.preventDefault();
     localStorage.removeItem("civictrack_token");
     localStorage.removeItem("civictrack_user");
     window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
+});
+
+
+
+// ── Nominatim (OpenStreetMap) Address Autocomplete ──
+document.querySelector('[data-section="report"]').addEventListener("click", function() {
+    setTimeout(setupAddressAutocomplete, 300);
+});
+
+function setupAddressAutocomplete() {
+    const input = document.getElementById("issueLocation");
+    if (!input || input.dataset.init) return;
+    input.dataset.init = "true";
+
+    const dropdown = document.createElement("div");
+    dropdown.id = "address-dropdown";
+    dropdown.style.cssText = "position:absolute;z-index:9999;width:100%;background:#2A2A2A;border:1px solid rgba(245,197,24,0.3);border-radius:4px;max-height:220px;overflow-y:auto;display:none;";
+    input.parentNode.style.position = "relative";
+    input.parentNode.appendChild(dropdown);
+
+    let debounceTimer;
+
+    input.addEventListener("input", function() {
+        clearTimeout(debounceTimer);
+        const query = this.value.trim();
+        if (query.length < 3) { dropdown.style.display = "none"; return; }
+
+        debounceTimer = setTimeout(function() {
+            fetch("https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(query) + "&countrycodes=za&limit=5&addressdetails=1", {
+                headers: { "Accept-Language": "en" }
+            })
+            .then(function(res) { return res.json(); })
+            .then(function(results) {
+                dropdown.innerHTML = "";
+                if (!results.length) { dropdown.style.display = "none"; return; }
+                results.forEach(function(result) {
+                    const item = document.createElement("div");
+                    item.textContent = result.display_name;
+                    item.style.cssText = "padding:10px 14px;color:#C8C8C8;font-size:13px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);";
+                    item.addEventListener("mouseenter", function() { this.style.background = "rgba(245,197,24,0.1)"; this.style.color = "#F5C518"; });
+                    item.addEventListener("mouseleave", function() { this.style.background = ""; this.style.color = "#C8C8C8"; });
+                    item.addEventListener("click", function() {
+                        input.value = result.display_name;
+                        dropdown.style.display = "none";
+                    });
+                    dropdown.appendChild(item);
+                });
+                dropdown.style.display = "block";
+            })
+            .catch(function() { dropdown.style.display = "none"; });
+        }, 400);
+    });
+
+    document.addEventListener("click", function(e) {
+        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.style.display = "none";
+        }
+    });
+}
+
+// Also try on page load in case Report Issue is already visible
+window.addEventListener("load", function() {
+    setupAddressAutocomplete();
 });

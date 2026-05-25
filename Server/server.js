@@ -1,68 +1,35 @@
+const express  = require("express");
+const cors     = require("cors");
+const path     = require("path");
 require("dotenv").config();
-const express = require("express");
-const cors = require("cors");
-const path = require("path");
 
-// =============================================
-// ROUTE IMPORTS
-// =============================================
-const adminAuthRoutes = require("./Routes/Auth/AdminAuthRoutes");
-const residentAuthRoutes = require("./Routes/Auth/ResidentAuthRoutes");
-// Aligned to match your exact file tree naming layout: EmployeeAuthRoutes.js
-const employeeVerificationRoutes = require("./Routes/Auth/EmployeeVerificationRoutes.js");
+const authRoutes  = require("./auth_routes");
+const dataRoutes  = require("./data_routes");
+const issueRoutes = require("./issues_routes");
 
-
-const app = express();
+const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// =============================================
-// GLOBAL MIDDLEWARE CONFIGURATION
-// =============================================
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname)));
 
-// =============================================
-// DEFAULT LANDING ROUTE (Resolves Root First)
-// =============================================
-app.get("/", (req, res) => {
-    res.sendFile(
-        path.join(__dirname, "../Client/Pages/Public/Landing/Landing.html")
-    );
-});
+// Serve all static files from the Client directory
+app.use(express.static(path.join(__dirname, '../Client')));
 
-// =============================================
-// STATIC FILES (Serves Assets, Styles, and Scripts)
-// =============================================
-app.use(
-    express.static(
-        path.join(__dirname, "../Client")
-    )
-);
+// Serve uploaded images
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// =============================================
-// API ROUTE MOUNTING POINTS
-// =============================================
-app.use("/api/auth/admin", adminAuthRoutes);
-app.use("/api/auth/resident", residentAuthRoutes);
-app.use("/api/auth", employeeVerificationRoutes);
+// Routes
+app.use("/api/auth",   authRoutes);
+app.use("/api/issues", issueRoutes);
+app.use("/api",        dataRoutes);
 
-// =============================================
-// HEALTH CHECK
-// =============================================
-app.get("/api/health", (req, res) => {
-    res.json({
-        status: "success",
-        message: "CivicTrack API server is running smoothly!"
-    });
-});
+// Default
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../Client/Pages/Public/Landing/Landing.html")));
+app.get("/api/health", (req, res) => res.json({ status: "CivicTrack running!" }));
 
-// =============================================
-// SERVER INITIALIZATION
-// =============================================
 app.listen(PORT, () => {
-    console.log(`=================================================`);
-    console.log(` CivicTrack backend engine active.`);
-    console.log(` Listening securely at http://localhost:${PORT}`);
-    console.log(`=================================================`);
+    console.log(`CivicTrack server running at http://localhost:${PORT}`);
 });

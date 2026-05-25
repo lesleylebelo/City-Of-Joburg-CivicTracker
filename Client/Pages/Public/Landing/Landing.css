@@ -289,6 +289,10 @@ main section h2::after {
     padding: 80px;
 }
 
+#Meet-Team-Btn {
+    color:#D4A800;
+}
+
 /* ── Footer ── */
 footer {
     background: var(--charcoal-mid);
@@ -320,3 +324,43 @@ footer {
         width: 100%;
     }
 }
+
+footer {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+#footer-social {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(245,197,24,0.1);
+}
+
+.social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--white-dim);
+    transition: color 0.2s, transform 0.15s;
+    padding: 6px 0;
+}
+
+.social-link:hover { color: var(--gold); transform: translateY(-1px); }
+
+.social-icon {
+    font-size: 14px;
+    opacity: 0.8;
+}
+
+#social-youtube:hover { color: #FF0000; }
+#social-twitter:hover { color: #1DA1F2; }
+#social-tiktok:hover  { color: #69C9D0; }
