@@ -9,7 +9,7 @@ if (user.full_names) {
     document.getElementById("topbar-avatar").textContent = user.full_names.charAt(0).toUpperCase();
 }
 
-// ── Sidebar Navigation ──
+// Sidebar Navigation 
 const navLinks  = document.querySelectorAll(".nav-link[data-section]");
 const sections  = document.querySelectorAll(".dash-section");
 const pageTitle = document.getElementById("page-title");
@@ -44,7 +44,7 @@ document.querySelectorAll(".view-all").forEach(link => {
     });
 });
 
-// ── Helpers ──
+// Helpers 
 async function apiFetch(url, method = "GET", body = null) {
     const opts = { method, headers: { "Authorization": "Bearer " + token } };
     if (body && !(body instanceof FormData)) {
@@ -78,7 +78,7 @@ function statusBadge(status) {
     return `<span class="history-status ${cls}">${status}</span>`;
 }
 
-// ── Load Projects ──
+// Load Projects 
 async function loadProjects() {
     const c = document.getElementById("projects-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
@@ -95,7 +95,7 @@ async function loadProjects() {
         </div>`).join("");
 }
 
-// ── Load Notices ──
+// Load Notices 
 async function loadNotices() {
     const c = document.getElementById("full-notices-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
@@ -108,7 +108,7 @@ async function loadNotices() {
         </div>`).join("");
 }
 
-// ── Load Polls ──
+// Load Polls 
 async function loadPolls() {
     const c = document.getElementById("polls-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
@@ -149,7 +149,7 @@ async function castVote(pollId, optionId, btn) {
     }
 }
 
-// ── Load Events ──
+// Load Events
 async function loadEvents() {
     const c = document.getElementById("full-events-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
@@ -178,7 +178,7 @@ async function loadEvents() {
     }).join("");
 }
 
-// ── Load My History ──
+// Load My History 
 async function loadMyHistory() {
     const c = document.getElementById("history-list");
     c.innerHTML = '<p class="loading-text">Loading your history...</p>';
@@ -207,7 +207,7 @@ async function loadMyHistory() {
         </div>`).join("");
 }
 
-// ── Image lightbox ──
+// Image lightbox 
 function openImageModal(src) {
     const overlay = document.getElementById("image-modal-overlay");
     document.getElementById("image-modal-img").src = src;
@@ -218,7 +218,7 @@ document.getElementById("image-modal-overlay").addEventListener("click", functio
     this.classList.remove("open");
 });
 
-// ── Report Issue Form (with image upload) ──
+// Report Issue Form (with image upload) 
 document.getElementById("Report-Issue-Form").addEventListener("submit", async function(e) {
     e.preventDefault();
 
@@ -257,7 +257,7 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     }
 });
 
-// ── Image preview before upload ──
+// Image preview before upload
 document.getElementById("issueImage").addEventListener("change", function() {
     const file = this.files[0];
     const wrap = document.getElementById("image-preview-wrap");
@@ -271,7 +271,7 @@ document.getElementById("issueImage").addEventListener("change", function() {
     }
 });
 
-// ── Logout ──
+// Logout 
 document.getElementById("nav-logout").addEventListener("click", function(e) {
     e.preventDefault();
     localStorage.removeItem("civictrack_token");
@@ -281,7 +281,7 @@ document.getElementById("nav-logout").addEventListener("click", function(e) {
 
 
 
-// ── Nominatim (OpenStreetMap) Address Autocomplete ──
+// Nominatim (OpenStreetMap) Address Autocomplete 
 document.querySelector('[data-section="report"]').addEventListener("click", function() {
     setTimeout(setupAddressAutocomplete, 300);
 });

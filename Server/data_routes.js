@@ -4,9 +4,7 @@ const verifyToken = require("./auth_middleware");
 
 const router = express.Router();
 
-// =============================================
 // DEVELOPMENT PROJECTS
-// =============================================
 
 // GET /api/projects
 router.get("/projects", verifyToken, async (req, res) => {
@@ -76,9 +74,7 @@ router.post("/projects", verifyToken, async (req, res) => {
     }
 });
 
-// =============================================
 // NOTICES
-// =============================================
 
 // GET /api/notices
 router.get("/notices", verifyToken, async (req, res) => {
@@ -129,9 +125,7 @@ router.post("/notices", verifyToken, async (req, res) => {
     }
 });
 
-// =============================================
 // POLLS
-// =============================================
 
 // GET /api/polls
 router.get("/polls", verifyToken, async (req, res) => {
@@ -248,9 +242,7 @@ router.post("/polls/:id/vote", verifyToken, async (req, res) => {
     }
 });
 
-// =============================================
 // EVENTS
-// =============================================
 
 // GET /api/events
 router.get("/events", verifyToken, async (req, res) => {
@@ -310,9 +302,8 @@ router.post("/events", verifyToken, async (req, res) => {
     }
 });
 
-// =============================================
 // RESIDENTS STATS (admin)
-// =============================================
+
 router.get("/residents/stats", verifyToken, async (req, res) => {
     try {
         const pool = await poolPromise;

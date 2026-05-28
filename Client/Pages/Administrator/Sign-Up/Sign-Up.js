@@ -1,10 +1,7 @@
-// =============================================
 // CIVICTRACK - ADMINISTRATOR SIGN UP
-// =============================================
 
-// ─────────────────────────────────────────────
 // FEEDBACK NOTIFICATION SYSTEM
-// ─────────────────────────────────────────────
+
 function showFeedback(message, type = "info", duration = 2500) {
     let el = document.querySelector(".civic-feedback");
 
@@ -24,9 +21,8 @@ function showFeedback(message, type = "info", duration = 2500) {
     }, duration);
 }
 
-// ─────────────────────────────────────────────
 // FORM ELEMENTS
-// ─────────────────────────────────────────────
+
 const form = document.getElementById("Admin-SignUp-Form");
 
 const fnames = document.getElementById("fnames");
@@ -37,16 +33,15 @@ const empConfirmPassword = document.getElementById("empConfirmPassword");
 
 const submitBtn = document.getElementById("Admin-SignUp-Btn");
 
-// ─────────────────────────────────────────────
 // PATTERNS
-// ─────────────────────────────────────────────
+
 const namePattern = /^[a-zA-Z\s]{2,}$/;
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-]{2,6}$/;
 const passPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-// ─────────────────────────────────────────────
+
 // ERROR & STRENGTH ELEMENTS (INLINE CLASSES)
-// ─────────────────────────────────────────────
+
 function createErrorEl(input) {
     let el = document.createElement("small");
     el.className = "error-text";
@@ -64,9 +59,8 @@ const strengthEl = document.createElement("small");
 strengthEl.className = "strength-text";
 empPassword.parentNode.appendChild(strengthEl);
 
-// ─────────────────────────────────────────────
 // PASSWORD STRENGTH SCORING
-// ─────────────────────────────────────────────
+
 function getStrength(password) {
     let score = 0;
     if (password.length >= 8) score++;
@@ -76,9 +70,8 @@ function getStrength(password) {
     return score;
 }
 
-// ─────────────────────────────────────────────
 // VALID STATE MANAGEMENT
-// ─────────────────────────────────────────────
+
 let validState = {
     name: false,
     email: false,
@@ -108,9 +101,7 @@ function updateSubmitState() {
     }
 }
 
-// ─────────────────────────────────────────────
 // LIVE VALIDATION LISTENERS
-// ─────────────────────────────────────────────
 
 // FULL NAMES
 fnames.addEventListener("input", () => {
@@ -187,9 +178,8 @@ empConfirmPassword.addEventListener("input", () => {
     updateSubmitState();
 });
 
-// ─────────────────────────────────────────────
 // FORM SUBMISSION PROCESS
-// ─────────────────────────────────────────────
+
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 

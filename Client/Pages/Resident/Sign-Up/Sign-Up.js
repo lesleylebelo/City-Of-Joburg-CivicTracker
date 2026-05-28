@@ -1,6 +1,5 @@
-// ─────────────────────────────────────────────
 // FEEDBACK NOTIFICATION SYSTEM
-// ─────────────────────────────────────────────
+
 function showFeedback(message, type = "info", duration = 2500) {
     let el = document.querySelector(".civic-feedback");
 
@@ -20,9 +19,8 @@ function showFeedback(message, type = "info", duration = 2500) {
     }, duration);
 }
 
-// ─────────────────────────────────────────────
 // FORM ELEMENTS
-// ─────────────────────────────────────────────
+
 const form = document.getElementById("Resident-SignUp-Form");
 
 const resFullNames = document.getElementById("resFullNames");
@@ -33,17 +31,15 @@ const resConfirmPassword = document.getElementById("resConfirmPassword");
 
 const submitBtn = form.querySelector("button[type='submit']");
 
-// ─────────────────────────────────────────────
 // PATTERNS
-// ─────────────────────────────────────────────
+
 const namePattern = /^[a-zA-Z\s]{2,}$/;
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-]{2,6}$/;
 const phonePattern = /^0[6-8][0-9]{8}$/;
 const passPattern = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
 
-// ─────────────────────────────────────────────
 // ERROR & STRENGTH ELEMENTS (INLINE CLASSES)
-// ─────────────────────────────────────────────
+
 function createErrorEl(input) {
     let el = document.createElement("small");
     el.className = "error-text";
@@ -61,9 +57,8 @@ const strengthEl = document.createElement("small");
 strengthEl.className = "strength-text";
 resPassword.parentNode.appendChild(strengthEl);
 
-// ─────────────────────────────────────────────
 // PASSWORD STRENGTH SCORING
-// ─────────────────────────────────────────────
+
 function getStrength(password) {
     let score = 0;
     if (password.length >= 8) score++;
@@ -73,9 +68,8 @@ function getStrength(password) {
     return score;
 }
 
-// ─────────────────────────────────────────────
 // VALID STATE MANAGEMENT
-// ─────────────────────────────────────────────
+
 let validState = {
     name: false,
     email: false,
@@ -105,9 +99,7 @@ function updateSubmitState() {
     }
 }
 
-// ─────────────────────────────────────────────
 // LIVE VALIDATION LISTENERS
-// ─────────────────────────────────────────────
 
 // NAME
 resFullNames.addEventListener("input", () => {
@@ -185,9 +177,8 @@ resConfirmPassword.addEventListener("input", () => {
     updateSubmitState();
 });
 
-// ─────────────────────────────────────────────
 // FORM SUBMISSION PROCESS
-// ─────────────────────────────────────────────
+
 form.addEventListener("submit", async (e) => {
     e.preventDefault();
 

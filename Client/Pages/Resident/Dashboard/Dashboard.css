@@ -34,7 +34,7 @@ body {
     font-family: var(--font-body);
 }
 
-/* ── SIDEBAR ── */
+/* SIDEBAR */
 #sidebar {
     width: var(--sidebar-width);
     min-height: 100vh;
@@ -149,7 +149,7 @@ body {
 #nav-logout { color: var(--gold); }
 #nav-logout:hover { color: var(--gold-light); }
 
-/* ── MAIN WRAPPER ── */
+/* MAIN WRAPPER */
 #main-wrapper {
     margin-left: var(--sidebar-width);
     flex: 1;
@@ -159,7 +159,7 @@ body {
     overflow: hidden;
 }
 
-/* ── TOP BAR ── */
+/* TOP BAR */
 #topbar {
     height: var(--topbar-height);
     background: var(--charcoal-mid);
@@ -222,7 +222,7 @@ body {
     border: 2px solid rgba(245,197,24,0.4);
 }
 
-/* ── WELCOME BANNER ── */
+/* WELCOME BANNER */
 #welcome-banner {
     background: var(--charcoal-card);
     background-image: url('Hero Picture 2.jpg');
@@ -259,7 +259,7 @@ body {
     font-weight: 300;
 }
 
-/* ── DASHBOARD CONTENT ── */
+/* DASHBOARD CONTENT */
 #dashboard-content {
     flex: 1;
     overflow-y: auto;
@@ -269,14 +269,14 @@ body {
 .dash-section { display: none; }
 .dash-section.active { display: block; }
 
-/* ── HOME GRID ── */
+/* HOME GRID */
 #home-grid {
     display: grid;
     grid-template-columns: 1fr 360px;
     gap: 24px;
 }
 
-/* ── SECTION HEADER ── */
+/* SECTION HEADER */
 .section-header {
     display: flex;
     align-items: center;
@@ -304,7 +304,7 @@ body {
 }
 .view-all:hover { color: var(--gold-light); }
 
-/* ── NOTICE CARDS ── */
+/* NOTICE CARDS */
 #notices-feed, #events-feed {
     background: var(--charcoal-card);
     border: 1px solid var(--charcoal-border);
@@ -385,7 +385,7 @@ body {
 }
 .view-older:hover { color: var(--gold-light); }
 
-/* ── EVENT CARDS ── */
+/* EVENT CARDS */
 .event-card {
     display: flex;
     gap: 14px;
@@ -448,7 +448,7 @@ body {
     line-height: 1.4;
 }
 
-/* ── REPORT ISSUE FORM ── */
+/* REPORT ISSUE FORM */
 #section-report {
     max-width: 720px;
 }
@@ -524,7 +524,7 @@ body {
 #Report-Issue-Error { color: var(--error); font-size: 13px; margin-top: 10px; }
 #Report-Issue-Success { color: var(--success); font-size: 13px; margin-top: 10px; }
 
-/* ── CARDS GRID (Projects, Notices, Events full sections) ── */
+/* CARDS GRID (Projects, Notices, Events full sections) */
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -585,12 +585,12 @@ body {
     text-align: center;
 }
 
-/* ── SCROLLBAR ── */
+/* SCROLLBAR */
 #dashboard-content::-webkit-scrollbar { width: 6px; }
 #dashboard-content::-webkit-scrollbar-track { background: transparent; }
 #dashboard-content::-webkit-scrollbar-thumb { background: var(--charcoal-light); border-radius: 3px; }
 
-/* ── RESPONSIVE ── */
+/* RESPONSIVE */
 @media (max-width: 1024px) {
     #home-grid { grid-template-columns: 1fr; }
 }
@@ -655,7 +655,7 @@ body {
 .poll-feedback { font-size: 12px; min-height: 16px; margin-top: 4px; }
 .no-options { font-size: 13px; color: var(--white-dim); }
 
-/* ── EVENT FULL CARDS ── */
+/* EVENT FULL CARDS */
 .event-full-card { padding: 20px; }
 
 .event-full-header {
@@ -676,7 +676,7 @@ body {
 .event-full-location { font-size: 12px; color: var(--white-muted); }
 .event-full-desc   { font-size: 13px; color: var(--white-dim); line-height: 1.6; margin-bottom: 12px; }
 
-/* ── IMAGE LIGHTBOX ── */
+/*  IMAGE LIGHTBOX */
 #image-modal-overlay {
     display: none;
     position: fixed; inset: 0;
@@ -693,7 +693,7 @@ body {
     box-shadow: 0 0 60px rgba(0,0,0,0.8);
 }
 
-/* ── MY HISTORY CARDS ── */
+/* MY HISTORY CARDS */
 .history-card {
     background: var(--charcoal-card);
     border: 1px solid var(--charcoal-border);

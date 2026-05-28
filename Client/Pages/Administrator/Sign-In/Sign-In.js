@@ -1,10 +1,7 @@
-// =============================================
 // CIVICTRACK - ADMINISTRATOR SIGN IN
-// =============================================
 
-// ─────────────────────────────────────────────
 // FORM ELEMENTS
-// ─────────────────────────────────────────────
+
 const form = document.getElementById("Admin-SignIn-Form");
 
 const empNum = document.getElementById("empNum");
@@ -13,9 +10,8 @@ const errorMsg = document.getElementById("Admin-Login-Error");
 
 const submitBtn = form.querySelector("button[type='submit']");
 
-// ─────────────────────────────────────────────
 // VALID STATE MANAGEMENT
-// ─────────────────────────────────────────────
+
 let validState = {
     empNum: false,
     password: false
@@ -37,9 +33,8 @@ function updateSubmitState() {
     }
 }
 
-// ─────────────────────────────────────────────
 // GLOBAL FEEDBACK SYSTEM
-// ─────────────────────────────────────────────
+
 function showFeedback(message, type = "info") {
     let el = document.querySelector(".civic-feedback");
 
@@ -57,9 +52,7 @@ function showFeedback(message, type = "info") {
     }, 2200);
 }
 
-// ─────────────────────────────────────────────
 // LIVE VALIDATION LISTENERS
-// ─────────────────────────────────────────────
 
 // EMPLOYEE NUMBER
 empNum.addEventListener("input", () => {
@@ -77,9 +70,8 @@ empPassword.addEventListener("input", () => {
     updateSubmitState();
 });
 
-// ─────────────────────────────────────────────
 // FORM SUBMISSION PROCESS
-// ─────────────────────────────────────────────
+
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
 

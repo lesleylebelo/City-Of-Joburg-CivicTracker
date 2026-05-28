@@ -1,6 +1,5 @@
-// ─────────────────────────────────────────────
 // FORM ELEMENTS
-// ─────────────────────────────────────────────
+
 const form = document.getElementById("Resident-SignIn-Form");
 
 const resEmail = document.getElementById("resEmail");
@@ -9,22 +8,19 @@ const errorMsg = document.getElementById("Resident-Login-Error");
 
 const submitBtn = form.querySelector("button[type='submit']");
 
-// ─────────────────────────────────────────────
 // PATTERN
-// ─────────────────────────────────────────────
+
 const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
 
-// ─────────────────────────────────────────────
 // VALID STATE
-// ─────────────────────────────────────────────
+
 let validState = {
     email: false,
     password: false
 };
 
-// ─────────────────────────────────────────────
 // UI HELPERS
-// ─────────────────────────────────────────────
+
 function setState(input, isValid) {
     input.classList.remove("valid", "invalid");
     input.classList.add(isValid ? "valid" : "invalid");
@@ -41,9 +37,8 @@ function updateSubmitState() {
     }
 }
 
-// ─────────────────────────────────────────────
 // GLOBAL FEEDBACK (CENTER SCREEN)
-// ─────────────────────────────────────────────
+
 function showFeedback(message, type = "info") {
     let el = document.querySelector(".civic-feedback");
 
@@ -61,27 +56,24 @@ function showFeedback(message, type = "info") {
     }, 2200);
 }
 
-// ─────────────────────────────────────────────
 // LIVE EMAIL VALIDATION
-// ─────────────────────────────────────────────
+
 resEmail.addEventListener("input", () => {
     validState.email = emailPattern.test(resEmail.value.trim());
     setState(resEmail, validState.email);
     updateSubmitState();
 });
 
-// ─────────────────────────────────────────────
 // LIVE PASSWORD VALIDATION
-// ─────────────────────────────────────────────
+
 resPassword.addEventListener("input", () => {
     validState.password = resPassword.value.length >= 8;
     setState(resPassword, validState.password);
     updateSubmitState();
 });
 
-// ─────────────────────────────────────────────
 // SUBMIT
-// ─────────────────────────────────────────────
+
 form.addEventListener("submit", async function (e) {
     e.preventDefault();
 
@@ -130,7 +122,6 @@ form.addEventListener("submit", async function (e) {
     }
 });
 
-// ─────────────────────────────────────────────
 // INIT
-// ─────────────────────────────────────────────
+
 updateSubmitState();

@@ -1,6 +1,6 @@
-/* =============================================
+/* 
    CIVICTRACK - RESIDENT SIGN IN
-   ============================================= */
+*/
 
 @import url('https://googleapis.com');
 
@@ -227,9 +227,9 @@ footer {
     background: rgba(30,30,30,0.6);
 }
 
-/* ─────────────────────────────
+/* 
    GLOBAL TOAST FEEDBACK SYSTEM
-───────────────────────────── */
+*/
 .civic-feedback {
     position: fixed;
     top: 90px;

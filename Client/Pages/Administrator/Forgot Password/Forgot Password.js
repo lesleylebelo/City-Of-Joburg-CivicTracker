@@ -1,7 +1,5 @@
-// =============================================
 // CIVICTRACK - ADMINISTRATOR FORGOT PASSWORD
 // 3-Step Flow: Employee No + Email → OTP → New Password
-// =============================================
 
 // ── Element references ──
 const stepIdentity = document.getElementById("step-identity");

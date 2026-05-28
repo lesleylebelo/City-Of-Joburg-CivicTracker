@@ -1,6 +1,4 @@
-// =============================================
 // CIVICTRACK - MEET THE TEAM JAVASCRIPT
-// =============================================
 
 // ── Header scroll effect ──
 const header = document.querySelector("header");

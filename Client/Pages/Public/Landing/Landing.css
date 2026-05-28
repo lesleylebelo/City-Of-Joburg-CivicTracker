@@ -1,12 +1,12 @@
-/* =============================================
+/* 
    CIVICTRACK - LANDING PAGE STYLES
    City of Joburg | Corporate & Formal
    Colour Palette: Dark Charcoal + Gold
-   ============================================= */
+*/
 
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
 
-/* ── CSS Variables ── */
+/* CSS Variables */
 :root {
     --gold: #F5C518;
     --gold-dark: #D4A800;
@@ -26,7 +26,7 @@
     --shadow-gold: 0 0 20px rgba(245, 197, 24, 0.2);
 }
 
-/* ── Reset & Base ── */
+/* Reset & Base */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; }
@@ -40,7 +40,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ── Header / Navigation ── */
+/* Header / Navigation */
 header {
     position: fixed;
     top: 0;
@@ -91,7 +91,7 @@ header > div {
     line-height: 1;
 }
 
-/* ── Navigation Bar ── */
+/*  Navigation Bar */
 #Navigation-Bar {
     display: flex;
     align-items: center;
@@ -145,7 +145,7 @@ header > div {
     box-shadow: var(--shadow-gold);
 }
 
-/* ── Hero Section ── */
+/* Hero Section */
 #Hero-Section {
     position: relative;
     width: 100%;
@@ -194,7 +194,7 @@ header > div {
     z-index: 1;
 }
 
-/* ── Section Shared Styles ── */
+/* Section Shared Styles */
 main section {
     padding: 80px 80px;
 }
@@ -219,7 +219,7 @@ main section h2::after {
     margin-top: 8px;
 }
 
-/* ── About Section ── */
+/* About Section */
 #About-CivicTracker {
     background: var(--charcoal-mid);
     border-top: 1px solid rgba(245,197,24,0.1);
@@ -233,7 +233,7 @@ main section h2::after {
     font-weight: 300;
 }
 
-/* ── Use Cases Section ── */
+/* Use Cases Section */
 #Use-Cases {
     background: var(--charcoal);
     display: grid;
@@ -262,7 +262,7 @@ main section h2::after {
     border-radius: var(--radius);
 }
 
-/* ── Features Section ── */
+/* Features Section */
 #Features {
     background: var(--charcoal-mid);
 }
@@ -282,7 +282,7 @@ main section h2::after {
     margin: 7px;
 }
 
-/* ── Team Section ── */
+/* Team Section */
 #Team {
     background: var(--charcoal);
     border-top: 1px solid rgba(245,197,24,0.1);
@@ -293,14 +293,14 @@ main section h2::after {
     color:#D4A800;
 }
 
-/* ── Footer ── */
+/* Footer */
 footer {
     background: var(--charcoal-mid);
     border-top: 1px solid rgba(245,197,24,0.15);
     padding: 24px 80px;
 }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 900px) {
     main section { padding: 60px 24px; }
 

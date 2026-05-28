@@ -1,9 +1,7 @@
-// =============================================
 // CIVICTRACK - RESIDENT FORGOT PASSWORD
 // 3-Step Flow: Email → OTP → New Password
-// =============================================
 
-// ── Element references ──
+// Element references 
 const stepEmail  = document.getElementById("step-email");
 const stepOtp    = document.getElementById("step-otp");
 const stepReset  = document.getElementById("step-reset");
@@ -20,7 +18,7 @@ const successMsg = document.getElementById("Forgot-Password-Success");
 let generatedOtp = "";
 let submittedEmail = "";
 
-// ── Helper: show/hide steps ──
+// Helper: show/hide steps 
 function showStep(stepToShow) {
     stepEmail.style.display  = "none";
     stepOtp.style.display    = "none";
@@ -28,18 +26,18 @@ function showStep(stepToShow) {
     stepToShow.style.display = "block";
 }
 
-// ── Helper: clear messages ──
+// Helper: clear messages 
 function clearMessages() {
     errorMsg.textContent   = "";
     successMsg.textContent = "";
 }
 
-// ── Helper: generate a 6-digit OTP ──
+// Helper: generate a 6-digit OTP 
 function generateOtp() {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-// ── STEP 1: Send Reset Code ──
+// STEP 1: Send Reset Code 
 sendCodeBtn.addEventListener("click", function () {
     clearMessages();
 
@@ -68,7 +66,7 @@ sendCodeBtn.addEventListener("click", function () {
     showStep(stepOtp);
 });
 
-// ── STEP 2: Verify OTP ──
+//  STEP 2: Verify OTP 
 verifyCodeBtn.addEventListener("click", function () {
     clearMessages();
 
@@ -93,7 +91,7 @@ verifyCodeBtn.addEventListener("click", function () {
     showStep(stepReset);
 });
 
-// ── Resend OTP ──
+// Resend OTP 
 resendLink.addEventListener("click", function (e) {
     e.preventDefault();
     clearMessages();
@@ -104,7 +102,7 @@ resendLink.addEventListener("click", function (e) {
     successMsg.textContent = "A new code has been sent to " + submittedEmail;
 });
 
-// ── STEP 3: Reset Password ──
+// STEP 3: Reset Password 
 forgotForm.addEventListener("submit", function (e) {
     e.preventDefault();
     clearMessages();

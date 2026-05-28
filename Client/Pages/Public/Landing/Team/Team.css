@@ -1,7 +1,7 @@
-/* =============================================
+/* 
    CIVICTRACK - MEET THE TEAM PAGE STYLES
    Dark Charcoal + Gold | Corporate & Formal
-   ============================================= */
+*/
 
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
 
@@ -38,7 +38,7 @@ body {
     overflow-x: hidden;
 }
 
-/* ── Header ── */
+/* Header */
 header {
     position: sticky;
     top: 0;
@@ -104,13 +104,13 @@ header {
     display: block;
 }
 
-/* ── Main ── */
+/*  Main */
 main {
     flex: 1;
     padding-bottom: 80px;
 }
 
-/* ── Team Hero / Title Section ── */
+/* Team Hero / Title Section */
 #Team-Hero {
     text-align: center;
     padding: 80px 48px 56px;
@@ -176,7 +176,7 @@ main {
     z-index: 1;
 }
 
-/* ── Team Grid ── */
+/* Team Grid */
 #Team-Grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -212,7 +212,7 @@ main {
     width: 100%;
 }
 
-/* ── Team Card ── */
+/* Team Card */
 .team-card {
     background: var(--charcoal-card);
     border: 1px solid rgba(245, 197, 24, 0.1);
@@ -244,7 +244,7 @@ main {
     box-shadow: var(--shadow-gold);
 }
 
-/* ── Card Image Wrapper ── */
+/* Card Image Wrapper */
 .card-image-wrapper {
     position: relative;
     width: 100%;
@@ -281,7 +281,7 @@ main {
     pointer-events: none;
 }
 
-/* ── Team Leader Badge ── */
+/* Team Leader Badge */
 .card-badge {
     position: absolute;
     top: 14px;
@@ -298,7 +298,7 @@ main {
     z-index: 2;
 }
 
-/* ── Card Info ── */
+/* Card Info */
 .card-info {
     padding: 22px 24px 24px;
     border-top: 2px solid rgba(245, 197, 24, 0.15);
@@ -336,7 +336,7 @@ main {
     letter-spacing: 0.06em;
 }
 
-/* ── Footer ── */
+/* Footer */
 footer {
     background: var(--charcoal-mid);
     border-top: 1px solid rgba(245, 197, 24, 0.15);
@@ -349,7 +349,7 @@ footer {
     letter-spacing: 0.05em;
 }
 
-/* ── Responsive ── */
+/* Responsive */
 @media (max-width: 900px) {
     header { padding: 0 24px; }
     #Team-Hero { padding: 60px 24px 40px; }

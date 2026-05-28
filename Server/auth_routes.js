@@ -1,8 +1,7 @@
-// =============================================
 // CIVICTRACK - AUTH ROUTES
+
 // Node.js / Express | SQL Server
 // Handles admin & resident registration + login
-// =============================================
 
 const express   = require("express");
 const bcrypt    = require("bcrypt");
@@ -12,11 +11,10 @@ const { sql, poolPromise } = require("./db_sqlserver");
 const router = express.Router();
 const SALT_ROUNDS = 10;
 
-// =============================================
 // POST /api/auth/verify-employee
 // Checks if an employee number is authorised
 // and not already registered
-// =============================================
+
 router.post("/verify-employee", async (req, res) => {
     const { employee_number } = req.body;
 
@@ -57,10 +55,9 @@ router.post("/verify-employee", async (req, res) => {
     }
 });
 
-// =============================================
 // POST /api/auth/admin/register
 // Registers a new administrator account
-// =============================================
+
 router.post("/admin/register", async (req, res) => {
     const { full_names, email, employee_number, password } = req.body;
 
@@ -118,10 +115,9 @@ router.post("/admin/register", async (req, res) => {
     }
 });
 
-// =============================================
 // POST /api/auth/admin/login
 // Logs in an administrator
-// =============================================
+
 router.post("/admin/login", async (req, res) => {
     const { employee_number, password } = req.body;
 
@@ -179,10 +175,9 @@ router.post("/admin/login", async (req, res) => {
     }
 });
 
-// =============================================
 // POST /api/auth/resident/register
 // Registers a new resident account
-// =============================================
+
 router.post("/resident/register", async (req, res) => {
     const { full_names, email, phone_number, password } = req.body;
 
@@ -222,10 +217,9 @@ router.post("/resident/register", async (req, res) => {
     }
 });
 
-// =============================================
 // POST /api/auth/resident/login
 // Logs in a resident
-// =============================================
+
 router.post("/resident/login", async (req, res) => {
     const { email, password } = req.body;
 
