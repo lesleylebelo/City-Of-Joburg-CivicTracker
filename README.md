@@ -46,33 +46,6 @@ The system restricts access or submissions to within the **City of Joburg** muni
 | **Database** | Microsoft SQL Server (SSMS) |
 | **API** | RESTful API via Node Express |
 
-
-##  Project Structure
-
-```
-City Of Joburg CivicTracker/
-│
-├── Client/
-│   ├── Assests/
-│   ├── Pages/
-│   └── Shared/
-│
-├── Server/
-│   ├── Config
-│   ├── Controllers/
-│   ├── Middleware/
-│   └── Models/
-|   
-│
-├── database/
-│   ├── 
-│   └── 
-│
-├── 
-├── .gitignore
-└── README.md
-```
-
 ---
 
 ## Geo-Restriction
