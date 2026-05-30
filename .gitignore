@@ -3,7 +3,7 @@ Server/.env
 *.env
 .vscode/
 *.log
-Client/Assets/Images/kl lebelo.jpeg
+Client/Assets/Images/kl\ lebelo.jpeg
 Client/Assets/Images/kamo.jpeg
 Client/Assets/Images/musa.jpeg
 Client/Assets/Images/t.thomo.jpeg
