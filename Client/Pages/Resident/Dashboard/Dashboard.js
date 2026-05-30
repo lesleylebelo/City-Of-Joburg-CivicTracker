@@ -243,7 +243,7 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
 
     if (!latitude || !longitude) {
         errorMsg.textContent =
-            "Please select a valid Johannesburg location from the suggestions.";
+            "Please select a valid location within the City of Joburg.";
         return;
     }
 
@@ -261,7 +261,7 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     const { ok, data } = await apiFetch("/api/issues", "POST", formData);
 
     if (ok) {
-        successMsg.textContent = "✓ Issue reported successfully!";
+        successMsg.textContent = "Issue reported successfully!";
         document.getElementById("Report-Issue-Form").reset();
         document.getElementById("image-preview-wrap").style.display = "none";
     } else {
