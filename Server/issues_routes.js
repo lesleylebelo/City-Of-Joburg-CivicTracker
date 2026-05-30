@@ -32,27 +32,72 @@ const upload = multer({
 
 // POST /api/issues - submit with image
 router.post("/", verifyToken, upload.single("issueImage"), async (req, res) => {
-    const { title, category, priority, location_address, description } = req.body;
-    const resident_id = req.user.id;
-    const image_url   = req.file ? "/uploads/" + req.file.filename : null;
 
+    const {
+        title,
+        category,
+        priority,
+        location_address,
+        description,
+        latitude,
+        longitude
+    } = req.body;
+
+    const resident_id = req.user.id;
+    const image_url = req.file ? "/uploads/" + req.file.filename : null;
+
+    // Basic validation
     if (!title || !category || !location_address || !description)
         return res.status(400).json({ message: "All required fields must be filled!" });
 
+    // NEW: coordinate validation (IMPORTANT)
+    if (!latitude || !longitude)
+        return res.status(400).json({ message: "Invalid location selected." });
+
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+
+    // Johannesburg boundary check (simple geofence)
+    const isInJoburg =
+        lat >= -26.40 &&
+        lat <= -25.80 &&
+        lng >= 27.70 &&
+        lng <= 28.40;
+
+    if (!isInJoburg) {
+        return res.status(400).json({
+            message: "Only locations within the City of Johannesburg are allowed."
+        });
+    }
+
     try {
         const pool = await poolPromise;
-        await pool.request()
-            .input("resident_id",      sql.Int,      resident_id)
-            .input("title",            sql.NVarChar, title)
-            .input("category",         sql.NVarChar, category)
-            .input("priority",         sql.NVarChar, priority || "Medium")
-            .input("location_address", sql.NVarChar, location_address)
-            .input("description",      sql.NVarChar, description)
-            .input("image_url",        sql.NVarChar, image_url)
-            .query(`INSERT INTO reported_issues (resident_id,title,category,priority,location_address,description,image_url)
-                    VALUES (@resident_id,@title,@category,@priority,@location_address,@description,@image_url)`);
 
-        return res.status(201).json({ message: "Issue reported successfully!" });
+        await pool.request()
+            .input("resident_id", sql.Int, resident_id)
+            .input("title", sql.NVarChar, title)
+            .input("category", sql.NVarChar, category)
+            .input("priority", sql.NVarChar, priority || "Medium")
+            .input("location_address", sql.NVarChar, location_address)
+            .input("latitude", sql.Float, lat)
+            .input("longitude", sql.Float, lng)
+            .input("description", sql.NVarChar, description)
+            .input("image_url", sql.NVarChar, image_url)
+            .query(`
+                INSERT INTO reported_issues
+                (resident_id, title, category, priority,
+                 location_address, latitude, longitude,
+                 description, image_url)
+                VALUES
+                (@resident_id, @title, @category, @priority,
+                 @location_address, @latitude, @longitude,
+                 @description, @image_url)
+            `);
+
+        return res.status(201).json({
+            message: "Issue reported successfully!"
+        });
+
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: "Server error." });

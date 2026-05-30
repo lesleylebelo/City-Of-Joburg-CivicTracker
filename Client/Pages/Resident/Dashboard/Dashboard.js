@@ -227,14 +227,24 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     const priority    = document.getElementById("issuePriority").value;
     const location    = document.getElementById("issueLocation").value.trim();
     const description = document.getElementById("issueDescription").value.trim();
+
+    const latitude    = document.getElementById("issueLat").value;
+    const longitude   = document.getElementById("issueLng").value;
+
     const imageFile   = document.getElementById("issueImage").files[0];
     const errorMsg    = document.getElementById("Report-Issue-Error");
     const successMsg  = document.getElementById("Report-Issue-Success");
-
-    errorMsg.textContent = successMsg.textContent = "";
+        errorMsg.textContent = successMsg.textContent = "";
 
     if (!title || !category || !location || !description) {
-        errorMsg.textContent = "Please fill in all required fields!"; return;
+         errorMsg.textContent = "Please fill in all required fields!";
+        return;
+    }
+
+    if (!latitude || !longitude) {
+        errorMsg.textContent =
+            "Please select a valid Johannesburg location from the suggestions.";
+        return;
     }
 
     // Use FormData to support file upload
@@ -243,7 +253,9 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     formData.append("category",         category);
     formData.append("priority",         priority);
     formData.append("location_address", location);
-    formData.append("description",      description);
+    formData.append("latitude", latitude);
+    formData.append("longitude", longitude);
+    formData.append("description", description);
     if (imageFile) formData.append("issueImage", imageFile);
 
     const { ok, data } = await apiFetch("/api/issues", "POST", formData);
@@ -313,31 +325,71 @@ function setupAddressAutocomplete() {
                 dropdown.innerHTML = "";
                 if (!results.length) { dropdown.style.display = "none"; return; }
                 results.forEach(function(result) {
-                    const item = document.createElement("div");
-                    item.textContent = result.display_name;
-                    item.style.cssText = "padding:10px 14px;color:#C8C8C8;font-size:13px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);";
-                    item.addEventListener("mouseenter", function() { this.style.background = "rgba(245,197,24,0.1)"; this.style.color = "#F5C518"; });
-                    item.addEventListener("mouseleave", function() { this.style.background = ""; this.style.color = "#C8C8C8"; });
-                    item.addEventListener("click", function() {
-                        input.value = result.display_name;
-                        dropdown.style.display = "none";
-                    });
-                    dropdown.appendChild(item);
-                });
-                dropdown.style.display = "block";
-            })
-            .catch(function() { dropdown.style.display = "none"; });
-        }, 400);
+
+    const address = result.display_name.toLowerCase();
+
+    // Johannesburg-only filter (soft geofence)
+    const isJoburg =
+        address.includes("johannesburg") ||
+        address.includes("sandton") ||
+        address.includes("soweto") ||
+        address.includes("randburg") ||
+        address.includes("roodepoort") ||
+        address.includes("midrand") ||
+        address.includes("alexandra") ||
+        address.includes("lenasia");
+
+    if (!isJoburg) return; // skip non-Joburg results
+
+    const item = document.createElement("div");
+
+    item.textContent = result.display_name;
+
+    item.style.cssText =
+        "padding:10px 14px;color:#C8C8C8;font-size:13px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);";
+
+    item.addEventListener("mouseenter", function() {
+        this.style.background = "rgba(245,197,24,0.1)";
+        this.style.color = "#F5C518";
     });
 
-    document.addEventListener("click", function(e) {
-        if (!input.contains(e.target) && !dropdown.contains(e.target)) {
-            dropdown.style.display = "none";
-        }
+    item.addEventListener("mouseleave", function() {
+        this.style.background = "";
+        this.style.color = "#C8C8C8";
     });
+
+    item.addEventListener("click", function() {
+
+        // set address
+        input.value = result.display_name;
+
+        // store coordinates (IMPORTANT for backend validation)
+        document.getElementById("issueLat").value = result.lat;
+        document.getElementById("issueLng").value = result.lon;
+
+        dropdown.style.display = "none";
+    });
+
+    dropdown.appendChild(item);
+});
+
+dropdown.style.display = "block";
+})
+.catch(function() {
+    dropdown.style.display = "none";
+});
+}, 400);
+});
+
+// close dropdown when clicking outside
+document.addEventListener("click", function(e) {
+    if (!input.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = "none";
+    }
+});
 }
 
-// Also try on page load in case Report Issue is already visible
+// initialize
 window.addEventListener("load", function() {
     setupAddressAutocomplete();
 });
