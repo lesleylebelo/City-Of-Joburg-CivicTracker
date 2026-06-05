@@ -1,0 +1,52 @@
+
+<!DOCTYPE html>
+<html lang="en-ZA">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Resident Sign In | CivicTrack</title>
+        <link rel="stylesheet" href="Sign-In.css">
+    </head>
+    <body>
+        <header>
+            <a href="/Pages/Public/Landing/Landing.html">Back to Home</a>
+            <h3>Resident Access</h3>
+        </header>
+
+        <main>
+            <form id="Resident-SignIn-Form">
+                <div>
+                    <label for="resEmail">Email Address</label>
+                    <input type="email" id="resEmail" name="resEmail" placeholder="Enter your email address" required>
+                </div>
+
+                <div>
+                    <label for="resPassword">Password</label>
+                    <input type="password" id="resPassword" name="resPassword" placeholder="Enter your password" required>
+                </div>
+
+                <div class="link-row">
+                    Don't have an account?
+                    <a href="/Pages/Resident/Sign-Up/Sign-Up.html">Create Account</a>
+                </div>
+
+                <div class="link-row">
+                    Forgot your password?
+                    <a href="/Pages/Resident/Forgot Password/Forgot Password.html">Reset Password</a>
+                </div>
+
+                <div>
+                    <button type="submit" id="Resident-SignIn-Btn">Sign In</button>
+                </div>
+            </form>
+
+            <div>
+                <p id="Resident-Login-Error"></p>
+            </div>
+        </main>
+
+        <footer></footer>
+
+        <script src="Sign-In.js"></script>
+    </body>
+</html>

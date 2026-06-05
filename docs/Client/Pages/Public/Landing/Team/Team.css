@@ -1,0 +1,375 @@
+/* 
+   CIVICTRACK - MEET THE TEAM PAGE STYLES
+   Dark Charcoal + Gold | Corporate & Formal
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
+
+:root {
+    --gold: #F5C518;
+    --gold-dark: #D4A800;
+    --gold-light: #FFD54F;
+    --charcoal: #1E1E1E;
+    --charcoal-mid: #2A2A2A;
+    --charcoal-light: #363636;
+    --charcoal-card: #2D2D2D;
+    --white: #FFFFFF;
+    --white-muted: #C8C8C8;
+    --white-dim: #8A8A8A;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Barlow', sans-serif;
+    --font-condensed: 'Barlow Condensed', sans-serif;
+    --radius: 4px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.5);
+    --shadow-gold: 0 0 28px rgba(245, 197, 24, 0.22);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+    background-color: var(--charcoal);
+    color: var(--white);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+}
+
+/* Header */
+header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(20, 20, 20, 0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(245, 197, 24, 0.2);
+    padding: 0 56px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+#Back-Home {
+    font-family: var(--font-condensed);
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.2s;
+}
+#Back-Home::before { content: '←'; font-size: 15px; }
+#Back-Home:hover { color: var(--gold-light); }
+
+#header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#Logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 3px;
+}
+
+#brand-text { line-height: 1.1; }
+
+#CoJ {
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--white-dim);
+    text-transform: uppercase;
+    display: block;
+}
+
+#CivicTrack {
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-size: 17px;
+    letter-spacing: 0.08em;
+    color: var(--gold);
+    text-transform: uppercase;
+    display: block;
+}
+
+/*  Main */
+main {
+    flex: 1;
+    padding-bottom: 80px;
+}
+
+/* Team Hero / Title Section */
+#Team-Hero {
+    text-align: center;
+    padding: 80px 48px 56px;
+    background: var(--charcoal-mid);
+    border-bottom: 1px solid rgba(245, 197, 24, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Subtle background pattern */
+#Team-Hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 48px,
+            rgba(245, 197, 24, 0.03) 48px,
+            rgba(245, 197, 24, 0.03) 49px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 48px,
+            rgba(245, 197, 24, 0.03) 48px,
+            rgba(245, 197, 24, 0.03) 49px
+        );
+    pointer-events: none;
+}
+
+#Team-Title {
+    font-family: var(--font-display);
+    font-size: clamp(48px, 7vw, 88px);
+    letter-spacing: 0.1em;
+    color: var(--white);
+    text-transform: uppercase;
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+}
+
+#Team-Subtitle {
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 15px;
+    color: var(--white-dim);
+    max-width: 560px;
+    margin: 16px auto 0;
+    line-height: 1.7;
+    letter-spacing: 0.02em;
+    position: relative;
+    z-index: 1;
+}
+
+#Team-Divider {
+    width: 56px;
+    height: 3px;
+    background: var(--gold);
+    margin: 28px auto 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* Team Grid */
+#Team-Grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    max-width: 1100px;
+    margin: 64px auto 0;
+    padding: 0 48px;
+}
+
+/* First two cards centred on second row */
+#Team-Grid .team-card:nth-child(4),
+#Team-Grid .team-card:nth-child(5) {
+    grid-column: auto;
+}
+
+/* Centre the last row (cards 4 & 5) */
+#Team-Grid {
+    grid-template-rows: auto auto;
+}
+
+/* Use a wrapper trick: first 3 in row 1, last 2 centred in row 2 */
+#Team-Grid .team-card:nth-child(4) {
+    grid-column: 1;
+    grid-row: 2;
+    justify-self: end;
+    width: 100%;
+}
+
+#Team-Grid .team-card:nth-child(5) {
+    grid-column: 2;
+    grid-row: 2;
+    justify-self: start;
+    width: 100%;
+}
+
+/* Team Card */
+.team-card {
+    background: var(--charcoal-card);
+    border: 1px solid rgba(245, 197, 24, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    transform: translateY(32px);
+    animation: cardReveal 0.55s ease forwards;
+}
+
+.team-card:nth-child(1) { animation-delay: 0.1s; }
+.team-card:nth-child(2) { animation-delay: 0.2s; }
+.team-card:nth-child(3) { animation-delay: 0.3s; }
+.team-card:nth-child(4) { animation-delay: 0.4s; }
+.team-card:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes cardReveal {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.team-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--gold);
+    box-shadow: var(--shadow-gold);
+}
+
+/* Card Image Wrapper */
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    overflow: hidden;
+    background: var(--charcoal-light);
+}
+
+.card-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+    transition: transform 0.4s ease, filter 0.4s ease;
+    filter: brightness(0.88) grayscale(15%);
+}
+
+.team-card:hover .card-photo {
+    transform: scale(1.04);
+    filter: brightness(1) grayscale(0%);
+}
+
+/* Gold overlay on hover */
+.card-image-wrapper::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to bottom,
+        transparent 50%,
+        rgba(245, 197, 24, 0.08) 100%
+    );
+    pointer-events: none;
+}
+
+/* Team Leader Badge */
+.card-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--gold);
+    color: var(--charcoal);
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 2px;
+    z-index: 2;
+}
+
+/* Card Info */
+.card-info {
+    padding: 22px 24px 24px;
+    border-top: 2px solid rgba(245, 197, 24, 0.15);
+    transition: border-color 0.3s;
+}
+
+.team-card:hover .card-info {
+    border-top-color: var(--gold);
+}
+
+.card-name {
+    font-family: var(--font-condensed);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--white);
+    margin-bottom: 4px;
+}
+
+.card-role {
+    font-family: var(--font-body);
+    font-weight: 500;
+    font-size: 13px;
+    color: var(--gold);
+    letter-spacing: 0.04em;
+    margin-bottom: 8px;
+}
+
+.card-empnum {
+    font-family: var(--font-body);
+    font-weight: 300;
+    font-size: 12px;
+    color: var(--white-dim);
+    letter-spacing: 0.06em;
+}
+
+/* Footer */
+footer {
+    background: var(--charcoal-mid);
+    border-top: 1px solid rgba(245, 197, 24, 0.15);
+    padding: 24px 56px;
+}
+
+#footer1 p {
+    font-size: 12px;
+    color: var(--white-dim);
+    letter-spacing: 0.05em;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    header { padding: 0 24px; }
+    #Team-Hero { padding: 60px 24px 40px; }
+    #Team-Grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 0 24px;
+        margin-top: 48px;
+    }
+    #Team-Grid .team-card:nth-child(4),
+    #Team-Grid .team-card:nth-child(5) {
+        grid-column: auto;
+        grid-row: auto;
+        justify-self: stretch;
+    }
+    footer { padding: 20px 24px; }
+}
+
+@media (max-width: 580px) {
+    #Team-Grid {
+        grid-template-columns: 1fr;
+    }
+    .card-image-wrapper { height: 220px; }
+}
