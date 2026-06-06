@@ -1,5 +1,5 @@
 /* 
-   CIVICTRACK - LANDING PAGE STYLES
+   CIVICTRACK - LANDING PAGE STYLES (RESPONSIVE FIXED)
    City of Joburg | Corporate & Formal
    Colour Palette: Dark Charcoal + Gold
 */
@@ -13,354 +13,269 @@
     --gold-light: #FFD54F;
     --charcoal: #1E1E1E;
     --charcoal-mid: #2A2A2A;
-    --charcoal-light: #363636;
     --charcoal-card: #2D2D2D;
     --white: #FFFFFF;
     --white-muted: #C8C8C8;
     --white-dim: #8A8A8A;
+
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Barlow', sans-serif;
     --font-condensed: 'Barlow Condensed', sans-serif;
-    --radius: 4px;
+
+    --radius: 6px;
     --shadow: 0 4px 24px rgba(0,0,0,0.5);
     --shadow-gold: 0 0 20px rgba(245, 197, 24, 0.2);
 }
 
-/* Reset & Base */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+/* RESET */
+*, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-html { scroll-behavior: smooth; }
+html {
+    scroll-behavior: smooth;
+}
 
 body {
     background-color: var(--charcoal);
     color: var(--white);
     font-family: var(--font-body);
-    font-weight: 400;
     line-height: 1.6;
     overflow-x: hidden;
 }
 
-/* Header / Navigation */
+/* ================= HEADER ================= */
 header {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     z-index: 1000;
+
     background: rgba(30, 30, 30, 0.95);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(245, 197, 24, 0.2);
+
     display: flex;
-    align-items: center;
     justify-content: space-between;
+    align-items: center;
     padding: 0 48px;
     height: 72px;
+    flex-wrap: wrap;
 }
 
 header > div {
     display: flex;
     align-items: center;
     gap: 10px;
-    flex-direction: row;
 }
 
 #Logo {
     width: 44px;
     height: 44px;
     object-fit: contain;
-    border-radius: 4px;
 }
 
 #CoJ {
-    font-family: var(--font-body);
-    font-weight: 300;
     font-size: 10px;
     letter-spacing: 0.15em;
-    color: var(--white-muted);
+    color: var(--white-dim);
     text-transform: uppercase;
-    line-height: 1;
 }
 
 #CivicTrack {
     font-family: var(--font-condensed);
-    font-weight: 700;
     font-size: 18px;
     letter-spacing: 0.08em;
     color: var(--gold);
     text-transform: uppercase;
-    line-height: 1;
 }
 
-/*  Navigation Bar */
+/* NAV */
 #Navigation-Bar {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: 28px;
+    flex-wrap: wrap;
 }
 
 #Navigation-Bar a {
-    font-family: var(--font-body);
-    font-weight: 500;
     font-size: 13px;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--white-muted);
     text-decoration: none;
-    transition: color 0.25s ease;
+    transition: 0.2s;
     position: relative;
 }
 
-#Navigation-Bar a::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: var(--gold);
-    transition: width 0.25s ease;
+#Navigation-Bar a:hover {
+    color: var(--white);
 }
-
-#Navigation-Bar a:hover { color: var(--white); }
-#Navigation-Bar a:hover::after { width: 100%; }
 
 #Use-CivicTrack-Btn {
     background: var(--gold);
-    color: var(--charcoal);
     border: none;
-    padding: 10px 24px;
-    font-family: var(--font-condensed);
+    padding: 10px 20px;
     font-weight: 700;
-    font-size: 13px;
+    font-family: var(--font-condensed);
     letter-spacing: 0.15em;
-    text-transform: uppercase;
-    border-radius: var(--radius);
     cursor: pointer;
-    transition: background 0.25s ease, transform 0.15s ease, box-shadow 0.25s ease;
+    border-radius: var(--radius);
 }
 
-#Use-CivicTrack-Btn:hover {
-    background: var(--gold-light);
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-gold);
-}
-
-/* Hero Section */
+/* ================= HERO ================= */
 #Hero-Section {
     position: relative;
     width: 100%;
     height: 90vh;
-    min-height: 600px;
-    overflow: hidden;
+    min-height: 500px;
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 
 #Hero-Picture {
-    width: 150%;
-    height: 160%;
+    width: 100%;
+    height: 100%;
     object-fit: cover;
-    object-position: center;
-    filter: brightness(1.00);
 }
 
-/* REPLACED STATIC TEXT WITH JS-CONTROLLED TEXT */
 .hero-text {
     position: absolute;
-    z-index: 2;
     top: 50%;
-    left: 40%;
+    left: 50%;
     transform: translate(-50%, -50%);
-    font-family: var(--font-display);
-    font-size: clamp(32px, 5vw, 64px);
-    letter-spacing: 0.06em;
-    color: var(--white);
     text-align: center;
-    line-height: 1.1;
+    font-family: var(--font-display);
+    font-size: clamp(28px, 5vw, 64px);
     width: 80%;
-    text-shadow: 0 4px 32px rgba(0,0,0,0.8);
+    text-shadow: 0 4px 30px rgba(0,0,0,0.8);
 }
 
-/* Hero overlay fade */
-#Hero-Section::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 120px;
-    background: linear-gradient(transparent, var(--charcoal));
-    z-index: 1;
-}
-
-/* Section Shared Styles */
+/* ================= SECTIONS ================= */
 main section {
-    padding: 80px 80px;
+    padding: 80px;
 }
 
 main section h2 {
     font-family: var(--font-display);
-    font-size: clamp(28px, 4vw, 48px);
-    letter-spacing: 0.08em;
     color: var(--gold);
-    text-transform: uppercase;
-    margin-bottom: 48px;
-    position: relative;
-    display: inline-block;
+    font-size: clamp(28px, 4vw, 48px);
+    margin-bottom: 40px;
 }
 
-main section h2::after {
-    content: '';
-    display: block;
-    width: 60px;
-    height: 3px;
-    background: var(--gold);
-    margin-top: 8px;
-}
-
-/* About Section */
+/* ================= ABOUT ================= */
 #About-CivicTracker {
     background: var(--charcoal-mid);
-    border-top: 1px solid rgba(245,197,24,0.1);
 }
 
 #About-CivicTracker p {
-    font-size: 16px;
+    max-width: 800px;
     color: var(--white-muted);
-    max-width: 720px;
-    line-height: 1.85;
-    font-weight: 300;
 }
 
-/* Use Cases Section */
+/* ================= USE CASES ================= */
 #Use-Cases {
     background: var(--charcoal);
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-    align-items: center;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
 }
 
-#UseCase-Card1,
-#UseCase-Card2,
-#UseCase-Card3 {
+#Use-Cases div {
     background: var(--charcoal-card);
-    border: 1px solid rgba(245,197,24,0.15);
+    padding: 24px;
     border-left: 3px solid var(--gold);
     border-radius: var(--radius);
-    padding: 28px 32px;
 }
 
-/* images */
-#photoDevelopment1,
-#photoDevelopment2,
-#photoPothole {
-    width: 100%;
-    height: 240px;
-    object-fit: cover;
-    border-radius: var(--radius);
-}
-
-/* Features Section */
+/* ================= FEATURES ================= */
 #Features {
     background: var(--charcoal-mid);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
 }
 
-#Features-Card1,
-#Features-Card2,
-#Features-Card3,
-#Features-Card4,
-#Features-Card5,
-#Features-Card6 {
+#Features div {
     background: var(--charcoal-card);
-    border: 1px solid rgba(245,197,24,0.1);
+    padding: 24px;
     border-radius: var(--radius);
-    padding: 28px 24px;
-    display: inline-block;
-    width: calc(33% - 14px);
-    margin: 7px;
+    border: 1px solid rgba(245,197,24,0.1);
 }
 
-/* Team Section */
+/* ================= TEAM ================= */
 #Team {
     background: var(--charcoal);
-    border-top: 1px solid rgba(245,197,24,0.1);
-    padding: 80px;
+    text-align: center;
 }
 
 #Meet-Team-Btn {
-    color:#D4A800;
+    color: var(--gold-dark);
+    font-weight: 600;
 }
 
-/* Footer */
+/* ================= FOOTER ================= */
 footer {
     background: var(--charcoal-mid);
-    border-top: 1px solid rgba(245,197,24,0.15);
     padding: 24px 80px;
-}
-
-/* Responsive */
-@media (max-width: 900px) {
-    main section { padding: 60px 24px; }
-
-    #Features-Card1,
-    #Features-Card2,
-    #Features-Card3,
-    #Features-Card4,
-    #Features-Card5,
-    #Features-Card6 {
-        width: calc(50% - 14px);
-    }
-}
-
-@media (max-width: 600px) {
-    #Features-Card1,
-    #Features-Card2,
-    #Features-Card3,
-    #Features-Card4,
-    #Features-Card5,
-    #Features-Card6 {
-        width: 100%;
-    }
-}
-
-footer {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
+/* Socials */
 #footer-social {
     display: flex;
-    align-items: center;
-    gap: 24px;
-    padding-top: 16px;
-    border-top: 1px solid rgba(245,197,24,0.1);
+    gap: 20px;
+    flex-wrap: wrap;
 }
 
 .social-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--font-condensed);
-    font-weight: 700;
-    font-size: 13px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    text-decoration: none;
     color: var(--white-dim);
-    transition: color 0.2s, transform 0.15s;
-    padding: 6px 0;
+    text-decoration: none;
+    font-weight: 600;
 }
 
-.social-link:hover { color: var(--gold); transform: translateY(-1px); }
-
-.social-icon {
-    font-size: 14px;
-    opacity: 0.8;
+.social-link:hover {
+    color: var(--gold);
 }
 
-#social-youtube:hover { color: #FF0000; }
-#social-twitter:hover { color: #1DA1F2; }
-#social-tiktok:hover  { color: #69C9D0; }
+/* ================= RESPONSIVE ================= */
+@media (max-width: 900px) {
+
+    header {
+        padding: 10px 20px;
+        height: auto;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    #Navigation-Bar {
+        justify-content: center;
+    }
+
+    main section {
+        padding: 50px 20px;
+    }
+
+    footer {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 600px) {
+
+    #Navigation-Bar {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    #Hero-Section {
+        height: 70vh;
+    }
+}
