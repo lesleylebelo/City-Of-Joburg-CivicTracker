@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname)));
 
 // Serve all static files from the Client directory
-app.use(express.static(path.join(__dirname, '../Client')));
+app.use(express.static(path.join(__dirname, '../docs')));
 
 // Serve uploaded images
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
@@ -27,7 +27,7 @@ app.use("/api/issues", issueRoutes);
 app.use("/api",        dataRoutes);
 
 // Default
-app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../Client/Pages/Public/Landing/Landing.html")));
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "../docs/index.html")));
 app.get("/api/health", (req, res) => res.json({ status: "CivicTrack running!" }));
 
 app.listen(PORT, () => {
