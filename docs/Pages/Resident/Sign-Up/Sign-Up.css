@@ -79,6 +79,14 @@ header {
     justify-content: space-between;
 }
 
+header > a {
+    color: #F5C518;
+}
+
+form > div > a {
+    color: #F5C518;
+}
+
 /* 
    MAIN LAYOUT
 */
