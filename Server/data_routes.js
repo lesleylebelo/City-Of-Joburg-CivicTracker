@@ -74,6 +74,91 @@ router.post("/projects", verifyToken, async (req, res) => {
     }
 });
 
+// PUT /api/projects/:id
+router.put("/projects/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({ message: "Admin access required." });
+
+    const {
+        title,
+        description,
+        category,
+        status,
+        location_address,
+        start_date,
+        expected_end_date
+    } = req.body;
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("project_id", sql.Int, req.params.id)
+            .input("title", sql.NVarChar, title)
+            .input("description", sql.NVarChar, description)
+            .input("category", sql.NVarChar, category)
+            .input("status", sql.NVarChar, status)
+            .input("location_address", sql.NVarChar, location_address)
+            .input("start_date", sql.Date, start_date || null)
+            .input("expected_end_date", sql.Date, expected_end_date || null)
+            .query(`
+                UPDATE development_projects
+                SET
+                    title=@title,
+                    description=@description,
+                    category=@category,
+                    status=@status,
+                    location_address=@location_address,
+                    start_date=@start_date,
+                    expected_end_date=@expected_end_date
+                WHERE project_id=@project_id
+            `);
+
+        return res.status(200).json({
+            message: "Project updated successfully."
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
+// DELETE /api/projects/:id
+router.delete("/projects/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("project_id", sql.Int, req.params.id)
+            .query(`
+                DELETE FROM development_projects
+                WHERE project_id=@project_id
+            `);
+
+        return res.status(200).json({
+            message: "Project deleted successfully."
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
 // NOTICES
 
 // GET /api/notices
@@ -122,6 +207,79 @@ router.post("/notices", verifyToken, async (req, res) => {
     } catch (error) {
         console.error("Add notice error:", error);
         return res.status(500).json({ message: "Server error." });
+    }
+});
+
+// PUT /api/notices/:id
+router.put("/notices/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    const {
+        title,
+        content,
+        category
+    } = req.body;
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("notice_id", sql.Int, req.params.id)
+            .input("title", sql.NVarChar, title)
+            .input("content", sql.NVarChar, content)
+            .input("category", sql.NVarChar, category)
+            .query(`
+                UPDATE notices
+                SET
+                    title=@title,
+                    content=@content,
+                    category=@category
+                WHERE notice_id=@notice_id
+            `);
+
+        return res.status(200).json({
+            message: "Notice updated successfully."
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
+// DELETE /api/notices/:id
+router.delete("/notices/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("notice_id", sql.Int, req.params.id)
+            .query(`
+                DELETE FROM notices
+                WHERE notice_id=@notice_id
+            `);
+
+        return res.status(200).json({
+            message: "Notice deleted successfully."
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: "Server error."
+        });
     }
 });
 
@@ -242,6 +400,44 @@ router.post("/polls/:id/vote", verifyToken, async (req, res) => {
     }
 });
 
+// DELETE /api/polls/:id
+router.delete("/polls/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("poll_id", sql.Int, req.params.id)
+            .query(`
+                DELETE FROM poll_options
+                WHERE poll_id=@poll_id;
+
+                DELETE FROM poll_votes
+                WHERE poll_id=@poll_id;
+
+                DELETE FROM polls
+                WHERE poll_id=@poll_id;
+            `);
+
+        return res.status(200).json({
+            message: "Poll deleted successfully."
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
+
 // EVENTS
 
 // GET /api/events
@@ -299,6 +495,91 @@ router.post("/events", verifyToken, async (req, res) => {
     } catch (error) {
         console.error("Add event error:", error);
         return res.status(500).json({ message: "Server error." });
+    }
+});
+
+// PUT /api/events/:id
+router.put("/events/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    const {
+        title,
+        description,
+        category,
+        location_address,
+        event_date,
+        start_time,
+        end_time
+    } = req.body;
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("event_id", sql.Int, req.params.id)
+            .input("title", sql.NVarChar, title)
+            .input("description", sql.NVarChar, description)
+            .input("category", sql.NVarChar, category)
+            .input("location_address", sql.NVarChar, location_address)
+            .input("event_date", sql.Date, event_date)
+            .input("start_time", sql.NVarChar, start_time)
+            .input("end_time", sql.NVarChar, end_time)
+            .query(`
+                UPDATE events
+                SET
+                    title=@title,
+                    description=@description,
+                    category=@category,
+                    location_address=@location_address,
+                    event_date=@event_date,
+                    start_time=@start_time,
+                    end_time=@end_time
+                WHERE event_id=@event_id
+            `);
+
+        return res.status(200).json({
+            message: "Event updated successfully."
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
+// DELETE /api/events/:id
+router.delete("/events/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("event_id", sql.Int, req.params.id)
+            .query(`
+                DELETE FROM events
+                WHERE event_id=@event_id
+            `);
+
+        return res.status(200).json({
+            message: "Event deleted successfully."
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            message: "Server error."
+        });
     }
 });
 

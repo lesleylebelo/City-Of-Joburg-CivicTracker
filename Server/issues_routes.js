@@ -217,4 +217,189 @@ router.get("/residents-list", verifyToken, async (req, res) => {
     } catch (err) { return res.status(500).json({ message: "Server error." }); }
 });
 
+// GET /api/issues/:id
+router.get("/:id", verifyToken, async (req, res) => {
+    try {
+        const pool = await poolPromise;
+
+        const result = await pool.request()
+            .input("issue_id", sql.Int, req.params.id)
+            .query(`
+                SELECT *
+                FROM reported_issues
+                WHERE issue_id = @issue_id
+            `);
+
+        if (result.recordset.length === 0) {
+            return res.status(404).json({
+                message: "Issue not found."
+            });
+        }
+
+        const issue = result.recordset[0];
+
+        // Residents can only view their own issues
+        if (
+            req.user.role === "resident" &&
+            issue.resident_id !== req.user.id
+        ) {
+            return res.status(403).json({
+                message: "Access denied."
+            });
+        }
+
+        return res.status(200).json(issue);
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
+// PUT /api/issues/:id
+router.put("/:id", verifyToken, async (req, res) => {
+
+    const {
+        title,
+        category,
+        priority,
+        location_address,
+        description
+    } = req.body;
+
+    try {
+
+        const pool = await poolPromise;
+
+        const issueResult = await pool.request()
+            .input("issue_id", sql.Int, req.params.id)
+            .query(`
+                SELECT resident_id, status
+                FROM reported_issues
+                WHERE issue_id = @issue_id
+            `);
+
+        if (issueResult.recordset.length === 0) {
+            return res.status(404).json({
+                message: "Issue not found."
+            });
+        }
+
+        const issue = issueResult.recordset[0];
+
+        if (issue.resident_id !== req.user.id) {
+            return res.status(403).json({
+                message: "You can only edit your own issues."
+            });
+        }
+
+        if (issue.status !== "Pending") {
+            return res.status(400).json({
+                message: "Only pending issues can be edited."
+            });
+        }
+
+        await pool.request()
+            .input("issue_id", sql.Int, req.params.id)
+            .input("title", sql.NVarChar, title)
+            .input("category", sql.NVarChar, category)
+            .input("priority", sql.NVarChar, priority)
+            .input("location_address", sql.NVarChar, location_address)
+            .input("description", sql.NVarChar, description)
+            .query(`
+                UPDATE reported_issues
+                SET
+                    title=@title,
+                    category=@category,
+                    priority=@priority,
+                    location_address=@location_address,
+                    description=@description,
+                    updated_at=GETDATE()
+                WHERE issue_id=@issue_id
+            `);
+
+        return res.status(200).json({
+            message: "Issue updated successfully."
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
+// DELETE /api/issues/:id
+router.delete("/:id", verifyToken, async (req, res) => {
+
+    try {
+
+        const pool = await poolPromise;
+
+        const issueResult = await pool.request()
+            .input("issue_id", sql.Int, req.params.id)
+            .query(`
+                SELECT resident_id, status, image_url
+                FROM reported_issues
+                WHERE issue_id = @issue_id
+            `);
+
+        if (issueResult.recordset.length === 0) {
+            return res.status(404).json({
+                message: "Issue not found."
+            });
+        }
+
+        const issue = issueResult.recordset[0];
+
+        if (req.user.role === "resident") {
+
+            if (issue.resident_id !== req.user.id) {
+                return res.status(403).json({
+                    message: "Access denied."
+                });
+            }
+
+            if (issue.status !== "Pending") {
+                return res.status(400).json({
+                    message: "Only pending issues can be deleted."
+                });
+            }
+        }
+
+        await pool.request()
+            .input("issue_id", sql.Int, req.params.id)
+            .query(`
+                DELETE FROM reported_issues
+                WHERE issue_id = @issue_id
+            `);
+
+        // Delete image if it exists
+        if (issue.image_url) {
+
+            const imagePath = path.join(
+                __dirname,
+                issue.image_url.replace("/uploads/", "uploads/")
+            );
+
+            if (fs.existsSync(imagePath)) {
+                fs.unlinkSync(imagePath);
+            }
+        }
+
+        return res.status(200).json({
+            message: "Issue deleted successfully."
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
 module.exports = router;

@@ -170,7 +170,17 @@ async function loadIssues() {
             <td>${issue.location_address}</td>
             <td><span class="status-badge ${issue.status.toLowerCase().replace(" ","-")}">${issue.status}</span></td>
             <td>${new Date(issue.created_at).toLocaleDateString("en-ZA")}</td>
-            <td><button class="action-btn" onclick="updateIssueStatus(${issue.issue_id})">Update</button></td>
+            <td>
+                <button class="action-btn"
+                    onclick="updateIssueStatus(${issue.issue_id})">
+                    Update
+                </button>
+
+                <button class="action-btn delete-btn"
+                    onclick="deleteIssue(${issue.issue_id})">
+                    Delete
+                </button>
+             </td>
         </tr>
     `).join("");
 }
@@ -186,23 +196,99 @@ async function updateIssueStatus(id) {
     else alert(data.message || "Update failed.");
 }
 
+async function deleteIssue(id) {
+
+    const confirmed = confirm(
+        "Are you sure you want to delete this issue?"
+    );
+
+    if (!confirmed) return;
+
+    const { ok, data } = await apiFetch(
+        `/api/issues/${id}`,
+        "DELETE"
+    );
+
+    if (ok) {
+        alert("Issue deleted successfully.");
+        loadIssues();
+        loadStats();
+    } else {
+        alert(data.message || "Delete failed.");
+    }
+}
+
 // ── Load Projects ──
 async function loadProjects() {
     const container = document.getElementById("projects-list");
     container.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/projects");
     if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No projects.</p>'; return; }
-    container.innerHTML = data.map(p => `
-        <div class="data-card">
-            <h4>${p.title}</h4>
-            <p>${p.description}</p>
-            <div class="card-meta">
-                <span class="card-tag">${p.category}</span>
-                <span class="card-tag">${p.status}</span>
-                ${p.start_date ? `<span class="card-tag">${p.start_date}</span>` : ""}
-            </div>
+   container.innerHTML = data.map(p => `
+    <div class="data-card">
+
+        <h4>${p.title}</h4>
+
+        <p>${p.description}</p>
+
+        <div class="card-meta">
+            <span class="card-tag">${p.category}</span>
+            <span class="card-tag">${p.status}</span>
+            ${p.start_date ? `<span class="card-tag">${p.start_date}</span>` : ""}
         </div>
-    `).join("");
+
+        <div class="card-actions">
+            <button onclick="editProject(${p.project_id})">
+                Edit
+            </button>
+
+            <button onclick="deleteProject(${p.project_id})">
+                Delete
+            </button>
+        </div>
+
+    </div>
+`).join("");
+}
+
+async function editProject(id) {
+
+    const title = prompt(
+        "New project title:"
+    );
+
+    if (!title) return;
+
+    const { ok, data } = await apiFetch(
+        `/api/projects/${id}`,
+        "PUT",
+        { title }
+    );
+
+    if (ok) {
+        alert("Project updated.");
+        loadProjects();
+    } else {
+        alert(data.message || "Update failed.");
+    }
+}
+
+async function deleteProject(id) {
+
+    if (!confirm("Delete this project?"))
+        return;
+
+    const { ok, data } = await apiFetch(
+        `/api/projects/${id}`,
+        "DELETE"
+    );
+
+    if (ok) {
+        alert("Project deleted.");
+        loadProjects();
+    } else {
+        alert(data.message || "Delete failed.");
+    }
 }
 
 // Toggle Add Project Form

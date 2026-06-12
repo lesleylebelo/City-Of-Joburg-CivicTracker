@@ -204,7 +204,87 @@ async function loadMyHistory() {
                 </div>` : ""}
             ${issue.admin_notes ? `<div class="history-admin-note"><span>Admin Note:</span> ${issue.admin_notes}</div>` : ""}
             ${issue.resolved_at ? `<p class="history-resolved">✓ Resolved on ${formatDate(issue.resolved_at)}</p>` : ""}
+
+            <div class="history-actions">
+                ${issue.status === "Pending" ? `
+                    <button class="crud-btn edit-btn"
+                        onclick="editIssue(${issue.issue_id})">
+                        Edit
+                    </button>
+
+                    <button class="crud-btn delete-btn"
+                        onclick="deleteIssue(${issue.issue_id})">
+                        Delete
+                    </button>
+                ` : ""}
+             </div>
         </div>`).join("");
+}
+
+async function deleteIssue(issueId) {
+
+    const confirmed = confirm(
+        "Are you sure you want to delete this issue?"
+    );
+
+    if (!confirmed) return;
+
+    const { ok, data } = await apiFetch(
+        `/api/issues/${issueId}`,
+        "DELETE"
+    );
+
+    if (ok) {
+        alert("Issue deleted successfully.");
+        loadMyHistory();
+    } else {
+        alert(data.message || "Failed to delete issue.");
+    }
+}
+
+async function editIssue(issueId) {
+
+    const { ok, data } = await apiFetch(
+        `/api/issues/${issueId}`
+    );
+
+    if (!ok) {
+        alert("Unable to load issue.");
+        return;
+    }
+
+    const title = prompt(
+        "Edit Title",
+        data.title
+    );
+
+    if (!title) return;
+
+    const description = prompt(
+        "Edit Description",
+        data.description
+    );
+
+    if (!description) return;
+
+    const update = await apiFetch(
+        `/api/issues/${issueId}`,
+        "PUT",
+        {
+            title,
+            category: data.category,
+            priority: data.priority,
+            location_address: data.location_address,
+            description
+        }
+    );
+
+    if (update.ok) {
+        alert("Issue updated successfully.");
+        loadMyHistory();
+    } else {
+        alert(update.data.message || "Update failed.");
+    }
 }
 
 // Image lightbox 

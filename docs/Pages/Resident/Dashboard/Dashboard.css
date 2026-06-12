@@ -760,4 +760,33 @@ body {
 
 .history-resolved { font-size: 12px; color: #4CAF50; margin-top: 8px; font-weight: 600; }
 
+.history-actions{
+    margin-top:15px;
+    display:flex;
+    gap:10px;
+}
+
+.crud-btn{
+    padding:8px 14px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+}
+
+.edit-btn{
+    background:#F5C518;
+    color:#1A1A1A;
+}
+
+.delete-btn{
+    background:#C62828;
+    color:white;
+}
+
+.crud-btn:hover{
+    opacity:.9;
+}
+
 /* ── Google Maps Autocomplete Styling ── */
