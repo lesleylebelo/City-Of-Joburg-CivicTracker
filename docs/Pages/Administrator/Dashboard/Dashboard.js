@@ -218,6 +218,10 @@ async function deleteIssue(id) {
     }
 }
 
+//PROJECTS/DEVELOPMENTS
+
+let editingProjectId = null;
+
 // ── Load Projects ──
 async function loadProjects() {
     const container = document.getElementById("projects-list");
@@ -253,24 +257,62 @@ async function loadProjects() {
 
 async function editProject(id) {
 
-    const title = prompt(
-        "New project title:"
-    );
+    const { ok, data } = await apiFetch("/api/projects");
 
-    if (!title) return;
-
-    const { ok, data } = await apiFetch(
-        `/api/projects/${id}`,
-        "PUT",
-        { title }
-    );
-
-    if (ok) {
-        alert("Project updated.");
-        loadProjects();
-    } else {
-        alert(data.message || "Update failed.");
+    if (!ok) {
+        alert("Could not load project.");
+        return;
     }
+
+    const project = data.find(
+        p => p.project_id === id
+    );
+
+    if (!project) {
+        alert("Project not found.");
+        return;
+    }
+
+    editingProjectId = id;
+
+    document.getElementById("project-form-title")
+        .textContent = "Edit Development Project";
+
+    document.getElementById("Submit-Project-Btn")
+        .textContent = "Update Project";
+
+    document.getElementById("projectTitle")
+        .value = project.title || "";
+
+    document.getElementById("projectCategory")
+        .value = project.category || "";
+
+    document.getElementById("projectStatus")
+        .value = project.status || "";
+
+    document.getElementById("projectLocation")
+        .value = project.location_address || "";
+
+    document.getElementById("projectStartDate")
+        .value = project.start_date
+            ? project.start_date.split("T")[0]
+            : "";
+
+    document.getElementById("projectEndDate")
+        .value = project.expected_end_date
+            ? project.expected_end_date.split("T")[0]
+            : "";
+
+    document.getElementById("projectDescription")
+        .value = project.description || "";
+
+    document.getElementById("add-project-form")
+        .style.display = "block";
+
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+    });
 }
 
 async function deleteProject(id) {
@@ -297,29 +339,73 @@ document.getElementById("Add-Project-Btn").addEventListener("click", function() 
     form.style.display = form.style.display === "none" ? "block" : "none";
 });
 
-document.getElementById("Submit-Project-Btn").addEventListener("click", async function() {
+document.getElementById("Submit-Project-Btn")
+.addEventListener("click", async function() {
+
     const body = {
-        title:             document.getElementById("projectTitle").value.trim(),
-        category:          document.getElementById("projectCategory").value,
-        status:            document.getElementById("projectStatus").value,
-        location_address:  document.getElementById("projectLocation").value.trim(),
-        start_date:        document.getElementById("projectStartDate").value,
+        title: document.getElementById("projectTitle").value.trim(),
+        category: document.getElementById("projectCategory").value,
+        status: document.getElementById("projectStatus").value,
+        location_address: document.getElementById("projectLocation").value.trim(),
+        start_date: document.getElementById("projectStartDate").value,
         expected_end_date: document.getElementById("projectEndDate").value,
-        description:       document.getElementById("projectDescription").value.trim()
+        description: document.getElementById("projectDescription").value.trim()
     };
 
     if (!body.title || !body.location_address || !body.description) {
-        document.getElementById("Project-Error").textContent = "Please fill in all required fields!";
+        document.getElementById("Project-Error").textContent =
+            "Please fill in all required fields.";
         return;
     }
 
-    const { ok, data } = await apiFetch("/api/projects", "POST", body);
-    if (ok) {
-        document.getElementById("Project-Success").textContent = "Project added successfully!";
-        document.getElementById("Project-Error").textContent = "";
-        loadProjects();
+    let response;
+
+    if (editingProjectId) {
+
+        response = await apiFetch(
+            `/api/projects/${editingProjectId}`,
+            "PUT",
+            body
+        );
+
     } else {
-        document.getElementById("Project-Error").textContent = data.message || "Failed to add project.";
+
+        response = await apiFetch(
+            "/api/projects",
+            "POST",
+            body
+        );
+    }
+
+    if (response.ok) {
+
+        document.getElementById("Project-Success").textContent =
+            editingProjectId
+                ? "Project updated successfully!"
+                : "Project added successfully!";
+
+        document.getElementById("Project-Error").textContent = "";
+
+        editingProjectId = null;
+
+        document.getElementById("project-form-title")
+            .textContent = "New Development Project";
+
+        document.getElementById("Submit-Project-Btn")
+            .textContent = "Save Project";
+
+        document.getElementById("projectTitle").value = "";
+        document.getElementById("projectLocation").value = "";
+        document.getElementById("projectDescription").value = "";
+        document.getElementById("projectStartDate").value = "";
+        document.getElementById("projectEndDate").value = "";
+
+        loadProjects();
+
+    } else {
+
+        document.getElementById("Project-Error").textContent =
+            response.data.message || "Operation failed.";
     }
 });
 

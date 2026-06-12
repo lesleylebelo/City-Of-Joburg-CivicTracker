@@ -317,6 +317,60 @@ router.get("/polls", verifyToken, async (req, res) => {
     }
 });
 
+// GET /api/polls/:id
+router.get("/polls/:id", verifyToken, async (req, res) => {
+
+    try {
+
+        const pool = await poolPromise;
+
+        const pollResult = await pool.request()
+            .input("poll_id", sql.Int, req.params.id)
+            .query(`
+                SELECT
+                    poll_id,
+                    question,
+                    description,
+                    is_active,
+                    start_date,
+                    end_date
+                FROM polls
+                WHERE poll_id=@poll_id
+            `);
+
+        if (pollResult.recordset.length === 0) {
+            return res.status(404).json({
+                message: "Poll not found."
+            });
+        }
+
+        const optionsResult = await pool.request()
+            .input("poll_id", sql.Int, req.params.id)
+            .query(`
+                SELECT
+                    option_id,
+                    option_text,
+                    display_order
+                FROM poll_options
+                WHERE poll_id=@poll_id
+                ORDER BY display_order
+            `);
+
+        const poll = pollResult.recordset[0];
+        poll.options = optionsResult.recordset;
+
+        return res.status(200).json(poll);
+
+    } catch (err) {
+
+        console.error(err);
+
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
 // POST /api/polls (admin only)
 router.post("/polls", verifyToken, async (req, res) => {
     if (req.user.role !== "admin") {
@@ -364,6 +418,77 @@ router.post("/polls", verifyToken, async (req, res) => {
     }
 });
 
+// PUT /api/polls/:id
+router.put("/polls/:id", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    const {
+        question,
+        description,
+        end_date,
+        options
+    } = req.body;
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("poll_id", sql.Int, req.params.id)
+            .input("question", sql.NVarChar, question)
+            .input("description", sql.NVarChar, description || null)
+            .input("end_date", sql.DateTime, end_date || null)
+            .query(`
+                UPDATE polls
+                SET
+                    question=@question,
+                    description=@description,
+                    end_date=@end_date
+                WHERE poll_id=@poll_id
+            `);
+
+        if (Array.isArray(options) && options.length >= 2) {
+
+            await pool.request()
+                .input("poll_id", sql.Int, req.params.id)
+                .query(`
+                    DELETE FROM poll_options
+                    WHERE poll_id=@poll_id
+                `);
+
+            for (let i = 0; i < options.length; i++) {
+
+                await pool.request()
+                    .input("poll_id", sql.Int, req.params.id)
+                    .input("option_text", sql.NVarChar, options[i])
+                    .input("display_order", sql.Int, i + 1)
+                    .query(`
+                        INSERT INTO poll_options
+                        (poll_id, option_text, display_order)
+                        VALUES
+                        (@poll_id, @option_text, @display_order)
+                    `);
+            }
+        }
+
+        return res.status(200).json({
+            message: "Poll updated successfully."
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        return res.status(500).json({
+            message: "Server error."
+        });
+    }
+});
+
 // POST /api/polls/:id/vote (resident)
 router.post("/polls/:id/vote", verifyToken, async (req, res) => {
     const { option_id } = req.body;
@@ -397,6 +522,40 @@ router.post("/polls/:id/vote", verifyToken, async (req, res) => {
     } catch (error) {
         console.error("Vote error:", error);
         return res.status(500).json({ message: "Server error." });
+    }
+});
+
+// PATCH /api/polls/:id/close
+router.patch("/polls/:id/close", verifyToken, async (req, res) => {
+
+    if (req.user.role !== "admin")
+        return res.status(403).json({
+            message: "Admin access required."
+        });
+
+    try {
+
+        const pool = await poolPromise;
+
+        await pool.request()
+            .input("poll_id", sql.Int, req.params.id)
+            .query(`
+                UPDATE polls
+                SET is_active = 0
+                WHERE poll_id=@poll_id
+            `);
+
+        return res.status(200).json({
+            message: "Poll closed successfully."
+        });
+
+    } catch (err) {
+
+        console.error(err);
+
+        return res.status(500).json({
+            message: "Server error."
+        });
     }
 });
 
