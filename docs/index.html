@@ -4,142 +4,149 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Welcome to CoJ CivicTracker</title>
+        <title>CivicTrack | Report issues. Follow progress. | City of Joburg</title>
+        <meta name="description" content="CivicTrack helps City of Johannesburg residents report municipal issues, follow report updates, and stay informed about their community.">
+        <link rel="icon" href="./Assets/Images/Joburg Logo.jpg" type="image/jpeg">
         <link rel="stylesheet" href="./Pages/Public/Landing/Landing.css">
     </head>
     <body>
+        <a class="skip-link" href="#main-content">Skip to content</a>
         <header>
-            <!--Logo-->
-            <div>
-                <img src="./Assets/Images/Joburg Logo.jpg" alt="City of Joburg logo" id="Logo">
-                <h6 id="CoJ">City of Joburg</h6>
-                <h5 id="CivicTrack">CivicTrack</h5>
-            </div>
-
-            <!--Navigation Bar-->
-            <nav>
-                <div id="Navigation-Bar">
+            <div class="header-inner">
+                <a class="brand" href="#Hero-Section" aria-label="CivicTrack home">
+                    <img src="./Assets/Images/Joburg Logo.jpg" alt="City of Joburg logo" id="Logo" width="58" height="45">
+                    <span class="brand-copy"><span id="CivicTrack">CivicTrack</span><span id="CoJ">City of Johannesburg</span></span>
+                </a>
+                <nav aria-label="Main navigation" id="Navigation-Bar">
                     <a href="#About-CivicTracker">About</a>
                     <a href="#Use-Cases">Use Cases</a>
                     <a href="#Features">Features</a>
                     <a href="#Team">Meet the Team</a>
-
-                    <a href="./Pages/Public/Role-Access/Role-Access.html">
-                        <button id="Use-CivicTrack-Btn">Use CivicTrack</button>
-                    </a>
-                </div>
-            </nav>
+                </nav>
+                <a class="button header-cta" id="Use-CivicTrack-Btn" href="./Pages/Public/Role-Access/Role-Access.html">Get Started <span aria-hidden="true">↗</span></a>
+            </div>
         </header>
 
-        <main>
+        <main id="main-content" tabindex="-1">
             <!--Hero Section-->
-            <section id="Hero-Section">
-                <img src= "./Assets/Images/Hero-Section.png" alt="Hero Picture, City of Joburg" id="Hero-Picture">
-
-
-            <div class="hero-text"></div>
+            <section id="Hero-Section" aria-labelledby="hero-heading">
+                <div class="hero-copy">
+                    <p class="eyebrow"><span class="city-dot" aria-hidden="true"></span> For the people of Johannesburg</p>
+                    <h1 id="hero-heading">Your city.<br>Your voice.<br><span>Make it count.</span></h1>
+                    <p class="hero-description">Report municipal issues, follow their progress, and stay connected to what’s happening in your community. This is CivicTrack.</p>
+                    <a class="button" href="./Pages/Public/Role-Access/Role-Access.html">Get Started <span aria-hidden="true">↗</span></a>
+                    <p class="hero-note">Report an issue. Track an update. Help improve Joburg.</p>
+                </div>
+                <figure class="hero-visual">
+                    <img src="./Assets/Images/Hero-Section.png" alt="Johannesburg skyline at sunset, with the Nelson Mandela Bridge and Hillbrow Tower" id="Hero-Picture" width="1536" height="1024" fetchpriority="high">
+                    <figcaption><span>Our city. Our shared responsibility.</span><span aria-hidden="true">JOHANNESBURG, ZA</span></figcaption>
+                </figure>
             </section>
 
             <!--About Section-->
             <section id="About-CivicTracker">
-                <h2>About CivicTracker</h2>
-                <p>CivicTrack is a web application built exclusively for residents of the City of Joburg municipality. The platform bridges the gap between residents and the city by providing a centralised space to:
-                    <br><br>
-                    .Report civic and municipal issues in an area
-                    <br>
-                    .Track ongoing maintenance work and new development projects across the region
-                    <br>
-                    .Stay informed on what's happening in your neighbourhood and beyond
-                    <br><br>
-                   CivicTrack is designed exclusively for City of Joburg residents. The system uses location-based filtering to verify that users and submitted reports fall within the official CoJ municipal boundary. Any activity detected outside this boundary is automatically restricted.
-                </p>
+                <div class="section-heading"><p class="eyebrow">01 / About CivicTrack</p><h2>A closer connection<br>to your city.</h2></div>
+                <div class="about-copy">
+                    <p class="section-lead">Built for residents of the City of Joburg, CivicTrack brings municipal reporting and community information into one place.</p>
+                    <ul class="about-list">
+                        <li>Report civic and municipal issues in your area.</li>
+                        <li>Track ongoing maintenance and new development projects across the region.</li>
+                        <li>Stay informed about your neighbourhood and beyond.</li>
+                    </ul>
+                    <p class="location-note">CivicTrack is designed exclusively for City of Joburg residents. The system uses location-based filtering to verify that users and submitted reports fall within the official CoJ municipal boundary. Any activity detected outside this boundary is automatically restricted.</p>
+                </div>
             </section>
 
             <!--Use Cases Section-->
             <section id="Use-Cases">
-                <h2>Use Cases</h2>
+                <div class="section-heading"><p class="eyebrow">02 / Use cases</p><h2>Small actions.<br>A more connected community.</h2></div>
+                <div class="use-case-grid">
 
-                <div id="UseCase-Card1">
+                <div class="use-case-card">
                     <h3>Report Civic Issues</h3>
                     <p>Report problems affecting your community. Submit reports with descriptions, photos, and locations for faster municipal response.</p>
                 </div>
 
-                <div id="UseCase-Card1">
+                <div class="use-case-card">
                     <h3>Track Report Status</h3>
                     <p>Monitor the progress of issues you have reported. Get full transparency from reporting to resolution.</p>
                 </div>
 
-                <div id="UseCase-Card1">
+                <div class="use-case-card">
                     <h3>Monitor Municipal Projects</h3>
-                    <p>Stay informed about projects happening in your area.Know what projects are underway, their progress, budgets, and expected completion dates.</p>
+                    <p>Stay informed about projects happening in your area. Know what projects are underway, their progress, budgets, and expected completion dates.</p>
                 </div>
 
-                <div id="UseCase-Card2">
+                <div class="use-case-card">
                     <h3>Community Polls and Voting</h3>
-                    <p>Participate in polls and provide input on local matters. Get a voice in local decision-making and helps the municipality understand community priorities.</p>
+                    <p>Participate in polls and provide input on local matters. Have a voice in local decision-making and help the municipality understand community priorities.</p>
                 </div>
 
-                <div id="UseCase-Card3">
+                <div class="use-case-card">
                     <h3>Community Events</h3>
                     <p>Discover and stay informed about municipal and community events. Encourages citizen participation and strengthens community engagement.</p>
                 </div>
 
                
+                </div>
             </section>
 
             <!--Features Section-->
             <section id="Features">
-                <h2>Features</h2>
+                <div class="section-heading"><p class="eyebrow">03 / Features</p><h2>Your community, in view.</h2></div>
+                <div class="feature-grid">
 
-                <div id="Features-Card1">
+                <div class="feature-card">
                     <h3>Issue Reporting</h3>
                     <p>Quickly report potholes, broken streetlights, water leaks, and other service delivery issues.</p>
                 </div>
 
-                <div id="Features-Card2">
+                <div class="feature-card">
                     <h3>Maintenance Tracking</h3>
                     <p>Monitor the progress of repairs and maintenance work in your area in real time.</p>
                 </div>
 
-                <div id="Features-Card3">
+                <div class="feature-card">
                     <h3>Municipal Projects Monitor</h3>
                     <p>Stay informed about new developments and infrastructure projects happening across Johannesburg.</p>
                 </div>
 
-                <div id="Features-Card4">
+                <div class="feature-card">
                     <h3>Real-Time Notifications</h3>
                     <p>Receive updates on your reports, ongoing projects, and important municipal announcements.</p>
                 </div>
 
-                <div id="Features-Card5">
+                <div class="feature-card">
                     <h3>Interactive Maps</h3>
                     <p>View reported issues and development projects visually across the city using map-based tools.</p>
                 </div>
 
-                <div id="Features-Card6">
+                <div class="feature-card">
                     <h3>User Dashboard</h3>
                     <p>Access a personalized dashboard to track your reports, view updates, and manage your activity.</p>
+                </div>
                 </div>
             </section>
 
             <!--Team Section-->
             <section id="Team">
-                <h2>Meet the Team</h2>
+                <div><p class="eyebrow">04 / The people behind CivicTrack</p><h2>Built with Joburg in mind.</h2>
                 <p id="Team-Intro">A dedicated group of developers and administrators building a better Johannesburg.</p>
-                <a href="./Pages/Public/Landing/Team/Team.html" id="Meet-Team-Btn">View Full Team</a>
+                </div><a href="./Pages/Public/Landing/Team/Team.html" id="Meet-Team-Btn" class="button button-outline">View Full Team <span aria-hidden="true">↗</span></a>
             </section>
         </main>
 
         <footer>
+            <div class="footer-brand">CivicTrack<span>City of Johannesburg</span></div>
             
             <div id="footer-social">
-                <a href="https://www.youtube.com/@CityOfJoburgZA" target="_blank" id="social-youtube" class="social-link">
+                <a href="https://www.youtube.com/@CityOfJoburgZA" target="_blank" rel="noopener noreferrer" id="social-youtube" class="social-link">
                     <span class="social-icon">▶</span> YouTube
                 </a>
-                <a href="https://x.com/CityofJoburgZA?lang=en" target="_blank" id="social-twitter" class="social-link">
+                <a href="https://x.com/CityofJoburgZA?lang=en" target="_blank" rel="noopener noreferrer" id="social-twitter" class="social-link">
                     <span class="social-icon">✕</span> X / Twitter
                 </a>
-                <a href="https://www.tiktok.com/@cityofjoburg" target="_blank" id="social-tiktok" class="social-link">
+                <a href="https://www.tiktok.com/@cityofjoburg" target="_blank" rel="noopener noreferrer" id="social-tiktok" class="social-link">
                     <span class="social-icon">♪</span> TikTok
                 </a>
             </div>
@@ -149,7 +156,5 @@
             </div>
             
         </footer>
-
-        <script src="./Pages/Public/Landing/Landing.js"></script>
     </body>
 </html>
