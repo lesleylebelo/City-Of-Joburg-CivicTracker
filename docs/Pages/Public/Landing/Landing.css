@@ -2,23 +2,28 @@
 :root {
     --gold: #f5c518;
     --ink: #202321;
-    --muted: #61645e;
-    --paper: #f6f5f0;
-    --line: #dedfd5;
+    --surface: #252825;
+    --surface-alt: #2b2d2a;
+    --surface-warm: #30312d;
+    --surface-card: #343731;
+    --heading: #f3f2ed;
+    --text: #d0d2c8;
+    --muted: #b9bdb1;
+    --line: #4a4d45;
     --page-gutter: clamp(22px, 5vw, 80px);
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 120px; }
-body { margin: 0; background: var(--paper); color: var(--ink); font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.65; }
+body { margin: 0; background: var(--ink); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.65; }
 a { color: inherit; text-underline-offset: 5px; }
 img { display: block; max-width: 100%; }
 h1, h2, h3, p, figure { margin: 0; }
-h1, h2, h3 { line-height: 1.12; }
-a:focus-visible, main:focus-visible { outline: 3px solid #a66c00; outline-offset: 5px; }
+h1, h2, h3 { line-height: 1.12; color: var(--heading); }
+a:focus-visible, main:focus-visible { outline: 3px solid var(--gold); outline-offset: 5px; }
 header a:focus-visible, #Hero-Section a:focus-visible, #Team a:focus-visible, footer a:focus-visible { outline-color: var(--gold); }
 .skip-link { position: fixed; top: 12px; left: 20px; padding: 12px 18px; background: var(--gold); color: var(--ink); z-index: 20; transform: translateY(-160%); font-weight: 700; }
 .skip-link:focus { transform: translateY(0); }
-header { position: sticky; top: 0; z-index: 10; background: #202321; color: #fff; border-bottom: 1px solid #ffffff21; }
+header { position: sticky; top: 0; z-index: 10; background: var(--ink); color: var(--heading); border-bottom: 1px solid var(--line); }
 .header-inner { max-width: 1600px; margin: auto; padding: 19px var(--page-gutter); display: flex; align-items: center; gap: 36px; }
 .brand { display: flex; align-items: center; gap: 13px; text-decoration: none; flex-shrink: 0; }
 #Logo { width: 52px; height: 44px; object-fit: contain; background: white; border: 4px solid white; }
@@ -28,13 +33,13 @@ header { position: sticky; top: 0; z-index: 10; background: #202321; color: #fff
 #Navigation-Bar { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 34px); margin-left: auto; }
 #Navigation-Bar a { font-size: 13px; font-weight: 600; text-decoration: none; padding-block: 9px; white-space: nowrap; }
 #Navigation-Bar a:hover { color: var(--gold); }
-.button { display: inline-flex; align-items: center; justify-content: space-between; gap: 35px; min-height: 52px; padding: 13px 22px; background: var(--gold); color: #202321; font-size: 14px; font-weight: 750; text-decoration: none; border: 1px solid transparent; border-radius: 3px; transition: background .15s; }
+.button { display: inline-flex; align-items: center; justify-content: space-between; gap: 35px; min-height: 52px; padding: 13px 22px; background: var(--gold); color: var(--ink); font-size: 14px; font-weight: 750; text-decoration: none; border: 1px solid transparent; border-radius: 3px; transition: background .15s; }
 .button span { font-size: 20px; line-height: 1; }
 .button:hover { background: #ffdb4c; }
 .header-cta { min-height: 44px; padding: 9px 17px; gap: 22px; white-space: nowrap; }
 main > section { padding: 88px var(--page-gutter); }
 main > section > *, .header-inner { min-width: 0; }
-#Hero-Section { background: #202321; color: white; display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 5%; padding-top: 56px; padding-bottom: 62px; }
+#Hero-Section { background: var(--ink); color: var(--text); display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 5%; padding-top: 56px; padding-bottom: 62px; }
 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; line-height: 1.6; }
 .hero-copy .eyebrow { color: #d0d3c8; display: flex; align-items: center; gap: 9px; }
 .city-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
@@ -49,31 +54,32 @@ h1 span { color: var(--gold); }
 .hero-visual figcaption span:last-child { font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
 h2 { font-size: clamp(30px, 3vw, 44px); font-weight: 700; letter-spacing: -.045em; }
 .section-heading { margin-bottom: 38px; }
-.section-heading .eyebrow { color: var(--muted); margin-bottom: 16px; }
-#About-CivicTracker { display: grid; grid-template-columns: .9fr 1.1fr; gap: 5%; border-bottom: 1px solid var(--line); }
+.section-heading .eyebrow { color: var(--gold); margin-bottom: 16px; }
+#About-CivicTracker { background: var(--surface-alt); display: grid; grid-template-columns: .9fr 1.1fr; gap: 5%; border-bottom: 1px solid var(--line); }
 #About-CivicTracker .section-heading { margin: 0; }
 .section-lead { font-size: 20px; line-height: 1.6; }
 .about-list { list-style: none; margin: 24px 0; padding: 0; }
 .about-list li { position: relative; padding: 10px 0 10px 26px; border-bottom: 1px solid var(--line); font-size: 15px; }
-.about-list li::before { content: '↗'; position: absolute; left: 0; color: #7b6500; font-weight: 700; }
+.about-list li::before { content: '↗'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
 .location-note { color: var(--muted); font-size: 13px; max-width: 65ch; }
-#Use-Cases { background: #fff; }
+#Use-Cases { background: var(--surface); }
 .use-case-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; counter-reset: usecase; }
-.use-case-card { grid-column: span 2; padding: 28px; background: var(--paper); border: 1px solid #e8e8df; border-radius: 3px; counter-increment: usecase; }
+.use-case-card { grid-column: span 2; padding: 28px; background: var(--surface-card); border: 1px solid var(--line); border-radius: 3px; counter-increment: usecase; }
 .use-case-card:nth-last-child(-n+2) { grid-column: span 3; }
-.use-case-card::before { content: '0' counter(usecase); display: block; font-size: 12px; font-weight: 700; color: #655614; margin-bottom: 32px; border-bottom: 2px solid var(--gold); width: 32px; padding-bottom: 6px; }
+.use-case-card::before { content: '0' counter(usecase); display: block; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 32px; border-bottom: 2px solid var(--gold); width: 32px; padding-bottom: 6px; }
 h3 { font-size: 21px; letter-spacing: -.6px; }
 .use-case-card p, .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.8; margin-top: 13px; }
+#Features { background: var(--surface-alt); border-top: 1px solid var(--line); }
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 48px; }
-.feature-card { border-top: 1px solid #c9cbbf; padding-top: 24px; }
+.feature-card { border-top: 1px solid var(--line); padding-top: 24px; }
 .feature-card h3 { font-size: 19px; }
-#Team { background: #202321; color: white; display: flex; justify-content: space-between; align-items: center; gap: 32px; border-bottom: 1px solid #ffffff21; }
+#Team { background: var(--surface-warm); color: var(--text); display: flex; justify-content: space-between; align-items: center; gap: 32px; border-block: 1px solid var(--line); }
 #Team .eyebrow { color: var(--gold); margin-bottom: 18px; }
 #Team-Intro { color: #c2c5be; margin-top: 18px; max-width: 550px; }
-.button-outline { background: transparent; color: white; border-color: #7b806e; flex-shrink: 0; }
+.button-outline { background: transparent; color: var(--heading); border-color: #8c9382; flex-shrink: 0; }
 .button-outline:hover { background: #ffffff10; border-color: var(--gold); }
-footer { padding: 38px var(--page-gutter) 28px; background: #202321; color: #b7bcb0; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 30px; font-size: 12px; }
-.footer-brand { color: white; font-size: 22px; font-weight: 700; letter-spacing: -.6px; }
+footer { padding: 38px var(--page-gutter) 28px; background: var(--ink); color: var(--muted); display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 30px; font-size: 12px; }
+.footer-brand { color: var(--heading); font-size: 22px; font-weight: 700; letter-spacing: -.6px; }
 .footer-brand span { display: block; color: #b7bcb0; font-size: 11px; font-weight: 400; letter-spacing: .5px; margin-top: 4px; }
 #footer-social { display: flex; gap: 26px; flex-wrap: wrap; }
 .social-link { text-decoration: none; padding-block: 10px; }
