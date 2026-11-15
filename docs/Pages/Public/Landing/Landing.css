@@ -39,19 +39,60 @@ header { position: sticky; top: 0; z-index: 10; background: var(--ink); color: v
 .header-cta { min-height: 44px; padding: 9px 17px; gap: 22px; white-space: nowrap; }
 main > section { padding: 88px var(--page-gutter); }
 main > section > *, .header-inner { min-width: 0; }
-#Hero-Section { background: var(--ink); color: var(--text); display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; gap: 5%; padding-top: 56px; padding-bottom: 62px; }
+#Hero-Section {
+    --hero-photo-opacity: 1;
+    position: relative;
+    min-height: 100svh;
+    overflow: hidden;
+    isolation: isolate;
+    background: var(--ink);
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 32px;
+    padding-block: clamp(56px, 8svh, 100px);
+}
+#Hero-Section::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: url('../../../Assets/Images/Hero-Section.jpg') right center / auto 112% no-repeat;
+    opacity: var(--hero-photo-opacity);
+    -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 62%), linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 18%, #000 62%), linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+    pointer-events: none;
+}
+#Hero-Section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(ellipse at 24% 40%, rgba(28,30,28,.88) 0%, rgba(28,30,28,.6) 32%, transparent 72%), linear-gradient(90deg, var(--ink) 0%, rgba(32,35,33,.9) 22%, rgba(32,35,33,.45) 50%, transparent 80%);
+    pointer-events: none;
+}
+.hero-copy { width: min(100%, 950px); }
+.hero-chips { display: flex; flex-wrap: wrap; gap: 10px; max-width: 100%; margin: 0; padding: 0; list-style: none; }
+.hero-chips li { padding: 9px 14px; border: 1px solid rgba(245,197,24,.45); border-radius: 3px; background: rgba(28,30,28,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--heading); font-weight: 700; font-size: 13px; }
+@media (prefers-reduced-motion: no-preference) {
+    #Hero-Section::before { animation: hero-photo-enter 1.6s ease-out both; }
+    @keyframes hero-photo-enter {
+        from { opacity: 0; transform: scale(1.05); }
+        to { opacity: var(--hero-photo-opacity); transform: scale(1); }
+    }
+}
 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; line-height: 1.6; }
 .hero-copy .eyebrow { color: #d0d3c8; display: flex; align-items: center; gap: 9px; }
 .city-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-h1 { font-size: clamp(48px, 5.2vw, 80px); letter-spacing: -.055em; font-weight: 750; margin-top: 26px; }
-h1 span { color: var(--gold); }
-.hero-description { color: #d1d4cb; font-size: clamp(16px, 1.3vw, 18px); max-width: 450px; margin-top: 24px; }
+#hero-heading { font-size: clamp(56px, 9.4vw, 138px); line-height: .92; letter-spacing: -.045em; font-weight: 800; margin-top: 26px; text-shadow: 0 4px 40px rgba(0,0,0,.45); }
+#hero-heading span { display: block; color: var(--gold); }
+.hero-description { color: #c9c6bb; font-size: clamp(16px, 1.3vw, 18px); max-width: 34ch; margin-top: 24px; }
 .hero-copy > .button { margin-top: 30px; min-width: 190px; }
 .hero-note { font-size: 11px; color: #b7bcb0; margin-top: 15px; }
-.hero-visual { align-self: stretch; display: flex; flex-direction: column; justify-content: center; }
-#Hero-Picture { width: 100%; height: auto; aspect-ratio: 1 / 1; object-fit: cover; object-position: 62% center; border-radius: 3px; }
-.hero-visual figcaption { display: flex; justify-content: space-between; gap: 15px; font-size: 10px; color: #c2c5ba; padding-top: 13px; }
-.hero-visual figcaption span:last-child { font-size: 9px; letter-spacing: 1px; white-space: nowrap; }
 h2 { font-size: clamp(30px, 3vw, 44px); font-weight: 700; letter-spacing: -.045em; }
 .section-heading { margin-bottom: 38px; }
 .section-heading .eyebrow { color: var(--gold); margin-bottom: 16px; }
@@ -92,9 +133,6 @@ footer { padding: 38px var(--page-gutter) 28px; background: var(--ink); color: v
     .header-cta { margin-left: auto; }
     #Navigation-Bar { order: 3; width: 100%; margin: 0; justify-content: space-between; border-top: 1px solid #ffffff21; padding-top: 6px; }
     html { scroll-padding-top: 155px; }
-    #Hero-Section { gap: 30px; grid-template-columns: 1fr 1fr; }
-    h1 { font-size: clamp(44px, 6.4vw, 64px); }
-    .hero-visual figcaption { flex-direction: column; gap: 2px; }
     .use-case-card { padding: 22px; }
     .feature-grid { gap: 30px; }
 }
@@ -110,14 +148,9 @@ footer { padding: 38px var(--page-gutter) 28px; background: var(--ink); color: v
     #Navigation-Bar { gap: 10px; }
     #Navigation-Bar a { font-size: 11px; min-height: 44px; display: flex; align-items: center; }
     main > section { padding-block: 54px; }
-    #Hero-Section { grid-template-columns: 1fr; gap: 34px; padding-top: 38px; padding-bottom: 30px; }
     .hero-copy .eyebrow { font-size: 9px; letter-spacing: 1.2px; }
-    h1 { font-size: clamp(47px, 10vw, 64px); margin-top: 21px; }
     .hero-description { font-size: 16px; margin-top: 22px; }
     .hero-note { font-size: 10px; }
-    #Hero-Picture { aspect-ratio: 3 / 2; object-fit: contain; }
-    .hero-visual figcaption { flex-direction: row; font-size: 9px; }
-    .hero-visual figcaption span:last-child { font-size: 8px; }
     #About-CivicTracker { grid-template-columns: 1fr; gap: 26px; }
     .section-lead { font-size: 18px; }
     .section-heading { margin-bottom: 28px; }
@@ -133,4 +166,12 @@ footer { padding: 38px var(--page-gutter) 28px; background: var(--ink); color: v
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .button { transition: none; }
+}
+
+/* Keep the primary action visible when the text navigation is hidden. */
+@media (max-width: 819px) {
+    #Navigation-Bar { display: none; }
+    #Hero-Section { --hero-photo-opacity: .75; padding-block: 64px; }
+    #Hero-Section::before { background-position: 70% center; }
+    #Hero-Section::after { background-color: rgba(28,30,28,.2); }
 }
