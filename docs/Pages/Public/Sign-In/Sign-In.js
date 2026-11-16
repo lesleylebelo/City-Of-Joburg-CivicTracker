@@ -15,10 +15,10 @@
         feedback.textContent = 'Signing in…';
         try {
             CivicSession.clear();
-            const response = await fetch('/api/auth/login', {
+            const response = await fetch(window.CivicConfig.apiUrl('/api/auth/login'), {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ identifier: identifier.value.trim(), password: password.value }),
-                cache: 'no-store'
+                cache: 'no-store', credentials: 'omit', redirect: 'error'
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) {

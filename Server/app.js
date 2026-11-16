@@ -4,6 +4,7 @@ const verifyToken = require('./auth_middleware');
 const { sql, poolPromise } = require('./db_sqlserver');
 const app = express();
 
+app.use(['/api', '/uploads'], require('./cors_policy')());
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: false, limit: '16kb' }));
 app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });

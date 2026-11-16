@@ -19,7 +19,7 @@ async function apiFetch(url, method = "GET", body = null) {
     };
     if (body) opts.body = JSON.stringify(body);
     try {
-        const res  = await CivicSession.fetch(url, opts);
+        const res  = await CivicSession.fetch(window.CivicConfig.apiUrl(url), opts);
         const data = await res.json();
         return { ok: res.ok, data };
     } catch (err) {

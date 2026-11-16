@@ -35,8 +35,8 @@
         feedback.dataset.state = 'pending';
         feedback.textContent = 'Setting up your account…';
         try {
-            const response = await fetch(activation ? '/api/auth/admin/register' : '/api/auth/resident/register', {
-                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), cache: 'no-store'
+            const response = await fetch(window.CivicConfig.apiUrl(activation ? '/api/auth/admin/register' : '/api/auth/resident/register'), {
+                method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), cache: 'no-store', credentials: 'omit', redirect: 'error'
             });
             if (!response.ok) {
                 feedback.dataset.state = 'error';
