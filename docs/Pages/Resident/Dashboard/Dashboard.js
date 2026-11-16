@@ -1,6 +1,13 @@
 const user = CivicSession.user;
 const escapeHTML = CivicSession.escapeHTML;
 
+// Decorative vector icons; names and paths are fixed application constants.
+const reportIconPaths = {
+    "clock": "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 7v5l3 2\"/>",
+    "pin": "<path d=\"M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/>",
+    "check": "<path d=\"m5 12 4 4L19 6\"/>"
+};
+const reportIcon = name => "<svg xmlns=\"http://www.w3.org/2000/svg\" class=\"ui-icon\" width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\" focusable=\"false\" style=\"vertical-align:-0.2em;flex-shrink:0\">" + reportIconPaths[name] + "</svg>";
 
 if (user.full_names) {
     document.getElementById("topbar-name").textContent   = user.full_names;
@@ -138,7 +145,7 @@ async function castVote(pollId, optionId, btn) {
     msgEl.style.color = "#F5C518"; msgEl.textContent = "Submitting...";
     const { ok, data } = await apiFetch(`/api/polls/${pollId}/vote`, "POST", { option_id: optionId });
     if (ok) {
-        msgEl.style.color = "#4CAF50"; msgEl.textContent = "✓ Vote submitted!";
+        msgEl.style.color = "#4CAF50"; msgEl.innerHTML = reportIcon("check"); msgEl.append(" Vote submitted!");
         document.querySelectorAll(`#poll-${pollId} .poll-option-btn`).forEach(b => {
             b.disabled = true; b.style.opacity = "0.6"; b.style.cursor = "default";
         });
@@ -167,8 +174,8 @@ async function loadEvents() {
                 <div class="event-full-info">
                     <h4>${escapeHTML(ev.title)}</h4>
                     <p class="event-full-date">${full}</p>
-                    <p class="event-full-time">🕐 ${st}${et}</p>
-                    <p class="event-full-location">📍 ${escapeHTML(ev.location_address)}</p>
+                    <p class="event-full-time">${reportIcon("clock")} ${st}${et}</p>
+                    <p class="event-full-location">${reportIcon("pin")} ${escapeHTML(ev.location_address)}</p>
                 </div>
             </div>
             <p class="event-full-desc">${escapeHTML(ev.description)}</p>
@@ -195,14 +202,14 @@ async function loadMyHistory() {
                     <span class="history-date">${formatDate(issue.created_at)}</span>
                 </div>
             </div>
-            <p class="history-location">📍 ${escapeHTML(issue.location_address)}</p>
+            <p class="history-location">${reportIcon("pin")} ${escapeHTML(issue.location_address)}</p>
             <p class="history-desc">${escapeHTML(issue.description)}</p>
             ${issue.image_url ? `
                 <div class="history-image-wrap">
                     <img data-report-image="${escapeHTML(issue.image_url)}" alt="Issue photo" class="history-image" onclick="openImageModal(this.src)">
                 </div>` : ""}
             ${issue.admin_notes ? `<div class="history-admin-note"><span>Admin Note:</span> ${escapeHTML(issue.admin_notes)}</div>` : ""}
-            ${issue.resolved_at ? `<p class="history-resolved">✓ Resolved on ${formatDate(issue.resolved_at)}</p>` : ""}
+            ${issue.resolved_at ? `<p class="history-resolved">${reportIcon("check")} Resolved on ${formatDate(issue.resolved_at)}</p>` : ""}
 
             <div class="history-actions">
                 ${issue.status === "Pending" ? `
