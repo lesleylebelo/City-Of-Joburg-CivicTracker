@@ -104,27 +104,24 @@ h2 { font-size: clamp(30px, 3vw, 44px); font-weight: 700; letter-spacing: -.045e
 .about-list li { position: relative; padding: 10px 0 10px 26px; border-bottom: 1px solid var(--line); font-size: 15px; }
 .about-list li::before { content: ""; display: inline-block; width: 1em; height: 1em; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%2018%2018%206M6%206h12v12%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2024%2024%22%20fill%3D%22none%22%20stroke%3D%22black%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpath%20d%3D%22M6%2018%2018%206M6%206h12v12%22%2F%3E%3C%2Fsvg%3E") center / contain no-repeat; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
 .location-note { color: var(--muted); font-size: 13px; max-width: 65ch; }
-#Johannesburg-Map { background: var(--ink); border-bottom: 1px solid var(--line); padding-inline: 0; }
-#Johannesburg-Map .section-heading { text-align: center; margin-bottom: 28px; padding-inline: var(--page-gutter); }
+#Johannesburg-Map { background: var(--ink); border-bottom: 1px solid var(--line); }
+#Johannesburg-Map .section-heading { text-align: center; margin-bottom: 28px; }
 .johannesburg-map { margin: 0; display: grid; justify-items: center; gap: 24px; }
-.map-help, .map-status { max-width: 75ch; padding-inline: var(--page-gutter); text-align: center; color: var(--muted); font-size: 15px; }
-.map-frame { position: relative; isolation: isolate; width: 100%; border-block: 1px solid var(--line); background: var(--ink); }
+.map-help, .map-status { max-width: 75ch; text-align: center; color: var(--muted); font-size: 15px; }
+.map-frame { position: relative; isolation: isolate; width: 100%; border: 1px solid var(--line); border-radius: 4px; background: var(--ink); }
 #johannesburg-street-map { width: 100%; height: clamp(520px, 65vw, 720px); background: var(--ink); font-family: inherit; }
 .map-tools { position: absolute; z-index: 500; top: 16px; left: 16px; display: flex; flex-direction: column; gap: 8px; }
 .map-tools button { display: grid; place-items: center; width: 44px; height: 44px; padding: 0; border: 1px solid var(--line); border-radius: 3px; background: var(--ink); color: var(--gold); cursor: pointer; }
 .map-tools button:hover:not(:disabled) { background: var(--surface-card); }
 .map-tools button:disabled { opacity: .5; cursor: default; }
 .map-tools button:focus-visible, #johannesburg-street-map:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-.map-status { min-height: 25px; }
+.map-status:not([data-state="error"]) { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 #johannesburg-map-retry[hidden] { display: none; }
 .johannesburg-map noscript img { width: min(100%, 560px); height: auto; }
-.map-boundary-key { display: inline-block; width: 30px; margin-right: 8px; border-top: 3px dotted #ef4444; vertical-align: middle; }
-#johannesburg-street-map .leaflet-control-attribution { max-width: calc(100% - 12px); margin: 6px; padding: 6px 10px; background: #202321; color: #d0d2c8; font-size: 12px; }
+#johannesburg-street-map .leaflet-top.leaflet-right { max-width: calc(100% - 80px); }
+#johannesburg-street-map .leaflet-control-attribution { max-width: 100%; margin: 6px; padding: 6px 10px; background: #202321; color: #d0d2c8; font-size: 12px; }
 #johannesburg-street-map .leaflet-control-attribution a { color: var(--gold); }
 #johannesburg-street-map .leaflet-control-attribution a:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
-.johannesburg-map figcaption { max-width: 65ch; padding-inline: var(--page-gutter); text-align: center; color: var(--muted); font-size: 14px; }
-.johannesburg-map figcaption a { display: inline-block; padding-block: 10px; color: var(--gold); }
-.map-link-context { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 #Use-Cases { background: var(--surface); }
 .use-case-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; counter-reset: usecase; }
 .use-case-card { grid-column: span 2; padding: 28px; background: var(--surface-card); border: 1px solid var(--line); border-radius: 3px; counter-increment: usecase; }

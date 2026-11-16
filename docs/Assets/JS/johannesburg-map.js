@@ -9,9 +9,10 @@
     const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
     let map, tiles, starting = false;
     const failedTiles = new Set();
-    const message = 'Drag to explore Johannesburg. Zoom in to see streets and local places.';
+    const message = 'Johannesburg street map loaded.';
     const showTileStatus = () => {
         status.textContent = failedTiles.size ? 'Some streets could not load. Check your connection and retry.' : message;
+        status.dataset.state = failedTiles.size ? 'error' : 'ready';
         retry.hidden = !failedTiles.size;
     };
 
@@ -19,12 +20,14 @@
         if (starting) return;
         if (tiles) {
             failedTiles.clear();
+            status.dataset.state = 'loading';
             status.textContent = 'Loading streets and local places…';
             retry.hidden = true;
             tiles.redraw();
             return;
         }
         starting = true;
+        status.dataset.state = 'loading';
         status.textContent = 'Loading Johannesburg street map…';
         retry.hidden = true;
         try {
@@ -58,10 +61,6 @@
                 map.setMinZoom(Math.max(0, map.getBoundsZoom(bounds, false, L.point(48, 48))));
             };
             updateMinimumZoom();
-            // Begin with streets filling the wider panel, without stretching the
-            // geography. The reset control still fits the entire municipality.
-            const streetZoom = Math.min(map.getMaxZoom(), Math.max(map.getMinZoom() + 1, map.getBoundsZoom(bounds, true)));
-            map.setView(bounds.getCenter(), streetZoom, { animate: false });
 
             // Unlike an opaque overlay, per-tile clipping never reveals neighbouring
             // geography during loading, dragging, pinch gestures, or zoom animation.
@@ -106,7 +105,7 @@
             tiles = new clippedTiles({
                 bounds, noWrap: true, tileSize: 256, maxZoom: 19,
                 keepBuffer: 0, updateWhenIdle: true,
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a>'
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap contributors</a> | <a href="https://ags.joburg.org.za/server/rest/services/FeatureServices/CGIS_CORE_DATA/FeatureServer" target="_blank" rel="noopener noreferrer">City GIS boundary</a>'
             }).addTo(map);
             boundary.addTo(map);
             const updateControls = () => {
@@ -140,6 +139,7 @@
             tiles = null;
             controls.forEach(button => { button.disabled = true; });
             status.textContent = 'The street map could not load. Check your connection and retry.';
+            status.dataset.state = 'error';
             retry.hidden = false;
         } finally {
             starting = false;
