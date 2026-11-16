@@ -1,18 +1,33 @@
-/* CivicTrack public landing page — City of Johannesburg */
+/* CivicTrack landing palette. The project-information page retains its existing shared styles below. */
 :root {
+    --charcoal: #1c1e1c;
+    --grey-900: #2f322f;
+    --grey-700: #3a3d38;
+    --grey-600: #4a4d48;
+    --grey-400: #c9c6bb;
+    --grey-200: #d6d3c9;
+    --grey-100: #ecebe6;
+    --grey-50: #f1efe8;
+    --white: #ffffff;
     --gold: #f5c518;
+    --gold-dark: #7a5c00;
+    --hero-shade: rgba(28,30,28,.88);
+    --hero-soft-shade: rgba(28,30,28,.6);
+    --hero-edge-shade: rgba(28,30,28,.9);
+    --hero-mid-shade: rgba(28,30,28,.45);
+    --hero-mobile-shade: rgba(28,30,28,.2);
+    --hero-text-shadow: rgba(0,0,0,.45);
+    /* Existing shared information-page colours; kept distinct from the landing theme. */
     --ink: #202321;
-    --surface: #252825;
-    --surface-alt: #2b2d2a;
-    --surface-warm: #30312d;
-    --surface-card: #343731;
     --heading: #f3f2ed;
     --text: #d0d2c8;
-    --muted: #b9bdb1;
     --line: #4a4d45;
+    --legacy-tagline: #c2c5be;
+    --legacy-button-hover: #ffdb4c;
     --content-width: 1440px;
     --page-gutter: clamp(22px, 5vw, 80px);
 }
+/* Shared foundation used by the existing project-information page. */
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 120px; }
 body { margin: 0; background: var(--ink); color: var(--text); font-family: 'Segoe UI', Arial, sans-serif; line-height: 1.65; }
@@ -20,228 +35,238 @@ a { color: inherit; text-underline-offset: 5px; }
 img { display: block; max-width: 100%; }
 h1, h2, h3, p, figure { margin: 0; }
 h1, h2, h3 { line-height: 1.12; color: var(--heading); }
+h2 { font-size: clamp(30px, 3vw, 44px); font-weight: 700; letter-spacing: -.045em; }
+h3 { font-size: 21px; letter-spacing: -.6px; }
 a:focus-visible, main:focus-visible { outline: 3px solid var(--gold); outline-offset: 5px; }
-header a:focus-visible, #Hero-Section a:focus-visible, #Team a:focus-visible, footer a:focus-visible { outline-color: var(--gold); }
-.skip-link { position: fixed; top: 12px; left: 20px; padding: 12px 18px; background: var(--gold); color: var(--ink); z-index: 20; transform: translateY(-160%); font-weight: 700; }
-.skip-link:focus { transform: translateY(0); }
 header { position: sticky; top: 0; z-index: 10; background: var(--ink); color: var(--heading); border-bottom: 1px solid var(--line); }
-.header-inner { width: 100%; margin: 0; padding: 19px var(--page-gutter); display: flex; align-items: center; gap: 36px; }
+.header-inner { width: 100%; margin: 0; padding: 19px max(var(--page-gutter), calc((100% - var(--content-width)) / 2)); display: flex; align-items: center; gap: 36px; min-width: 0; }
 .brand { display: flex; align-items: center; gap: 13px; text-decoration: none; flex-shrink: 0; }
 .brand-mark { width: 48px; height: 48px; flex-shrink: 0; }
 .brand-copy { display: flex; flex-direction: column; }
 #CivicTrack { font-size: 24px; font-weight: 750; letter-spacing: -.8px; line-height: 1.2; }
-#CoJ { font-size: 10px; color: #c2c5be; letter-spacing: 1.25px; text-transform: uppercase; margin-top: 3px; }
-#Navigation-Bar { display: flex; align-items: center; gap: clamp(16px, 2.2vw, 34px); margin-left: auto; }
-#Navigation-Bar a { font-size: 13px; font-weight: 600; text-decoration: none; padding-block: 9px; white-space: nowrap; }
-#Navigation-Bar a:hover { color: var(--gold); }
+#CoJ { font-size: 10px; color: var(--legacy-tagline); letter-spacing: 1.25px; text-transform: uppercase; margin-top: 3px; }
 .button { display: inline-flex; align-items: center; justify-content: space-between; gap: 35px; min-height: 52px; padding: 13px 22px; background: var(--gold); color: var(--ink); font-size: 14px; font-weight: 750; text-decoration: none; border: 1px solid transparent; border-radius: 3px; transition: background .15s; }
 .button span { font-size: 20px; line-height: 1; }
-.button:hover { background: #ffdb4c; }
+.button:hover { background: var(--legacy-button-hover); }
 .header-cta { min-height: 44px; padding: 9px 17px; gap: 22px; white-space: nowrap; }
-main > section { padding: 88px var(--page-gutter); }
-main > section > *, .header-inner { min-width: 0; }
-#Hero-Section {
-    --hero-photo-opacity: 1;
-    position: relative;
-    min-height: 100svh;
-    overflow: hidden;
-    isolation: isolate;
-    background: var(--ink);
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: flex-start;
-    gap: 32px;
-    padding-block: clamp(56px, 8svh, 100px);
-}
-#Hero-Section::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -2;
-    background: url('../../../Assets/Images/Hero-Section.jpg') right center / auto 112% no-repeat;
-    opacity: var(--hero-photo-opacity);
-    -webkit-mask-image: linear-gradient(90deg, transparent 18%, #000 62%), linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%);
-    mask-image: linear-gradient(90deg, transparent 18%, #000 62%), linear-gradient(180deg, transparent 0, #000 22%, #000 78%, transparent 100%);
-    -webkit-mask-composite: source-in;
-    mask-composite: intersect;
-    pointer-events: none;
-}
-#Hero-Section::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background: radial-gradient(ellipse at 24% 40%, rgba(28,30,28,.88) 0%, rgba(28,30,28,.6) 32%, transparent 72%), linear-gradient(90deg, var(--ink) 0%, rgba(32,35,33,.9) 22%, rgba(32,35,33,.45) 50%, transparent 80%);
-    pointer-events: none;
-}
-.hero-copy { width: min(100%, 950px); }
-.hero-chips { display: flex; flex-wrap: wrap; gap: 10px; max-width: 100%; margin: 0; padding: 0; list-style: none; }
-.hero-chips li { padding: 9px 14px; border: 1px solid rgba(245,197,24,.45); border-radius: 3px; background: rgba(28,30,28,.55); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); color: var(--heading); font-weight: 700; font-size: 13px; }
-@media (prefers-reduced-motion: no-preference) {
-    #Hero-Section::before { animation: hero-photo-enter 1.6s ease-out both; }
-    @keyframes hero-photo-enter {
-        from { opacity: 0; transform: scale(1.05); }
-        to { opacity: var(--hero-photo-opacity); transform: scale(1); }
-    }
-}
 .eyebrow { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase; line-height: 1.6; }
-.hero-copy .eyebrow { color: #d0d3c8; display: flex; align-items: center; gap: 9px; }
-.city-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); flex-shrink: 0; }
-#hero-heading { font-size: clamp(56px, 9.4vw, 138px); line-height: .92; letter-spacing: -.045em; font-weight: 800; margin-top: 26px; text-shadow: 0 4px 40px rgba(0,0,0,.45); }
-#hero-heading span { display: block; color: var(--gold); }
-.hero-description { color: #c9c6bb; font-size: clamp(16px, 1.3vw, 18px); max-width: 34ch; margin-top: 24px; }
-.hero-copy > .button { margin-top: 30px; min-width: 190px; }
-.hero-note { font-size: 11px; color: #b7bcb0; margin-top: 15px; }
-h2 { font-size: clamp(30px, 3vw, 44px); font-weight: 700; letter-spacing: -.045em; }
-.section-heading { margin-bottom: 38px; }
-.section-heading .eyebrow { color: var(--gold); margin-bottom: 16px; }
-#About-CivicTracker { background: var(--surface-alt); display: grid; grid-template-columns: .9fr 1.1fr; gap: 5%; border-bottom: 1px solid var(--line); }
-#About-CivicTracker .section-heading { margin: 0; }
-.section-lead { font-size: 20px; line-height: 1.6; }
-.about-list { list-style: none; margin: 24px 0; padding: 0; }
-.about-list li { position: relative; padding: 10px 0 10px 26px; border-bottom: 1px solid var(--line); font-size: 15px; }
-.about-list li::before { content: '↗'; position: absolute; left: 0; color: var(--gold); font-weight: 700; }
-.location-note { color: var(--muted); font-size: 13px; max-width: 65ch; }
-#Use-Cases { background: var(--surface); }
-.use-case-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 18px; counter-reset: usecase; }
-.use-case-card { grid-column: span 2; padding: 28px; background: var(--surface-card); border: 1px solid var(--line); border-radius: 3px; counter-increment: usecase; }
-.use-case-card:nth-last-child(-n+2) { grid-column: span 3; }
-.use-case-card::before { content: '0' counter(usecase); display: block; font-size: 12px; font-weight: 700; color: var(--gold); margin-bottom: 32px; border-bottom: 2px solid var(--gold); width: 32px; padding-bottom: 6px; }
-h3 { font-size: 21px; letter-spacing: -.6px; }
-.use-case-card p, .feature-card p { color: var(--muted); font-size: 14px; line-height: 1.8; margin-top: 13px; }
-#Features { background: var(--surface-alt); border-top: 1px solid var(--line); }
-.feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 48px; }
-.feature-card { border-top: 1px solid var(--line); padding-top: 24px; }
-.feature-card h3 { font-size: 19px; }
-#Team { background: #1f211f; color: #c9c6bb; padding-block: 80px; border-block: 1px solid var(--line); }
-.team-header { margin-bottom: 40px; }
-#Team .eyebrow { color: var(--gold); margin-bottom: 18px; }
-#Team h2 { color: #f6f3ea; }
-#Team-Intro { color: #c9c6bb; margin-top: 18px; max-width: 550px; }
-.team-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; list-style: none; margin: 0; padding: 0; }
-.team-card { display: flex; flex-direction: column; align-items: flex-start; min-width: 0; padding: 24px; background: #232523; border: 1px solid #3a3d38; overflow-wrap: anywhere; }
-.team-card:hover, .team-card:focus-within { border-color: #f5c518; transform: translateY(-2px); }
-.team-avatar { display: flex; align-items: center; justify-content: center; width: 88px; height: 88px; flex-shrink: 0; border: 2px solid #f5c518; border-radius: 50%; object-fit: cover; background: #1c1e1c; color: #f5c518; font-size: 30px; font-weight: 800; }
-.team-name { color: #f6f3ea; font-size: 20px; font-weight: 800; letter-spacing: normal; margin-top: 24px; }
-.team-role { color: #f5c518; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .1em; margin-top: 10px; }
-.team-bio { color: #c9c6bb; font-size: 15px; line-height: 1.55; margin-block: 12px 16px; }
-@media (prefers-reduced-motion: no-preference) {
-    .team-card { transition: border-color .2s ease, transform .2s ease; }
+
+/* 1. Landing foundation, shared content edges, header and product mark. */
+.landing-page {
+    --landing-width: 1200px;
+    --page-gutter: clamp(20px, 6vw, 120px);
+    --content-edge: max(var(--page-gutter), calc((100% - var(--landing-width)) / 2));
+    background: var(--charcoal);
+    color: var(--white);
 }
+.landing-page :is(a, button, [tabindex]):focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+.landing-page :is(#About-CivicTracker, #Use-Cases, #Team, .urgent-help) :is(a, button, [tabindex]):focus-visible { outline-color: var(--charcoal); }
+.landing-page .skip-link { position: fixed; top: 12px; left: 20px; z-index: 30; padding: 12px 18px; background: var(--charcoal); color: var(--white); font-weight: 700; transform: translateY(-180%); }
+.landing-page .skip-link:focus { transform: translateY(0); }
+.landing-page header { background: var(--charcoal); color: var(--white); border: 0; border-bottom: 1px solid var(--grey-700); }
+.landing-page .header-inner { min-height: 92px; padding: 16px var(--content-edge); gap: 32px; }
+.landing-page .brand { gap: 11px; }
+.landing-page .brand-mark { width: 42px; height: 42px; }
+.landing-page #CivicTrack { font-size: 22px; font-weight: 800; letter-spacing: -.6px; }
+.landing-page #CoJ { font-size: 11px; letter-spacing: .12em; color: var(--grey-400); }
+.landing-page #Navigation-Bar { display: flex; align-items: center; gap: 28px; margin-left: auto; }
+.landing-page #Navigation-Bar a { display: inline-flex; align-items: center; min-height: 44px; font-size: 14px; font-weight: 700; text-decoration: none; border-bottom: 3px solid transparent; }
+.landing-page #Navigation-Bar a:hover { border-bottom-color: var(--gold); }
+.landing-page .button { gap: 18px; padding: 16px 26px; min-height: 54px; border: 2px solid var(--gold); border-radius: 0; font-weight: 800; background: var(--gold); color: var(--charcoal); }
+.landing-page .button:hover { background: var(--gold); transform: translateY(-2px); }
+.landing-page .button-outline { border-color: currentColor; background: transparent; color: inherit; }
+.landing-page .button-outline:hover { background: transparent; }
+.landing-page main > section { padding: 80px var(--content-edge); }
+.landing-page h2 { color: inherit; font-size: clamp(36px, 4vw, 56px); font-weight: 800; letter-spacing: -.045em; line-height: 1.08; }
+.landing-page h3 { color: inherit; font-size: 23px; font-weight: 800; letter-spacing: -.025em; }
+.landing-page .eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .12em; }
+.landing-page .section-heading { margin-bottom: 40px; }
+.landing-page :is(.section-heading, .team-header) .eyebrow { width: fit-content; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 3px solid var(--gold); }
+
+/* 2. Preserve the original Johannesburg photograph, its scaling and fade masks. */
+.landing-page #Hero-Section {
+    --hero-photo-opacity: 1;
+    position: relative; min-height: min(100svh, 820px); overflow: hidden; isolation: isolate;
+    display: flex; flex-direction: column; align-items: flex-start; justify-content: center;
+    gap: 48px; background: var(--charcoal); color: var(--white);
+    padding-block: clamp(64px, 9svh, 110px);
+}
+.landing-page #Hero-Section::before {
+    content: ''; position: absolute; inset: 0; z-index: -2;
+    background: url('../../../Assets/Images/Hero-Section.jpg') right center / auto 112% no-repeat;
+    opacity: var(--hero-photo-opacity); pointer-events: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 18%, black 62%), linear-gradient(180deg, transparent 0, black 22%, black 78%, transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 18%, black 62%), linear-gradient(180deg, transparent 0, black 22%, black 78%, transparent 100%);
+    -webkit-mask-composite: source-in; mask-composite: intersect;
+}
+.landing-page #Hero-Section::after {
+    content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+    background: radial-gradient(ellipse at 24% 40%, var(--hero-shade) 0%, var(--hero-soft-shade) 32%, transparent 72%), linear-gradient(90deg, var(--charcoal) 0%, var(--hero-edge-shade) 22%, var(--hero-mid-shade) 50%, transparent 80%);
+}
+.landing-page .hero-copy { width: min(100%, 950px); }
+.landing-page .hero-copy .eyebrow { display: flex; align-items: center; gap: 10px; color: var(--grey-400); font-size: 13px; }
+.landing-page .city-dot { display: none; }
+.landing-page #hero-heading { font-size: clamp(56px, 7.2vw, 104px); font-weight: 800; line-height: .92; letter-spacing: -.045em; color: var(--white); margin-top: 26px; text-shadow: 0 4px 40px var(--hero-text-shadow); }
+.landing-page #hero-heading span { display: block; color: var(--white); }
+.landing-page .hero-description { color: var(--grey-400); max-width: 44ch; margin-top: 28px; font-size: 18px; }
+.landing-page .hero-copy > .button { margin-top: 28px; }
+.landing-page .hero-note { color: var(--grey-400); font-size: 14px; margin-top: 18px; }
+.landing-page .hero-chips { display: flex; flex-wrap: wrap; gap: 12px; list-style: none; margin: 0; padding: 0; max-width: 100%; }
+.landing-page .hero-chips li { background: var(--charcoal); color: var(--white); border: 1px solid var(--grey-600); padding: 10px 15px; font-size: 13px; font-weight: 700; }
+
+/* Existing informational sections remain complete, with a calmer light/dark rhythm. */
+.landing-page #About-CivicTracker { display: grid; grid-template-columns: .9fr 1.1fr; gap: 64px; background: var(--white); color: var(--charcoal); }
+.landing-page #About-CivicTracker .section-heading { margin: 0; }
+.landing-page .section-lead { font-size: 21px; line-height: 1.6; color: var(--grey-600); }
+.landing-page .about-list { list-style: none; padding: 0; margin: 28px 0; }
+.landing-page .about-list li { position: relative; padding: 14px 0 14px 30px; border-bottom: 1px solid var(--grey-200); color: var(--charcoal); font-size: 16px; }
+.landing-page .about-list li::before { content: '↗'; position: absolute; left: 0; font-weight: 800; }
+.landing-page .location-note { color: var(--grey-600); font-size: 14px; line-height: 1.7; max-width: 65ch; }
+.landing-page #Use-Cases { background: var(--grey-100); color: var(--charcoal); }
+.landing-page .use-case-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 24px; counter-reset: usecase; }
+.landing-page .use-case-card { grid-column: span 2; background: var(--white); border: 1px solid var(--grey-200); padding: 28px; counter-increment: usecase; }
+.landing-page .use-case-card:nth-last-child(-n+2) { grid-column: span 3; }
+.landing-page .use-case-card::before { content: '0' counter(usecase); display: block; width: 32px; padding-bottom: 8px; margin-bottom: 28px; border-bottom: 3px solid var(--gold); color: var(--charcoal); font-size: 13px; font-weight: 800; }
+.landing-page :is(.use-case-card, .feature-card) p { margin-top: 16px; font-size: 16px; line-height: 1.7; }
+.landing-page .use-case-card p { color: var(--grey-600); }
+.landing-page #Features { background: var(--grey-900); color: var(--white); }
+.landing-page .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
+.landing-page .feature-card { border-top: 1px solid var(--grey-600); padding-top: 24px; }
+.landing-page .feature-card h3 { font-size: 22px; }
+.landing-page .feature-card p { color: var(--grey-400); }
+
+/* 3. Real team members, presented on light surfaces. */
+.landing-page #Team { background: var(--grey-100); color: var(--charcoal); }
+.landing-page .team-header { margin-bottom: 40px; }
+.landing-page #Team-Intro { margin-top: 20px; max-width: 62ch; font-size: 18px; color: var(--grey-600); }
+.landing-page .team-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px; list-style: none; margin: 0; padding: 0; }
+.landing-page .team-card { min-width: 0; padding: 24px; background: var(--white); color: var(--charcoal); border: 1px solid var(--grey-200); overflow-wrap: anywhere; }
+.landing-page .team-card:hover, .landing-page .team-card:focus-within { border-color: var(--gold); transform: translateY(-2px); }
+.landing-page .team-avatar { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; background: var(--charcoal); color: var(--white); }
+.landing-page .team-name { margin-top: 24px; font-size: 20px; font-weight: 800; letter-spacing: normal; }
+.landing-page .team-role { margin-top: 10px; color: var(--grey-600); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.landing-page .team-bio { margin-top: 12px; color: var(--grey-600); font-size: 15px; line-height: 1.55; }
+
+/* 4. Grey CTA band, white urgent-help card, charcoal footer and closing strip. */
+.landing-page #site-footer { color: var(--grey-400); background: var(--charcoal); font-size: 15px; }
+.landing-page .footer-action-band { border-top: 4px solid var(--gold); background: var(--grey-700); }
+.landing-page .footer-action-inner { display: grid; grid-template-columns: 1.2fr 1fr; align-items: center; gap: 56px; padding: 64px var(--content-edge); }
+.landing-page .footer-cta { color: var(--white); }
+.landing-page .footer-cta .eyebrow { color: var(--grey-400); margin-bottom: 18px; }
+.landing-page .footer-cta h2 { font-size: clamp(32px, 3.2vw, 44px); }
+.landing-page .footer-cta > div > p:not(.eyebrow) { color: var(--grey-400); margin-top: 18px; font-size: 17px; }
+.landing-page .footer-cta > .button { margin-top: 24px; }
+.landing-page .urgent-help { min-width: 0; padding: 24px; border-top: 6px solid var(--charcoal); background: var(--white); color: var(--grey-600); }
+.landing-page .urgent-help h3 { color: var(--charcoal); font-size: 24px; }
+.landing-page .urgent-help > div p { font-size: 14px; margin-block: 10px 18px; }
+.landing-page .urgent-contact { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 16px; min-height: 44px; margin: 0; border-top: 1px solid var(--grey-200); font-size: 14px; }
+.landing-page .urgent-contact > span::after { content: ':'; }
+.landing-page .urgent-contact a { display: inline-flex; align-items: center; min-height: 44px; color: var(--charcoal); text-decoration: none; }
+.landing-page .urgent-contact strong { font-size: 15px; font-weight: 800; white-space: nowrap; }
+.landing-page .urgent-contact a:hover { text-decoration: underline; text-decoration-thickness: 3px; text-decoration-color: var(--gold); }
+.landing-page .urgent-contact strong span { margin-left: 5px; }
+.landing-page .official-source { display: inline-flex; align-items: center; gap: 5px; min-height: 44px; margin-top: 8px; color: var(--charcoal); font-size: 14px; text-decoration-color: var(--gold); text-decoration-thickness: 3px; }
+.landing-page .footer-main { padding: 64px var(--content-edge); }
+.landing-page .footer-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px; }
+.landing-page .footer-grid > * { min-width: 0; }
+.landing-page .footer-brand { color: var(--white); font-size: 22px; font-weight: 800; }
+.landing-page .footer-brand-column > p { margin-top: 20px; font-size: 15px; }
+.landing-page .footer-brand-column .social-label { margin-top: 24px; font-size: 14px; }
+.landing-page #footer-social { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.landing-page .social-link { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: var(--grey-400); border: 1px solid var(--grey-600); }
+.landing-page .social-link svg { width: 21px; height: 21px; }
+.landing-page .social-link:hover { color: var(--white); border-color: var(--gold); }
+.landing-page .footer-links h3 { color: var(--white); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 18px; }
+.landing-page .footer-links ul { list-style: none; margin: 0; padding: 0; }
+.landing-page .footer-links li { display: block; margin-block: 10px; }
+.landing-page .footer-links a { display: inline-flex; align-items: center; min-height: 44px; color: var(--grey-400); font-size: 15px; line-height: 1.5; text-decoration: none; }
+.landing-page .footer-links a:hover { color: var(--white); text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 3px; }
+.landing-page .footer-closing { background: var(--grey-700); }
+.landing-page .footer-closing-inner { padding: 24px var(--content-edge); }
+.landing-page .footer-trust { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; }
+.landing-page .footer-trust strong { color: var(--white); font-weight: 700; }
+.landing-page .trust-dot { width: 6px; height: 6px; margin-top: 9px; background: var(--gold); border-radius: 50%; flex-shrink: 0; }
+.landing-page .footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 18px; margin-top: 20px; border-top: 1px solid var(--grey-600); font-size: 14px; }
+.landing-page .footer-bottom a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; color: var(--white); text-decoration: none; }
+.landing-page .footer-bottom a:hover { text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 3px; }
+
+/* 5. Responsive layout and motion preferences. */
 @media (max-width: 1099px) {
-    .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .landing-page .team-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .landing-page .header-inner { gap: 20px; }
+    .landing-page #Navigation-Bar { gap: 18px; }
+    .landing-page #CoJ { font-size: 9px; }
+    .landing-page .footer-action-inner { gap: 32px; }
 }
-@media (max-width: 599px) {
-    #Team { padding-block: 56px; }
-    .team-grid { grid-template-columns: minmax(0, 1fr); }
-}
-.button-outline { background: transparent; color: var(--heading); border-color: #8c9382; flex-shrink: 0; }
-.button-outline:hover { background: #ffffff10; border-color: var(--gold); }
-/* Footer layout: semantic link lists and explicit 4 / 2 / 1 column breakpoints. */
-#site-footer { background: var(--ink); color: #c9c6bb; border-top: 2px solid var(--gold); padding: 0 var(--page-gutter); font-size: 15px; }
-.footer-cta { display: flex; flex-direction: column; align-items: flex-start; gap: 24px; padding: 64px 0; }
-.footer-cta > div { display: grid; gap: 16px; }
-.footer-cta .eyebrow { color: var(--gold); font-size: 14px; }
-.footer-cta h2 { font-size: clamp(28px, 3vw, 40px); }
-.footer-cta > .button { flex-shrink: 0; }
-.urgent-help { display: flex; flex-direction: column; align-items: flex-start; gap: 16px; padding: 20px 24px; border: 1px solid rgba(245,197,24,.45); border-radius: 4px; background: rgba(28,30,28,.6); }
-.urgent-help h3 { font-size: 20px; }
-.urgent-help > div p { margin-top: 8px; }
-.urgent-contact { display: flex; flex-wrap: wrap; align-items: center; gap: 0 12px; min-height: 44px; margin: 0; }
-.urgent-contact > span::after { content: ':'; }
-.urgent-contact a { display: inline-flex; align-items: center; min-height: 44px; color: var(--heading); text-decoration: none; }
-.urgent-contact strong { font-size: 17px; font-weight: 700; white-space: nowrap; }
-.urgent-contact strong span { color: var(--gold); margin-left: 8px; }
-.urgent-contact a:hover, .footer-links a:hover, .official-source:hover { color: var(--gold); }
-.official-source { display: inline-flex; align-items: center; min-height: 44px; font-size: 15px; text-underline-offset: 4px; }
-.footer-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 40px; padding-block: 54px 40px; }
-.footer-grid > * { min-width: 0; }
-.footer-brand { width: fit-content; color: var(--heading); font-size: 22px; font-weight: 800; letter-spacing: -.8px; }
-.footer-brand-column > p { font-size: 15px; margin-top: 16px; }
-.footer-brand-column .social-label { margin-top: 24px; }
-#footer-social { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
-.social-link { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; color: #c9c6bb; border: 1px solid #62675b; border-radius: 4px; }
-.social-link svg { width: 21px; height: 21px; }
-.social-link:hover { color: var(--gold); border-color: var(--gold); background: var(--surface); }
-.footer-links h3 { font-size: 16px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; margin: 0 0 16px; line-height: 1.5; }
-.footer-links ul { list-style: none; margin: 0; padding: 0; }
-.footer-links li { display: block; margin-block: 10px; }
-.footer-links a { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; font-size: 15px; color: #c9c6bb; text-decoration: none; line-height: 1.5; }
-.footer-trust { display: flex; align-items: flex-start; gap: 12px; width: 100%; padding: 23px 0; border-top: 1px solid var(--line); font-size: 14px; }
-.footer-trust strong { color: var(--heading); font-weight: 600; }
-.trust-dot { width: 6px; height: 6px; flex: 0 0 6px; margin-top: 9px; background: var(--gold); border-radius: 50%; }
-.footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 18px 0 26px; border-top: 1px solid var(--line); font-size: 14px; }
-.footer-bottom a { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; text-decoration: none; color: var(--heading); }
-.footer-bottom a:hover { color: var(--gold); }
-/* Use the same content edges for the header, sections and footer at every width. */
-.header-inner, main > section, #site-footer { padding-inline: max(var(--page-gutter), calc((100% - var(--content-width)) / 2)); }
 @media (max-width: 900px) {
-    .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .landing-page #About-CivicTracker { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+    .landing-page .feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .landing-page .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .landing-page .footer-action-inner { grid-template-columns: minmax(0, 1fr); gap: 40px; }
 }
-@media (max-width: 560px) {
-    .footer-grid { grid-template-columns: minmax(0, 1fr); }
-    .footer-bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
-}
-@media (max-width: 1000px) {
-    .header-inner { flex-wrap: wrap; gap: 14px 24px; padding-block: 14px; }
-    .header-cta { margin-left: auto; }
-    #Navigation-Bar { order: 3; width: 100%; margin: 0; justify-content: space-between; border-top: 1px solid #ffffff21; padding-top: 6px; }
-    html { scroll-padding-top: 155px; }
-    .use-case-card { padding: 22px; }
-    .feature-grid { gap: 30px; }
+@media (max-width: 819px) {
+    .landing-page #Navigation-Bar { display: none; }
+    .landing-page .header-cta { margin-left: auto; }
+    .landing-page #Hero-Section { --hero-photo-opacity: .75; }
+    .landing-page #Hero-Section::before { background-position: 70% center; }
+    .landing-page #Hero-Section::after { background-color: var(--hero-mobile-shade); }
 }
 @media (max-width: 700px) {
-    header { position: relative; }
-    html { scroll-padding-top: 20px; }
-    .header-inner { gap: 14px; padding-top: 17px; padding-bottom: 10px; }
-    .brand-mark { width: 40px; height: 40px; }
-    .brand { gap: 9px; }
-    #CivicTrack { font-size: 22px; }
-    #CoJ { font-size: 8px; letter-spacing: .7px; }
-    .header-cta { padding: 9px 12px; gap: 13px; font-size: 12px; }
-    #Navigation-Bar { gap: 10px; }
-    #Navigation-Bar a { font-size: 11px; min-height: 44px; display: flex; align-items: center; }
-    main > section { padding-block: 54px; }
-    .hero-copy .eyebrow { font-size: 9px; letter-spacing: 1.2px; }
-    .hero-description { font-size: 16px; margin-top: 22px; }
-    .hero-note { font-size: 10px; }
-    #About-CivicTracker { grid-template-columns: 1fr; gap: 26px; }
-    .section-lead { font-size: 18px; }
-    .section-heading { margin-bottom: 28px; }
-    .use-case-grid { grid-template-columns: 1fr; gap: 12px; }
-    .use-case-card, .use-case-card:nth-last-child(-n+2) { grid-column: auto; }
-    .use-case-card::before { margin-bottom: 19px; }
-    .feature-grid { grid-template-columns: 1fr; gap: 26px; }
-    .feature-card { padding-top: 20px; }
+    .landing-page .header-inner { gap: 16px; }
+    .landing-page .brand { gap: 8px; }
+    .landing-page .brand-mark { width: 34px; height: 34px; }
+    .landing-page #CivicTrack { font-size: 21px; }
+    .landing-page #CoJ { max-width: 96px; font-size: 10px; line-height: 1.3; letter-spacing: .08em; }
+    .landing-page .header-cta { padding: 12px 14px; gap: 10px; font-size: 13px; }
+    .landing-page .header-cta span { font-size: 16px; }
+    .landing-page main > section { padding-block: 56px; }
+    .landing-page #Hero-Section { padding-block: 64px; gap: 36px; }
+    .landing-page .hero-copy .eyebrow { font-size: 10px; }
+    .landing-page .hero-description { font-size: 17px; }
+    .landing-page .hero-note { font-size: 13px; }
+    .landing-page .hero-chips { gap: 9px; }
+    .landing-page .hero-chips li { padding: 9px 11px; font-size: 12px; }
+    .landing-page .use-case-grid { grid-template-columns: minmax(0, 1fr); }
+    .landing-page .use-case-card, .landing-page .use-case-card:nth-last-child(-n+2) { grid-column: auto; }
+    .landing-page .section-lead { font-size: 19px; }
+    .landing-page .footer-action-inner { padding-block: 56px; }
+    .landing-page .footer-main { padding-block: 56px; }
+}
+@media (max-width: 599px) {
+    .landing-page .team-grid, .landing-page .feature-grid { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+    .landing-page .footer-grid { grid-template-columns: minmax(0, 1fr); }
+    .landing-page .footer-bottom { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .landing-page .urgent-contact { flex-direction: column; align-items: flex-start; padding-top: 10px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    .landing-page .button, .landing-page .team-card { transition: transform .2s ease, border-color .2s ease; }
+    .landing-page #Hero-Section::before { animation: hero-photo-enter 1.6s ease-out both; }
+    @keyframes hero-photo-enter { from { opacity: 0; transform: scale(1.05); } to { opacity: var(--hero-photo-opacity); transform: scale(1); } }
 }
 @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+    .landing-page *, .landing-page *::before, .landing-page *::after { animation: none !important; transition: none !important; }
+    .landing-page .button:hover, .landing-page .team-card:hover, .landing-page .team-card:focus-within { transform: none; }
     .button { transition: none; }
-}
-
-/* Keep the primary action visible when the text navigation is hidden. */
-@media (max-width: 819px) {
-    #Navigation-Bar { display: none; }
-    #Hero-Section { --hero-photo-opacity: .75; padding-block: 64px; }
-    #Hero-Section::before { background-position: 70% center; }
-    #Hero-Section::after { background-color: rgba(28,30,28,.2); }
 }
 
 /* Public project and data-use guide, linked from the landing footer. */
 .information-page { --page-gutter: clamp(22px, 5vw, 80px); }
+.information-page .skip-link { position: fixed; top: 12px; left: 20px; padding: 12px 18px; background: var(--gold); color: var(--ink); z-index: 20; transform: translateY(-160%); font-weight: 700; }
+.information-page .skip-link:focus { transform: translateY(0); }
 .information-page main { max-width: 1100px; margin: 0 auto; padding: 54px var(--page-gutter); }
 .information-intro { padding-block: 0 36px; border-bottom: 1px solid var(--line); }
 .information-intro h1 { font-size: clamp(36px, 5vw, 60px); letter-spacing: -.045em; margin: 16px 0; }
 .information-intro .eyebrow { color: var(--gold); }
-.information-intro p { max-width: 66ch; font-size: 16px; color: #c9c6bb; }
+.information-intro p { max-width: 66ch; font-size: 16px; color: var(--grey-400); }
 .information-nav { display: flex; flex-wrap: wrap; gap: 8px 24px; padding-block: 22px; }
 .information-nav a { min-height: 44px; display: inline-flex; align-items: center; font-size: 14px; }
 .information-page main > section { padding: 34px 0; border-bottom: 1px solid var(--line); }
 .information-page main h2 { font-size: 28px; margin-bottom: 18px; }
 .information-page main h3 { font-size: 18px; margin: 26px 0 10px; }
-.information-page main p, .information-page main li { font-size: 16px; max-width: 72ch; color: #c9c6bb; }
+.information-page main p, .information-page main li { font-size: 16px; max-width: 72ch; color: var(--grey-400); }
 .information-page main p + p { margin-top: 16px; }
 .information-page main li + li { margin-top: 10px; }
 .information-page main a { color: var(--gold); }
@@ -249,6 +274,18 @@ h3 { font-size: 21px; letter-spacing: -.6px; }
 .information-page main summary { cursor: pointer; font-weight: 650; font-size: 17px; padding: 7px 0; }
 .information-page main details p { padding-block: 10px; }
 .information-page summary:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
-.information-footer { padding: 28px var(--page-gutter); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; color: #c9c6bb; font-size: 14px; }
+.information-footer { padding: 28px var(--page-gutter); border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 16px; color: var(--grey-400); font-size: 14px; }
 .information-page .header-inner { flex-wrap: nowrap; }
 .information-page .header-cta { margin-left: auto; }
+@media (max-width: 1000px) {
+    .information-page .header-inner { gap: 14px 24px; padding-block: 14px; }
+}
+@media (max-width: 700px) {
+    .information-page header { position: relative; }
+    .information-page .header-inner { gap: 14px; padding-top: 17px; padding-bottom: 10px; }
+    .information-page .brand-mark { width: 40px; height: 40px; }
+    .information-page .brand { gap: 9px; }
+    .information-page #CivicTrack { font-size: 22px; }
+    .information-page #CoJ { font-size: 8px; letter-spacing: .7px; }
+    .information-page .header-cta { padding: 9px 12px; gap: 13px; font-size: 12px; }
+}
