@@ -23,13 +23,14 @@ const initialIssues = [
     { issue_id: 3, resident_id: 1, status: 'Resolved', title: 'Resolved report' }
 ].map(issue => ({ category: 'Other', priority: 'Medium', location_address: 'Johannesburg', description: 'Test report', created_at: '2026-01-01', ...issue }));
 
-const state = { queries: [], accounts, issues: [], employees: [], unavailable: false, beforeWrite: null };
+const state = { queries: [], accounts, issues: [], employees: [], unavailable: false, beforeWrite: null, failIssueInsert: false };
 function reset() {
     state.issues = structuredClone(initialIssues);
     state.queries = [];
     state.employees = [];
     state.unavailable = false;
     state.beforeWrite = null;
+    state.failIssueInsert = false;
     state.accounts[0].is_active = true;
 }
 reset();
@@ -50,6 +51,7 @@ async function query(statement, inputs) {
     }
     if (text.includes('FROM authorised_employees')) return rows(state.employees.filter(employee => employee.employee_number === inputs.employee_number));
     if (text.includes('INSERT INTO reported_issues')) {
+        if (state.failIssueInsert) throw new Error('Simulated report insertion failure');
         state.issues.push({ ...inputs, issue_id: 10, status: 'Pending' });
         return rows([{ issue_id: 10 }]);
     }

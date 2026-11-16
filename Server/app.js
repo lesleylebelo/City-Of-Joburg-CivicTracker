@@ -1,6 +1,7 @@
 const express = require('express');
 const path = require('path');
 const verifyToken = require('./auth_middleware');
+const images = require('./image_storage');
 const { sql, poolPromise } = require('./db_sqlserver');
 const app = express();
 
@@ -24,7 +25,7 @@ app.get('/api/health/ready', async (req, res) => {
 app.use('/api', (req, res) => res.status(404).json({ message: 'Endpoint not found.' }));
 
 // Report photos are private report data, not public static assets.
-app.get('/uploads/:filename', verifyToken, async (req, res) => {
+app.get('/uploads/:filename', verifyToken, async (req, res, next) => {
     const filename = req.params.filename;
     if (filename !== path.basename(filename) || /[\\/]/.test(filename)) return res.sendStatus(404);
     try {
@@ -35,8 +36,16 @@ app.get('/uploads/:filename', verifyToken, async (req, res) => {
             return res.sendStatus(404);
         }
         res.set('Cache-Control', 'no-store');
-        return res.sendFile(filename, { root: path.join(__dirname, 'uploads'), dotfiles: 'deny' });
+        const stream = await images.getImageStream(filename);
+        res.type(filename);
+        stream.on('error', () => {
+            if (res.headersSent) res.destroy();
+            else res.status(500).json({ message: 'Unable to load photo.' });
+        });
+        res.on('close', () => stream.destroy());
+        return stream.pipe(res);
     } catch (error) {
+        if (error.code === 'ENOENT' || error.status === 404) return next(Object.assign(error, { status: 404 }));
         return res.status(error.status === 503 ? 503 : 500).json({ message: 'Unable to load photo.' });
     }
 });

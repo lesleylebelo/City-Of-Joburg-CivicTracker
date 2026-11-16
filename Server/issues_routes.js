@@ -1,31 +1,18 @@
 const express    = require("express");
 const multer     = require("multer");
-const path       = require("path");
-const fs         = require("fs");
+const images = require('./image_storage');
 const { sql, poolPromise } = require("./db_sqlserver");
 const verifyToken = require("./auth_middleware");
 const { requireRole } = verifyToken;
 
 const router = express.Router();
 
-// Multer setup
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => cb(null, uploadDir),
-    filename:    (req, file, cb) => {
-        const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        cb(null, "issue-" + unique + path.extname(file.originalname));
-    }
-});
-
+// Bounded memory upload: invalid form data never creates a disk file.
 const upload = multer({
-    storage,
-    limits: { fileSize: 5 * 1024 * 1024 },
+    storage: multer.memoryStorage(),
+    limits: { fileSize: images.MAX_IMAGE_BYTES },
     fileFilter: (req, file, cb) => {
-        const allowed = /jpeg|jpg|png|gif|webp/;
-        if (allowed.test(path.extname(file.originalname).toLowerCase()) && allowed.test(file.mimetype))
+        if (images.acceptsImageType(file))
             cb(null, true);
         else cb(new Error("Only image files allowed!"));
     }
@@ -45,7 +32,6 @@ router.post("/", verifyToken, requireRole("resident"), upload.single("issueImage
     } = req.body;
 
     const resident_id = req.user.id;
-    const image_url = req.file ? "/uploads/" + req.file.filename : null;
 
     // Basic validation
     if (!title || !category || !location_address || !description)
@@ -71,7 +57,10 @@ router.post("/", verifyToken, requireRole("resident"), upload.single("issueImage
         });
     }
 
+    let savedImage;
     try {
+        savedImage = req.file ? await images.saveImage(req.file) : null;
+        const image_url = savedImage ? '/uploads/' + savedImage : null;
         const pool = await poolPromise;
 
         await pool.request()
@@ -95,11 +84,17 @@ router.post("/", verifyToken, requireRole("resident"), upload.single("issueImage
                  @description, @image_url)
             `);
 
+        savedImage = null; // The database now owns this image reference.
         return res.status(201).json({
             message: "Issue reported successfully!"
         });
 
     } catch (err) {
+        if (savedImage) {
+            try { await images.deleteImage(savedImage); }
+            catch { console.error('Report image cleanup failed.'); }
+        }
+        if (err.imageValidation) return res.status(400).json({ message: err.message });
         console.error("Database operation failed.");
         return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
@@ -386,14 +381,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
         // Delete image if it exists
         if (issue.image_url) {
 
-            const imagePath = path.join(
-                __dirname,
-                issue.image_url.replace("/uploads/", "uploads/")
-            );
-
-            if (fs.existsSync(imagePath)) {
-                fs.unlinkSync(imagePath);
-            }
+            await images.deleteImage(issue.image_url.replace('/uploads/', ''));
         }
 
         return res.status(200).json({
