@@ -23,7 +23,6 @@ body.auth-page { position: relative; isolation: isolate; margin: 0; background: 
 .auth-header, .auth-shell, .auth-footer { width: calc(100% - 2 * var(--page-gutter)); max-width: var(--content-width); margin-inline: auto; }
 .auth-header { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 88px; border-bottom: 1px solid var(--line); }
 .auth-brand { display: inline-flex; align-items: center; gap: 12px; color: var(--heading); text-decoration: none; }
-.auth-brand img { display: block; width: 44px; height: 44px; }
 .auth-brand-copy { display: flex; flex-direction: column; }
 .auth-brand strong { color: var(--heading); font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: -.8px; }
 .auth-home { display: inline-flex; align-items: center; gap: 12px; min-height: 44px; font-size: 14px; text-decoration: none; white-space: nowrap; }
@@ -92,7 +91,6 @@ body.auth-page { position: relative; isolation: isolate; margin: 0; background: 
     .auth-header { gap: 12px; }
     .auth-brand { gap: 8px; }
     .auth-brand strong { font-size: 22px; }
-    .auth-brand img { width: 36px; height: 36px; }
     .auth-home { gap: 6px; }
     .auth-shell { min-height: calc(100svh - 214px); padding-block: 36px; }
     .auth-panel h1 { font-size: 34px; }
