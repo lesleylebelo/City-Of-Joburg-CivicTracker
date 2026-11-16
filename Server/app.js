@@ -11,6 +11,15 @@ app.use('/api/auth', require('./auth_routes'));
 app.use('/api/issues', require('./issues_routes'));
 app.use('/api', require('./data_routes'));
 app.get('/api/health', (req, res) => res.json({ status: 'CivicTrack running!' }));
+app.get('/api/health/ready', async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        await pool.request().query('SELECT 1');
+        return res.json({ status: 'ready' });
+    } catch {
+        return res.status(503).json({ message: 'Database service unavailable.' });
+    }
+});
 app.use('/api', (req, res) => res.status(404).json({ message: 'Endpoint not found.' }));
 
 // Report photos are private report data, not public static assets.
@@ -26,8 +35,8 @@ app.get('/uploads/:filename', verifyToken, async (req, res) => {
         }
         res.set('Cache-Control', 'no-store');
         return res.sendFile(filename, { root: path.join(__dirname, 'uploads'), dotfiles: 'deny' });
-    } catch {
-        return res.status(500).json({ message: 'Unable to load photo.' });
+    } catch (error) {
+        return res.status(error.status === 503 ? 503 : 500).json({ message: 'Unable to load photo.' });
     }
 });
 

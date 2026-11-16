@@ -100,8 +100,8 @@ router.post("/", verifyToken, requireRole("resident"), upload.single("issueImage
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -124,7 +124,7 @@ router.get("/", verifyToken, async (req, res) => {
         query += " ORDER BY i.created_at DESC";
         const result = await req2.query(query);
         return res.status(200).json(result.recordset);
-    } catch (err) { return res.status(500).json({ message: "Server error." }); }
+    } catch (err) { return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." }); }
 });
 
 // GET /api/issues/my-history
@@ -137,7 +137,7 @@ router.get("/my-history", verifyToken, requireRole("resident"), async (req, res)
                     description,image_url,created_at,updated_at,resolved_at,admin_notes
                     FROM reported_issues WHERE resident_id=@resident_id ORDER BY created_at DESC`);
         return res.status(200).json(result.recordset);
-    } catch (err) { return res.status(500).json({ message: "Server error." }); }
+    } catch (err) { return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." }); }
 });
 
 // GET /api/issues/resident/:id - admin views resident history
@@ -153,7 +153,7 @@ router.get("/resident/:id", verifyToken, requireRole("admin"), async (req, res) 
                     FROM reported_issues i JOIN residents r ON i.resident_id=r.resident_id
                     WHERE i.resident_id=@resident_id ORDER BY i.created_at DESC`);
         return res.status(200).json(result.recordset);
-    } catch (err) { return res.status(500).json({ message: "Server error." }); }
+    } catch (err) { return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." }); }
 });
 
 // GET /api/issues/stats
@@ -167,7 +167,7 @@ router.get("/stats", verifyToken, requireRole("admin"), async (req, res) => {
             SUM(CASE WHEN status='Resolved' THEN 1 ELSE 0 END) AS resolved
             FROM reported_issues`);
         return res.status(200).json(result.recordset[0]);
-    } catch (err) { return res.status(500).json({ message: "Server error." }); }
+    } catch (err) { return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." }); }
 });
 
 // GET /api/issues/analytics
@@ -177,7 +177,7 @@ router.get("/analytics", verifyToken, requireRole("admin"), async (req, res) => 
         const byCategory = await pool.request().query(`SELECT category, COUNT(*) AS count FROM reported_issues GROUP BY category ORDER BY count DESC`);
         const byStatus   = await pool.request().query(`SELECT status,   COUNT(*) AS count FROM reported_issues GROUP BY status   ORDER BY count DESC`);
         return res.status(200).json({ byCategory: byCategory.recordset, byStatus: byStatus.recordset });
-    } catch (err) { return res.status(500).json({ message: "Server error." }); }
+    } catch (err) { return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." }); }
 });
 
 // PATCH /api/issues/:id/status
@@ -196,7 +196,7 @@ router.patch("/:id/status", verifyToken, requireRole("admin"), async (req, res) 
                     resolved_at=CASE WHEN @status='Resolved' THEN GETDATE() ELSE resolved_at END
                     WHERE issue_id=@issue_id`);
         return res.status(200).json({ message: "Status updated!" });
-    } catch (err) { return res.status(500).json({ message: "Server error." }); }
+    } catch (err) { return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." }); }
 });
 
 // GET /api/issues/residents-list - admin gets all residents with issue counts
@@ -215,7 +215,7 @@ router.get("/residents-list", verifyToken, requireRole("admin"), async (req, res
             GROUP BY r.resident_id,r.full_names,r.email,r.phone_number,r.created_at
             ORDER BY total_issues DESC`);
         return res.status(200).json(result.recordset);
-    } catch (err) { return res.status(500).json({ message: "Server error." }); }
+    } catch (err) { return res.status(err.status === 503 ? 503 : 500).json({ message: "Server error." }); }
 });
 
 // GET /api/issues/:id
@@ -252,8 +252,8 @@ router.get("/:id", verifyToken, async (req, res) => {
         return res.status(200).json(issue);
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -329,8 +329,8 @@ router.put("/:id", verifyToken, requireRole("resident"), async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -401,8 +401,8 @@ router.delete("/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }

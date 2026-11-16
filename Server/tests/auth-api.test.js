@@ -35,6 +35,17 @@ before(async () => {
     }
 });
 beforeEach(async () => { database.reset(); await fs.writeFile(photo, photoBytes); });
+
+test('health is independent of SQL; readiness reports outage and next request recovery', async () => {
+    database.state.unavailable = true;
+    assert.equal((await request('/api/health')).status, 200);
+    const outage = await request('/api/health/ready');
+    assert.equal(outage.status, 503);
+    assert.deepEqual(outage.data, { message: 'Database service unavailable.' });
+    database.state.unavailable = false;
+    assert.equal((await request('/api/health/ready')).status, 200);
+    assert.ok(database.state.queries.some(query => query.text === 'SELECT 1'));
+});
 after(async () => {
     if (server) await new Promise(resolve => server.close(resolve));
     await fs.unlink(photo);

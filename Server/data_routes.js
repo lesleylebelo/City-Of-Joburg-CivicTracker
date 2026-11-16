@@ -19,8 +19,8 @@ router.get("/projects", verifyToken, async (req, res) => {
         `);
         return res.status(200).json(result.recordset);
     } catch (error) {
-        console.error("Get projects error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -36,7 +36,7 @@ router.get("/projects/stats", verifyToken, requireRole("admin"), async (req, res
         `);
         return res.status(200).json(result.recordset[0]);
     } catch (error) {
-        return res.status(500).json({ message: "Server error." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -70,8 +70,8 @@ router.post("/projects", verifyToken, async (req, res) => {
             `);
         return res.status(201).json({ message: "Project added successfully!" });
     } catch (error) {
-        console.error("Add project error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -122,8 +122,8 @@ router.put("/projects/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -153,8 +153,8 @@ router.delete("/projects/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -177,8 +177,8 @@ router.get("/notices", verifyToken, async (req, res) => {
             `);
         return res.status(200).json(result.recordset);
     } catch (error) {
-        console.error("Get notices error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -206,8 +206,8 @@ router.post("/notices", verifyToken, async (req, res) => {
             `);
         return res.status(201).json({ message: "Notice published successfully!" });
     } catch (error) {
-        console.error("Add notice error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -248,7 +248,7 @@ router.put("/notices/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -278,7 +278,7 @@ router.delete("/notices/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -313,8 +313,8 @@ router.get("/polls", verifyToken, async (req, res) => {
 
         return res.status(200).json(polls.recordset);
     } catch (error) {
-        console.error("Get polls error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -364,9 +364,9 @@ router.get("/polls/:id", verifyToken, async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Database operation failed.");
 
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -414,8 +414,8 @@ router.post("/polls", verifyToken, async (req, res) => {
 
         return res.status(201).json({ message: "Poll created successfully!" });
     } catch (error) {
-        console.error("Add poll error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -482,9 +482,9 @@ router.put("/polls/:id", verifyToken, async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Database operation failed.");
 
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -521,8 +521,8 @@ router.post("/polls/:id/vote", verifyToken, requireRole("resident"), async (req,
 
         return res.status(201).json({ message: "Vote recorded successfully!" });
     } catch (error) {
-        console.error("Vote error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -552,9 +552,9 @@ router.patch("/polls/:id/close", verifyToken, async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Database operation failed.");
 
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -590,8 +590,8 @@ router.delete("/polls/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -618,8 +618,8 @@ router.get("/events", verifyToken, async (req, res) => {
             `);
         return res.status(200).json(result.recordset);
     } catch (error) {
-        console.error("Get events error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -653,8 +653,8 @@ router.post("/events", verifyToken, async (req, res) => {
             `);
         return res.status(201).json({ message: "Event created successfully!" });
     } catch (error) {
-        console.error("Add event error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -707,7 +707,7 @@ router.put("/events/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -737,7 +737,7 @@ router.delete("/events/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -753,7 +753,7 @@ router.get("/residents/stats", verifyToken, requireRole("admin"), async (req, re
         `);
         return res.status(200).json(result.recordset[0]);
     } catch (error) {
-        return res.status(500).json({ message: "Server error." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 

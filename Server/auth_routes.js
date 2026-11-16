@@ -87,7 +87,7 @@ router.post("/verify-employee", async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({ message: "Server error. Please try again." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error. Please try again." });
     }
 });
 
@@ -146,7 +146,7 @@ router.post("/admin/register", async (req, res) => {
         return res.status(201).json({ message: "Administrator account created successfully!" });
 
     } catch (error) {
-        return res.status(500).json({ message: "Server error. Please try again." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error. Please try again." });
     }
 });
 
@@ -196,7 +196,7 @@ router.post("/resident/register", async (req, res) => {
         return res.status(201).json({ message: "Resident account created successfully!" });
 
     } catch (error) {
-        return res.status(500).json({ message: "Server error. Please try again." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error. Please try again." });
     }
 });
 

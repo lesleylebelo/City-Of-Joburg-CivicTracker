@@ -1,5 +1,19 @@
 # Shared authentication review
 
+## SQL connection readiness
+
+Connections are lazy and shared, with a 250 ms retry backoff after a failed connection.
+An unavailable connection returns a generic 503; it never exits the application process.
+`GET /api/health` is public and does not contact SQL. `GET /api/health/ready` performs
+`SELECT 1` and returns 503 without driver details if SQL is unavailable.
+
+TLS defaults to `DB_ENCRYPT=true` and `DB_TRUST_SERVER_CERT=false`. For a local SQL
+instance only, a developer may explicitly set `DB_ENCRYPT=false` and
+`DB_TRUST_SERVER_CERT=true` in their private `Server/.env`. Use validated TLS for a
+remote deployment. No real environment file is changed by these readiness changes.
+`DB_POOL_MAX` defaults to 5 connections per process; `DB_CONNECT_TIMEOUT_MS` and
+`DB_REQUEST_TIMEOUT_MS` each default to 15000 ms. Positive integers override them.
+
 The Express-served frontend is `docs/`. `Client/` is an older copy and is unchanged.
 The shared page is `docs/Pages/Public/Sign-In/Sign-In.html`. The old resident,
 administrator and role-selection pages redirect there, including on a GitHub Pages project path.
