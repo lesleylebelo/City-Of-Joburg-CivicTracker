@@ -1,6 +1,6 @@
 # Johannesburg map source
 
-The landing-page map uses the City of Johannesburg Corporate Geo-Informatics public GIS service, downloaded on 16 November 2026:
+The landing-page street map uses the City of Johannesburg Corporate Geo-Informatics boundary, downloaded on 16 November 2026:
 
 - [CITY, layer 0](https://ags.joburg.org.za/server/rest/services/FeatureServices/CGIS_CORE_DATA/FeatureServer/0)
 - [REGION, layer 1](https://ags.joburg.org.za/server/rest/services/FeatureServices/CGIS_CORE_DATA/FeatureServer/1)
@@ -14,6 +14,16 @@ node scripts/build-johannesburg-map.cjs
 node scripts/build-johannesburg-map.cjs --check
 ```
 
-The builder verifies the municipality and region IDs, projects the geometry to Web Mercator, places labels inside their regions, and clips every region and label to the municipal polygon. The SVG has a transparent exterior: no world basemap, tiles, neighbouring municipalities, or external runtime map service are displayed or requested. The full outline is always visible; there is no panning beyond the city.
+The builder maintains the static SVG fallback for browsers without JavaScript. It verifies the municipality and region IDs, projects the geometry to Web Mercator, places labels inside their regions, and clips every region and label to the municipal polygon.
 
-This is a static administrative reference map, not live report data or a street map. It does not change report-location validation or server authorization. The existing address-name filter must not be mistaken for polygon-based server enforcement.
+## Interactive street map
+
+`docs/Assets/JS/johannesburg-map.js` uses locally vendored Leaflet 1.9.4 and the saved municipal GeoJSON. It requests visible street tiles from `https://tile.openstreetmap.org/{z}/{x}/{y}.png` when the map approaches the viewport. Roads and local place labels come from OpenStreetMap, not Google Maps. An internet connection is required for street tiles; no API key or SQL Server is needed.
+
+Every tile is drawn to a transparent canvas through the municipal polygon using the even-odd clipping rule. Neighbouring geography is never painted, including during movement and zoom. A dotted red outline marks the boundary. Leaflet's rectangular `maxBounds` limits panning; the polygon clip, rather than those rectangular bounds, ensures nothing outside Johannesburg appears. Users can zoom to street level, navigate with touch/mouse/keyboard, and reset to the whole municipality. Wheel zoom becomes active while the map has keyboard focus, so scrolling the landing page normally does not change the zoom.
+
+The panel spans the landing section's full width. Its initial view uses a closer zoom to fill the panel with local geography while preserving map proportions; the full north–south extent is not shown initially. The “Show all Johannesburg” control fits the complete municipal boundary again.
+
+The map retains visible [OpenStreetMap attribution](https://www.openstreetmap.org/copyright), browser HTTP caching, and the normal browser Referer. It does not bulk-download, prefetch, or offer offline tile downloads. `keepBuffer: 0` avoids requesting an extra tile buffer. The tile URL is configured on the map element's `data-tile-url` attribute so a different licensed provider can be configured later, with its matching attribution. Tile hosting is subject to the [OpenStreetMap tile usage policy](https://operations.osmfoundation.org/policies/tiles/), including best-effort availability; heavier traffic should use a suitable hosted provider. Failed tiles produce a visible retry action. Do not remove attribution or apply a no-referrer policy to this page.
+
+This map does not display live issue reports, validate report coordinates, or change server authorization. The existing address-name filter must not be mistaken for polygon-based server enforcement. Requests to the tile provider disclose the normal browser connection metadata and viewed tile coordinates; no CivicTrack account data is sent by this component.

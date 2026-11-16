@@ -16,11 +16,14 @@
         <meta property="og:image:alt" content="CivicTrack gold map pin with a check mark. Your city. Your voice. An independent civic project.">
         <meta property="og:url" content="https://lesleylebelo.github.io/City-Of-Joburg-CivicTracker/">
         <meta name="twitter:card" content="summary_large_image">
-        <link rel="stylesheet" href="./Pages/Public/Landing/Landing.css?v=989c694fd7d4">
+        <link rel="stylesheet" href="./Assets/Vendor/leaflet/leaflet.css?v=1.9.4">
+        <link rel="stylesheet" href="./Pages/Public/Landing/Landing.css?v=caedd70b07c7">
         <link rel="stylesheet" href="Assets/CSS/navigation.css">
         <link rel="stylesheet" href="./Assets/CSS/city-brand.css?v=8236b963647a">
         <link rel="stylesheet" href="./Assets/CSS/jozi.css?v=b4896a25d3b5">
         <script src="./Assets/JS/jozi.js?v=b5c800a9bbdb" defer></script>
+        <script src="./Assets/Vendor/leaflet/leaflet.js?v=1.9.4" defer></script>
+        <script src="./Assets/JS/johannesburg-map.js?v=19daf89f329d" defer></script>
 </head>
     <body>
         <a class="skip-link" href="#main-content">Skip to content</a>
@@ -73,12 +76,23 @@
                 </div>
             </section>
 
-            <!-- Municipal reference map: only the City of Johannesburg is drawn. -->
+            <!-- Interactive street map, clipped to the municipal boundary. -->
             <section id="Johannesburg-Map" aria-labelledby="johannesburg-map-heading">
                 <div class="section-heading"><p class="eyebrow">Our metropolitan area</p><h2 id="johannesburg-map-heading">City of Johannesburg.</h2></div>
                 <figure class="johannesburg-map">
-                    <img src="./Assets/Images/johannesburg-map.svg" alt="Map of the City of Johannesburg Metropolitan Municipality showing regions A, B, C, D, E, F and G. Surrounding municipalities are excluded." width="600" height="819" loading="lazy" decoding="async">
-                    <figcaption>Municipal boundary and administrative regions. <a href="https://ags.joburg.org.za/server/rest/services/FeatureServices/CGIS_CORE_DATA/FeatureServer" target="_blank" rel="noopener noreferrer">Source: City of Johannesburg GIS<span class="map-link-context"> (opens in a new tab)</span></a>.</figcaption>
+                    <p id="johannesburg-map-help" class="map-help">Explore streets and local places. Drag to move, pinch to zoom, or focus the map and use the arrow keys and zoom controls.</p>
+                    <div class="map-frame">
+                        <div id="johannesburg-street-map" role="region" aria-label="Interactive Johannesburg street map" aria-describedby="johannesburg-map-help" tabindex="0" data-tile-url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"></div>
+                        <div class="map-tools" role="group" aria-label="Map controls">
+                            <button type="button" data-map-action="zoom-in" aria-label="Zoom in" disabled><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M5 12h14M12 5v14"/></svg></button>
+                            <button type="button" data-map-action="zoom-out" aria-label="Zoom out" disabled><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true" focusable="false"><path d="M5 12h14"/></svg></button>
+                            <button type="button" data-map-action="reset" aria-label="Show all Johannesburg" disabled><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></svg></button>
+                        </div>
+                    </div>
+                    <p id="johannesburg-map-status" class="map-status" role="status">The street map loads as you reach this section.</p>
+                    <button type="button" id="johannesburg-map-retry" class="button button-outline" hidden>Retry loading map</button>
+                    <noscript><img src="./Assets/Images/johannesburg-map.svg" alt="Johannesburg municipal outline and regions A to G. Enable JavaScript to explore the street map." width="600" height="819"></noscript>
+                    <figcaption><span class="map-boundary-key" aria-hidden="true"></span>Dotted red line: City of Johannesburg metropolitan boundary. Areas outside the city are hidden. <a href="https://ags.joburg.org.za/server/rest/services/FeatureServices/CGIS_CORE_DATA/FeatureServer" target="_blank" rel="noopener noreferrer">Boundary: City of Johannesburg GIS<span class="map-link-context"> (opens in a new tab)</span></a>.</figcaption>
                 </figure>
             </section>
 
