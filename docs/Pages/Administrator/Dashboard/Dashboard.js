@@ -1,8 +1,7 @@
 // ── Auth check ──
-const token = localStorage.getItem("civictrack_token");
-const user  = JSON.parse(localStorage.getItem("civictrack_user") || "{}");
+const user = CivicSession.user;
+const escapeHTML = CivicSession.escapeHTML;
 
-if (!token) window.location.href = "Admin_sign_in.html";
 
 // Set user info
 if (user.full_names) {
@@ -15,13 +14,12 @@ async function apiFetch(url, method = "GET", body = null) {
     const opts = {
         method,
         headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
+            "Content-Type": "application/json"
         }
     };
     if (body) opts.body = JSON.stringify(body);
     try {
-        const res  = await fetch(url, opts);
+        const res  = await CivicSession.fetch(url, opts);
         const data = await res.json();
         return { ok: res.ok, data };
     } catch (err) {
@@ -101,10 +99,10 @@ async function loadRecentIssues() {
 
     tbody.innerHTML = data.map(issue => `
         <tr>
-            <td>${issue.title}</td>
-            <td>${issue.category}</td>
+            <td>${escapeHTML(issue.title)}</td>
+            <td>${escapeHTML(issue.category)}</td>
             <td><span class="priority-badge ${issue.priority.toLowerCase()}">${issue.priority}</span></td>
-            <td><span class="status-badge ${issue.status.toLowerCase().replace(" ","-")}">${issue.status}</span></td>
+            <td><span class="status-badge ${issue.status.toLowerCase().replace(" ","-")}">${escapeHTML(issue.status)}</span></td>
             <td>${new Date(issue.created_at).toLocaleDateString("en-ZA")}</td>
         </tr>
     `).join("");
@@ -122,8 +120,8 @@ async function loadRecentNotices() {
 
     container.innerHTML = data.map(n => `
         <div class="mini-item">
-            <div class="mini-item-title">${n.title}</div>
-            <div class="mini-item-meta">${n.category}</div>
+            <div class="mini-item-title">${escapeHTML(n.title)}</div>
+            <div class="mini-item-meta">${escapeHTML(n.category)}</div>
         </div>
     `).join("");
 }
@@ -140,7 +138,7 @@ async function loadRecentEvents() {
 
     container.innerHTML = data.map(ev => `
         <div class="mini-item">
-            <div class="mini-item-title">${ev.title}</div>
+            <div class="mini-item-title">${escapeHTML(ev.title)}</div>
             <div class="mini-item-meta">${ev.event_date} | ${ev.start_time}</div>
         </div>
     `).join("");
@@ -164,11 +162,11 @@ async function loadIssues() {
     tbody.innerHTML = data.map(issue => `
         <tr>
             <td>#${issue.issue_id}</td>
-            <td>${issue.title}</td>
-            <td>${issue.category}</td>
+            <td>${escapeHTML(issue.title)}</td>
+            <td>${escapeHTML(issue.category)}</td>
             <td><span class="priority-badge ${issue.priority.toLowerCase()}">${issue.priority}</span></td>
-            <td>${issue.location_address}</td>
-            <td><span class="status-badge ${issue.status.toLowerCase().replace(" ","-")}">${issue.status}</span></td>
+            <td>${escapeHTML(issue.location_address)}</td>
+            <td><span class="status-badge ${issue.status.toLowerCase().replace(" ","-")}">${escapeHTML(issue.status)}</span></td>
             <td>${new Date(issue.created_at).toLocaleDateString("en-ZA")}</td>
             <td>
                 <button class="action-btn"
@@ -231,13 +229,13 @@ async function loadProjects() {
    container.innerHTML = data.map(p => `
     <div class="data-card">
 
-        <h4>${p.title}</h4>
+        <h4>${escapeHTML(p.title)}</h4>
 
-        <p>${p.description}</p>
+        <p>${escapeHTML(p.description)}</p>
 
         <div class="card-meta">
-            <span class="card-tag">${p.category}</span>
-            <span class="card-tag">${p.status}</span>
+            <span class="card-tag">${escapeHTML(p.category)}</span>
+            <span class="card-tag">${escapeHTML(p.status)}</span>
             ${p.start_date ? `<span class="card-tag">${p.start_date}</span>` : ""}
         </div>
 
@@ -417,9 +415,9 @@ async function loadNotices() {
     if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No notices.</p>'; return; }
     container.innerHTML = data.map(n => `
         <div class="data-card">
-            <h4>${n.title}</h4>
-            <p>${n.content}</p>
-            <div class="card-meta"><span class="card-tag">${n.category}</span></div>
+            <h4>${escapeHTML(n.title)}</h4>
+            <p>${escapeHTML(n.content)}</p>
+            <div class="card-meta"><span class="card-tag">${escapeHTML(n.category)}</span></div>
         </div>
     `).join("");
 }
@@ -452,8 +450,8 @@ async function loadPolls() {
     if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No polls.</p>'; return; }
     container.innerHTML = data.map(p => `
         <div class="data-card">
-            <h4>${p.question}</h4>
-            <p>${p.description || ""}</p>
+            <h4>${escapeHTML(p.question)}</h4>
+            <p>${escapeHTML(p.description || "")}</p>
             <div class="card-meta">
                 <span class="card-tag">${p.is_active ? "Active" : "Closed"}</span>
                 ${p.end_date ? `<span class="card-tag">Ends: ${new Date(p.end_date).toLocaleDateString("en-ZA")}</span>` : ""}
@@ -493,12 +491,12 @@ async function loadEvents() {
     if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No events.</p>'; return; }
     container.innerHTML = data.map(ev => `
         <div class="data-card">
-            <h4>${ev.title}</h4>
-            <p>${ev.description}</p>
+            <h4>${escapeHTML(ev.title)}</h4>
+            <p>${escapeHTML(ev.description)}</p>
             <div class="card-meta">
                 <span class="card-tag">${ev.event_date}</span>
                 <span class="card-tag">${ev.start_time}</span>
-                <span class="card-tag">${ev.category}</span>
+                <span class="card-tag">${escapeHTML(ev.category)}</span>
             </div>
         </div>
     `).join("");
@@ -566,9 +564,7 @@ async function loadAnalytics() {
 // ── Logout ──
 document.getElementById("nav-logout").addEventListener("click", function(e) {
     e.preventDefault();
-    localStorage.removeItem("civictrack_token");
-    localStorage.removeItem("civictrack_user");
-    window.location.href = "/Pages/Administrator/Sign-In/Sign-In.html";
+    CivicSession.signOut();
 });
 
 // ── Initial load ──

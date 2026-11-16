@@ -10,6 +10,43 @@ const { sql, poolPromise } = require("./db_sqlserver");
 
 const router = express.Router();
 const SALT_ROUNDS = 10;
+const verifyToken = require('./auth_middleware');
+const { findAccounts, publicAccount } = require('./accounts');
+const dummyHash = bcrypt.hashSync('civictrack-invalid-account', SALT_ROUNDS);
+const loginError = { message: 'Unable to sign in. Check your details and try again.' };
+
+async function login(req, res) {
+    const { identifier, password } = req.body || {};
+    res.set('Cache-Control', 'no-store');
+    if (typeof identifier !== 'string' || !identifier.trim() || identifier.trim().length > 150 ||
+        typeof password !== 'string' || !password || password.length > 1024) {
+        return res.status(401).json(loginError);
+    }
+    try {
+        const candidates = await findAccounts(identifier.trim());
+        if (!candidates.length) await bcrypt.compare(password, dummyHash);
+        const matches = [];
+        for (const account of candidates) {
+            const valid = await bcrypt.compare(password, account.password_hash);
+            if (valid && account.is_active) matches.push(account);
+        }
+        // Fail closed on collisions without disclosing account types or choosing a row.
+        // A client-supplied role/account_type never narrows the lookup.
+        if (matches.length !== 1) return res.status(401).json(loginError);
+        const user = publicAccount(matches[0]);
+        const token = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET,
+            { algorithm: 'HS256', expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+        return res.json({ message: 'Signed in successfully.', token, user });
+    } catch {
+        return res.status(503).json({ message: 'Sign-in service unavailable. Please try again.' });
+    }
+}
+
+router.post('/login', login);
+router.get('/session', verifyToken, (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({ user: req.user, expires_at: req.sessionExpiresAt });
+});
 
 // POST /api/auth/verify-employee
 // Checks if an employee number is authorised
@@ -50,7 +87,6 @@ router.post("/verify-employee", async (req, res) => {
         });
 
     } catch (error) {
-        console.error("Verify employee error:", error);
         return res.status(500).json({ message: "Server error. Please try again." });
     }
 });
@@ -96,7 +132,7 @@ router.post("/admin/register", async (req, res) => {
         // Hash the password
         const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
-        // Insert the new admin (trigger will auto-update is_registered)
+        // Insert only after the authorised-employee and registration checks above.
         await pool.request()
             .input("full_names",      sql.NVarChar, full_names)
             .input("email",           sql.NVarChar, email)
@@ -110,7 +146,6 @@ router.post("/admin/register", async (req, res) => {
         return res.status(201).json({ message: "Administrator account created successfully!" });
 
     } catch (error) {
-        console.error("Admin register error:", error);
         return res.status(500).json({ message: "Server error. Please try again." });
     }
 });
@@ -118,61 +153,10 @@ router.post("/admin/register", async (req, res) => {
 // POST /api/auth/admin/login
 // Logs in an administrator
 
-router.post("/admin/login", async (req, res) => {
-    const { employee_number, password } = req.body;
-
-    if (!employee_number || !password) {
-        return res.status(400).json({ message: "All fields are required!" });
-    }
-
-    try {
-        const pool = await poolPromise;
-
-        const result = await pool.request()
-            .input("employee_number", sql.NVarChar, employee_number)
-            .query(`
-                SELECT admin_id, full_names, email, employee_number, password_hash, is_active
-                FROM administrators
-                WHERE employee_number = @employee_number
-            `);
-
-        if (result.recordset.length === 0) {
-            return res.status(401).json({ message: "Invalid employee number or password!" });
-        }
-
-        const admin = result.recordset[0];
-
-        if (!admin.is_active) {
-            return res.status(403).json({ message: "This account has been deactivated!" });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, admin.password_hash);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: "Invalid employee number or password!" });
-        }
-
-        // Generate JWT
-        const token = jwt.sign(
-            { id: admin.admin_id, role: "admin", employee_number: admin.employee_number },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
-        );
-
-        return res.status(200).json({
-            message:    "Login successful!",
-            token,
-            admin: {
-                admin_id:        admin.admin_id,
-                full_names:      admin.full_names,
-                email:           admin.email,
-                employee_number: admin.employee_number
-            }
-        });
-
-    } catch (error) {
-        console.error("Admin login error:", error);
-        return res.status(500).json({ message: "Server error. Please try again." });
-    }
+// Compatibility URL; credential verification is shared with /login.
+router.post('/admin/login', (req, res) => {
+    req.body = { identifier: req.body?.employee_number, password: req.body?.password };
+    return login(req, res);
 });
 
 // POST /api/auth/resident/register
@@ -212,7 +196,6 @@ router.post("/resident/register", async (req, res) => {
         return res.status(201).json({ message: "Resident account created successfully!" });
 
     } catch (error) {
-        console.error("Resident register error:", error);
         return res.status(500).json({ message: "Server error. Please try again." });
     }
 });
@@ -220,59 +203,9 @@ router.post("/resident/register", async (req, res) => {
 // POST /api/auth/resident/login
 // Logs in a resident
 
-router.post("/resident/login", async (req, res) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ message: "All fields are required!" });
-    }
-
-    try {
-        const pool = await poolPromise;
-
-        const result = await pool.request()
-            .input("email", sql.NVarChar, email)
-            .query(`
-                SELECT resident_id, full_names, email, password_hash, is_active
-                FROM residents
-                WHERE email = @email
-            `);
-
-        if (result.recordset.length === 0) {
-            return res.status(401).json({ message: "Invalid email or password!" });
-        }
-
-        const resident = result.recordset[0];
-
-        if (!resident.is_active) {
-            return res.status(403).json({ message: "This account has been deactivated!" });
-        }
-
-        const passwordMatch = await bcrypt.compare(password, resident.password_hash);
-        if (!passwordMatch) {
-            return res.status(401).json({ message: "Invalid email or password!" });
-        }
-
-        const token = jwt.sign(
-            { id: resident.resident_id, role: "resident" },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN || "7d" }
-        );
-
-        return res.status(200).json({
-            message: "Login successful!",
-            token,
-            resident: {
-                resident_id: resident.resident_id,
-                full_names:  resident.full_names,
-                email:       resident.email
-            }
-        });
-
-    } catch (error) {
-        console.error("Resident login error:", error);
-        return res.status(500).json({ message: "Server error. Please try again." });
-    }
+router.post('/resident/login', (req, res) => {
+    req.body = { identifier: req.body?.email, password: req.body?.password };
+    return login(req, res);
 });
 
 module.exports = router;

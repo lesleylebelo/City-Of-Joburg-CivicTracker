@@ -1,0 +1,14 @@
+/* Progressive cross-document transitions: normal links/history remain native. */
+@view-transition { navigation: auto; }
+@keyframes civic-page-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes civic-page-out { from { opacity: 1; } to { opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+    ::view-transition-old(root) { animation: civic-page-out .16s ease-out both; }
+    ::view-transition-new(root) { animation: civic-page-in .24s ease-out both; }
+    /* A short entrance also works in browsers without cross-document transitions. */
+    body.auth-page { animation: civic-page-in .24s ease-out both; }
+}
+@media (prefers-reduced-motion: reduce) {
+    ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+    body.auth-page { animation: none; }
+}

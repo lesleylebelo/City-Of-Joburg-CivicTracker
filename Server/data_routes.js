@@ -1,6 +1,7 @@
 const express = require("express");
 const { sql, poolPromise } = require("./db_sqlserver");
 const verifyToken = require("./auth_middleware");
+const { requireRole } = verifyToken;
 
 const router = express.Router();
 
@@ -24,7 +25,7 @@ router.get("/projects", verifyToken, async (req, res) => {
 });
 
 // GET /api/projects/stats
-router.get("/projects/stats", verifyToken, async (req, res) => {
+router.get("/projects/stats", verifyToken, requireRole("admin"), async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request().query(`
@@ -490,7 +491,7 @@ router.put("/polls/:id", verifyToken, async (req, res) => {
 });
 
 // POST /api/polls/:id/vote (resident)
-router.post("/polls/:id/vote", verifyToken, async (req, res) => {
+router.post("/polls/:id/vote", verifyToken, requireRole("resident"), async (req, res) => {
     const { option_id } = req.body;
     const poll_id       = req.params.id;
     const resident_id   = req.user.id;
@@ -744,7 +745,7 @@ router.delete("/events/:id", verifyToken, async (req, res) => {
 
 // RESIDENTS STATS (admin)
 
-router.get("/residents/stats", verifyToken, async (req, res) => {
+router.get("/residents/stats", verifyToken, requireRole("admin"), async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request().query(`

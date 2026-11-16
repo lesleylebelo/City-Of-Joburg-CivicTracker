@@ -1,5 +1,5 @@
 const sql = require("mssql");
-require("dotenv").config({ path: "./.env" });
+require("dotenv").config({ path: require("path").join(__dirname, ".env"), quiet: true });
 
 // Safety check (prevents empty login issues)
 if (!process.env.DB_USER || !process.env.DB_PASSWORD) {

@@ -39,6 +39,8 @@ The system restricts access or submissions to within the **City of Joburg** muni
 
 ## Tech Stack
 
+Local setup, shared sign-in behavior and verification: [Authentication review](Server/AUTHENTICATION.md).
+
 | Layer | Technology |
 |---|---|
 | **Frontend** | HTML, CSS, JavaScript |

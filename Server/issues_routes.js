@@ -4,6 +4,7 @@ const path       = require("path");
 const fs         = require("fs");
 const { sql, poolPromise } = require("./db_sqlserver");
 const verifyToken = require("./auth_middleware");
+const { requireRole } = verifyToken;
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ const upload = multer({
 });
 
 // POST /api/issues - submit with image
-router.post("/", verifyToken, upload.single("issueImage"), async (req, res) => {
+router.post("/", verifyToken, requireRole("resident"), upload.single("issueImage"), async (req, res) => {
 
     const {
         title,
@@ -127,7 +128,7 @@ router.get("/", verifyToken, async (req, res) => {
 });
 
 // GET /api/issues/my-history
-router.get("/my-history", verifyToken, async (req, res) => {
+router.get("/my-history", verifyToken, requireRole("resident"), async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request()
@@ -140,7 +141,7 @@ router.get("/my-history", verifyToken, async (req, res) => {
 });
 
 // GET /api/issues/resident/:id - admin views resident history
-router.get("/resident/:id", verifyToken, async (req, res) => {
+router.get("/resident/:id", verifyToken, requireRole("admin"), async (req, res) => {
     if (req.user.role !== "admin") return res.status(403).json({ message: "Admin access required." });
     try {
         const pool = await poolPromise;
@@ -156,7 +157,7 @@ router.get("/resident/:id", verifyToken, async (req, res) => {
 });
 
 // GET /api/issues/stats
-router.get("/stats", verifyToken, async (req, res) => {
+router.get("/stats", verifyToken, requireRole("admin"), async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request().query(`
@@ -170,7 +171,7 @@ router.get("/stats", verifyToken, async (req, res) => {
 });
 
 // GET /api/issues/analytics
-router.get("/analytics", verifyToken, async (req, res) => {
+router.get("/analytics", verifyToken, requireRole("admin"), async (req, res) => {
     try {
         const pool = await poolPromise;
         const byCategory = await pool.request().query(`SELECT category, COUNT(*) AS count FROM reported_issues GROUP BY category ORDER BY count DESC`);
@@ -180,7 +181,7 @@ router.get("/analytics", verifyToken, async (req, res) => {
 });
 
 // PATCH /api/issues/:id/status
-router.patch("/:id/status", verifyToken, async (req, res) => {
+router.patch("/:id/status", verifyToken, requireRole("admin"), async (req, res) => {
     const { status, admin_notes } = req.body;
     const validStatuses = ["Pending","In Progress","Resolved","Rejected"];
     if (!validStatuses.includes(status)) return res.status(400).json({ message: "Invalid status!" });
@@ -199,7 +200,7 @@ router.patch("/:id/status", verifyToken, async (req, res) => {
 });
 
 // GET /api/issues/residents-list - admin gets all residents with issue counts
-router.get("/residents-list", verifyToken, async (req, res) => {
+router.get("/residents-list", verifyToken, requireRole("admin"), async (req, res) => {
     if (req.user.role !== "admin") return res.status(403).json({ message: "Admin access required." });
     try {
         const pool = await poolPromise;
@@ -259,7 +260,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 });
 
 // PUT /api/issues/:id
-router.put("/:id", verifyToken, async (req, res) => {
+router.put("/:id", verifyToken, requireRole("resident"), async (req, res) => {
 
     const {
         title,
@@ -301,7 +302,8 @@ router.put("/:id", verifyToken, async (req, res) => {
             });
         }
 
-        await pool.request()
+        const updated = await pool.request()
+            .input("resident_id", sql.Int, req.user.id)
             .input("issue_id", sql.Int, req.params.id)
             .input("title", sql.NVarChar, title)
             .input("category", sql.NVarChar, category)
@@ -317,8 +319,10 @@ router.put("/:id", verifyToken, async (req, res) => {
                     location_address=@location_address,
                     description=@description,
                     updated_at=GETDATE()
-                WHERE issue_id=@issue_id
+                WHERE issue_id=@issue_id AND resident_id=@resident_id AND status='Pending'
             `);
+
+        if (!updated.rowsAffected[0]) return res.status(409).json({ message: 'Issue changed. Refresh and try again.' });
 
         return res.status(200).json({
             message: "Issue updated successfully."
@@ -370,12 +374,14 @@ router.delete("/:id", verifyToken, async (req, res) => {
             }
         }
 
-        await pool.request()
+        const deleted = await pool.request()
             .input("issue_id", sql.Int, req.params.id)
-            .query(`
-                DELETE FROM reported_issues
-                WHERE issue_id = @issue_id
-            `);
+            .input("resident_id", sql.Int, req.user.id)
+            .input("is_admin", sql.Bit, req.user.role === 'admin')
+            .query(`DELETE FROM reported_issues WHERE issue_id=@issue_id
+                    AND (@is_admin=1 OR (resident_id=@resident_id AND status='Pending'))`);
+
+        if (!deleted.rowsAffected[0]) return res.status(409).json({ message: 'Issue changed. Refresh and try again.' });
 
         // Delete image if it exists
         if (issue.image_url) {

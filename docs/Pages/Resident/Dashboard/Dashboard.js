@@ -1,7 +1,6 @@
-const token = localStorage.getItem("civictrack_token");
-const user  = JSON.parse(localStorage.getItem("civictrack_user") || "{}");
+const user = CivicSession.user;
+const escapeHTML = CivicSession.escapeHTML;
 
-if (!token) window.location.href = "Resident_Sign_In.html";
 
 if (user.full_names) {
     document.getElementById("topbar-name").textContent   = user.full_names;
@@ -46,7 +45,7 @@ document.querySelectorAll(".view-all").forEach(link => {
 
 // Helpers 
 async function apiFetch(url, method = "GET", body = null) {
-    const opts = { method, headers: { "Authorization": "Bearer " + token } };
+    const opts = { method, headers: {} };
     if (body && !(body instanceof FormData)) {
         opts.headers["Content-Type"] = "application/json";
         opts.body = JSON.stringify(body);
@@ -54,7 +53,7 @@ async function apiFetch(url, method = "GET", body = null) {
         opts.body = body;
     }
     try {
-        const res  = await fetch(url, opts);
+        const res  = await CivicSession.fetch(url, opts);
         const data = await res.json();
         return { ok: res.ok, data };
     } catch (err) {
@@ -86,10 +85,10 @@ async function loadProjects() {
     if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No projects found.</p>'; return; }
     c.innerHTML = data.map(p => `
         <div class="data-card">
-            <h4>${p.title}</h4><p>${p.description}</p>
+            <h4>${escapeHTML(p.title)}</h4><p>${escapeHTML(p.description)}</p>
             <div class="card-meta">
-                <span class="card-tag">${p.category}</span>
-                <span class="card-tag">${p.status}</span>
+                <span class="card-tag">${escapeHTML(p.category)}</span>
+                <span class="card-tag">${escapeHTML(p.status)}</span>
                 ${p.start_date ? `<span class="card-tag">${formatDate(p.start_date)}</span>` : ""}
             </div>
         </div>`).join("");
@@ -103,8 +102,8 @@ async function loadNotices() {
     if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No notices.</p>'; return; }
     c.innerHTML = data.map(n => `
         <div class="data-card">
-            <h4>${n.title}</h4><p>${n.content}</p>
-            <div class="card-meta"><span class="card-tag">${n.category}</span></div>
+            <h4>${escapeHTML(n.title)}</h4><p>${escapeHTML(n.content)}</p>
+            <div class="card-meta"><span class="card-tag">${escapeHTML(n.category)}</span></div>
         </div>`).join("");
 }
 
@@ -117,15 +116,15 @@ async function loadPolls() {
     c.innerHTML = data.map(poll => `
         <div class="poll-card" id="poll-${poll.poll_id}">
             <div class="poll-header">
-                <h4>${poll.question}</h4>
-                ${poll.description ? `<p class="poll-desc">${poll.description}</p>` : ""}
+                <h4>${escapeHTML(poll.question)}</h4>
+                ${poll.description ? `<p class="poll-desc">${escapeHTML(poll.description)}</p>` : ""}
                 <span class="poll-status ${poll.is_active ? 'active' : 'closed'}">${poll.is_active ? 'Active' : 'Closed'}</span>
             </div>
             <div class="poll-options">
                 ${poll.options && poll.options.length > 0
                     ? poll.options.map(opt => `
                         <button class="poll-option-btn" onclick="castVote(${poll.poll_id}, ${opt.option_id}, this)">
-                            <span class="option-text">${opt.option_text}</span>
+                            <span class="option-text">${escapeHTML(opt.option_text)}</span>
                             <span class="option-votes">${opt.votes} vote${opt.votes !== 1 ? "s" : ""}</span>
                         </button>`).join("")
                     : '<p class="no-options">No options available.</p>'}
@@ -166,14 +165,14 @@ async function loadEvents() {
             <div class="event-full-header">
                 <div class="event-date-badge"><span class="event-day">${day}</span><span class="event-month">${mon}</span></div>
                 <div class="event-full-info">
-                    <h4>${ev.title}</h4>
+                    <h4>${escapeHTML(ev.title)}</h4>
                     <p class="event-full-date">${full}</p>
                     <p class="event-full-time">🕐 ${st}${et}</p>
-                    <p class="event-full-location">📍 ${ev.location_address}</p>
+                    <p class="event-full-location">📍 ${escapeHTML(ev.location_address)}</p>
                 </div>
             </div>
-            <p class="event-full-desc">${ev.description}</p>
-            <div class="card-meta"><span class="card-tag">${ev.category}</span></div>
+            <p class="event-full-desc">${escapeHTML(ev.description)}</p>
+            <div class="card-meta"><span class="card-tag">${escapeHTML(ev.category)}</span></div>
         </div>`;
     }).join("");
 }
@@ -188,21 +187,21 @@ async function loadMyHistory() {
         <div class="history-card">
             <div class="history-header">
                 <div class="history-title-block">
-                    <h4>${issue.title}</h4>
-                    <span class="history-category">${issue.category}</span>
+                    <h4>${escapeHTML(issue.title)}</h4>
+                    <span class="history-category">${escapeHTML(issue.category)}</span>
                 </div>
                 <div class="history-meta-right">
                     ${statusBadge(issue.status)}
                     <span class="history-date">${formatDate(issue.created_at)}</span>
                 </div>
             </div>
-            <p class="history-location">📍 ${issue.location_address}</p>
-            <p class="history-desc">${issue.description}</p>
+            <p class="history-location">📍 ${escapeHTML(issue.location_address)}</p>
+            <p class="history-desc">${escapeHTML(issue.description)}</p>
             ${issue.image_url ? `
                 <div class="history-image-wrap">
-                    <img src="${issue.image_url}" alt="Issue photo" class="history-image" onclick="openImageModal('${issue.image_url}')">
+                    <img data-report-image="${escapeHTML(issue.image_url)}" alt="Issue photo" class="history-image" onclick="openImageModal(this.src)">
                 </div>` : ""}
-            ${issue.admin_notes ? `<div class="history-admin-note"><span>Admin Note:</span> ${issue.admin_notes}</div>` : ""}
+            ${issue.admin_notes ? `<div class="history-admin-note"><span>Admin Note:</span> ${escapeHTML(issue.admin_notes)}</div>` : ""}
             ${issue.resolved_at ? `<p class="history-resolved">✓ Resolved on ${formatDate(issue.resolved_at)}</p>` : ""}
 
             <div class="history-actions">
@@ -219,6 +218,7 @@ async function loadMyHistory() {
                 ` : ""}
              </div>
         </div>`).join("");
+    await CivicSession.loadReportImages(c);
 }
 
 async function deleteIssue(issueId) {
@@ -366,9 +366,7 @@ document.getElementById("issueImage").addEventListener("change", function() {
 // Logout 
 document.getElementById("nav-logout").addEventListener("click", function(e) {
     e.preventDefault();
-    localStorage.removeItem("civictrack_token");
-    localStorage.removeItem("civictrack_user");
-    window.location.href = "/Pages/Resident/Sign-In/Sign-In.html";
+    CivicSession.signOut();
 });
 
 
@@ -470,6 +468,5 @@ document.addEventListener("click", function(e) {
 }
 
 // initialize
-window.addEventListener("load", function() {
-    setupAddressAutocomplete();
-});
+if (document.readyState === "complete") setupAddressAutocomplete();
+else window.addEventListener("load", setupAddressAutocomplete);
