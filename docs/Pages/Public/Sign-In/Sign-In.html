@@ -7,7 +7,7 @@
     <title>Sign in | CivicTrack</title>
     <link rel="icon" href="../../../Assets/Images/CivicTrack-Mark.svg" type="image/svg+xml">
     <link rel="stylesheet" href="../../../Assets/CSS/navigation.css">
-    <link rel="stylesheet" href="../../../Assets/CSS/auth.css">
+    <link rel="stylesheet" href="../../../Assets/CSS/auth.css?v=1a4244609609">
     <script src="../../../Assets/JS/auth-interface.js" defer></script>
     <script src="../../../Assets/JS/session.js" defer></script>
     <script src="Sign-In.js" defer></script>
@@ -15,29 +15,22 @@
 <body class="auth-page">
     <a class="skip-link" href="#main-content">Skip to form</a>
     <header class="auth-header">
-        <a class="auth-brand" href="../../../index.html"><img src="../../../Assets/Images/CivicTrack-Mark.svg" width="44" height="44" alt=""><span class="auth-brand-copy"><strong>CivicTrack</strong><small>Independent civic project</small></span></a>
-        <a class="auth-home" href="../../../index.html">Back home <span aria-hidden="true">↗</span></a>
+        <a class="auth-brand" href="../../../index.html"><img src="../../../Assets/Images/CivicTrack-Mark.svg" width="44" height="44" alt=""><span class="auth-brand-copy"><strong>CivicTrack</strong></span></a>
+        <a class="auth-home" href="../../../index.html">Back home <span aria-hidden="true">→</span></a>
     </header>
     <main class="auth-shell" id="main-content" tabindex="-1">
-        <section class="auth-scene" aria-labelledby="auth-scene-heading">
-            <p class="auth-eyebrow">For the people of Johannesburg</p>
-            <h1 id="auth-scene-heading">Your city.<br>Your voice.<span>Make it count.</span></h1>
-            <p class="auth-scene-description">Report an issue. Track an update. Help improve Joburg.</p>
-            <p class="auth-project-note">Independent project, not an official City of Johannesburg service.</p>
-        </section>
+        <aside class="auth-scene" aria-label="Johannesburg"><p class="auth-scene-line">Report. Track. Improve Joburg.</p></aside>
         <section class="auth-panel" aria-labelledby="auth-form-heading">
             <div class="auth-form-content">
-                <p class="auth-eyebrow">Welcome back</p>
-                <h2 id="auth-form-heading">Good to see you.</h2>
-                <p class="auth-intro">Sign in to pick up where you left off.</p>
-                <form id="sign-in-form" class="auth-form">
+                <h1 id="auth-form-heading">Sign in to report.</h1>
+                <p class="auth-intro">Track your reports and get updates.</p>
+                <form id="sign-in-form" class="auth-form" aria-describedby="sign-in-feedback">
 <div class="auth-field"><label for="identifier">Email or account ID</label><input id="identifier" name="identifier" type="text" autocomplete="username" maxlength="150" required></div>
-<p id="identifier-help" class="auth-help">Use the email address or account ID associated with your account.</p>
-<div class="auth-field"><label for="password">Password</label><div class="auth-password"><input id="password" name="password" type="password" autocomplete="current-password"  maxlength="1024" required data-password-label="password"><button class="auth-reveal" type="button" data-password-toggle="password" aria-controls="password" aria-pressed="false" aria-label="Show password">Show</button></div></div>
-<div class="auth-utility"><a href="../Recover-Account/Recover-Account.html">Forgot your password?</a></div>
-<p id="sign-in-feedback" class="auth-feedback" role="status" aria-live="polite" aria-atomic="true"></p>
-<button class="auth-submit" id="sign-in-button" type="submit">Sign in <span aria-hidden="true">↗</span></button>
-</form><div class="auth-links"><p>New to CivicTrack? <a href="../Create-Account/Create-Account.html">Create an account</a></p></div>
+<div class="auth-field"><label for="password">Password</label><div class="auth-password"><input id="password" name="password" aria-describedby="sign-in-feedback" type="password" autocomplete="current-password"  maxlength="1024" required data-password-label="password"><button class="auth-reveal" type="button" data-password-toggle="password" aria-controls="password" aria-pressed="false" aria-label="Show password">Show</button></div></div>
+<div class="auth-utility"><a href="../Recover-Account/Recover-Account.html">Forgot password?</a></div>
+<div id="identifier-help"><p id="sign-in-feedback" class="auth-feedback" role="alert" aria-live="assertive" aria-atomic="true"></p></div>
+<button class="auth-submit" id="sign-in-button" type="submit">Sign in <span aria-hidden="true">→</span></button>
+</form><div class="auth-links"><p>New here? <a href="../Create-Account/Create-Account.html">Create an account</a></p></div>
             </div>
         </section>
     </main>
