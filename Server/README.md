@@ -1,21 +1,24 @@
 # CivicTrack backend
 
-Express serves the API and the current `../docs/` frontend. `server.js` loads
-`Server/.env` and listens locally; `app.js` exports the Express app without listening.
-The old `Client/` frontend is outside this work.
+`server.js` loads `Server/.env` and listens locally, serving the API and `../docs/`.
+`app.js` exports Express without listening. The package `main` now points to
+`src/functions/api.js`, the Azure Functions v4 entry. `npm.cmd start` still runs
+`server.js`. GitHub Pages remains the frontend host; the old `Client/` is untouched.
 
 ## Runtime prerequisites
 
-The checked-in dependency tree declares a minimum of **Node 20.0.0**: Express
+The backend now requires **Node >=22**, including the new Blob SDK's engine floor. Express
 5.2.1 needs >=18, mssql 12.5.4 >=18.19, tedious 19.2.1 >=18.17 and bcrypt 6 >=18,
-but the transitive Azure core/identity packages and typespec HTTP runtime need >=20.
-All declared dependency engine ranges in `package-lock.json` accept 20.0.0.
-The Functions adapter phase raises `package.json` to `node >=22` for the supported
-Functions runtime family. The dependency floor remains 20; the application floor
-is now 22. This is a compatibility floor,
+and several older transitive Azure core/identity packages need >=20. Those lower
+floors do not override the application/Blob floor. `package.json` declares `node >=22`.
+This is a compatibility floor,
 **not a production runtime selection or lifecycle recommendation**. Confirm the
 chosen host's current supported Node LTS list before deploying. Fixture tests for
 this change ran on local Node 24.19.0, not on every version allowed by `engines`.
+
+Functions supports Node 22 and 24 GA in the inspected official documentation:
+[Node developer reference](https://learn.microsoft.com/azure/azure-functions/functions-reference-node).
+Verify the selected plan/runtime again before deployment; no Azure plan was selected.
 
 For real application use, provide SQL Server with SQL authentication, TCP enabled,
 a known reachable hostname/port, the CivicTrack schema and a suitable application
@@ -28,8 +31,8 @@ requires an existing authorised employee record; the schema seeds no test accoun
 
 ## Windows PowerShell local run
 
-From the repository root (commands for the operator; no installation or real SQL
-verification was performed in this phase):
+From the repository root (commands for the operator; no real SQL verification was
+performed in this phase):
 
 ```powershell
 Set-Location -LiteralPath .\Server
@@ -79,6 +82,8 @@ applied when the optional variable is absent; placeholders are not configuration
 | `AZURE_STORAGE_ACCOUNT_URL` | Unset | Required HTTPS account origin for Blob with DefaultAzureCredential; no SAS, keys or URL credentials. |
 | `AZURE_STORAGE_CONTAINER` | Unset | Required existing private container for Blob; never created or modified by the application. |
 | `AZURE_STORAGE_CONNECTION_STRING` | Unset | Optional loopback-emulator connection only; remote connection strings are rejected. |
+| `FUNCTIONS_WORKER_RUNTIME` | No application default; set `node` | Functions/Core Tools host setting; not used by the standalone listener. |
+| `AzureWebJobsStorage` | No application default | Functions host storage setting, separate from report-photo storage; use local emulator storage only for local runs. |
 | `TEST_RESIDENT_IDENTIFIER` | Unset | Existing account for opt-in real-SQL verification only. |
 | `TEST_RESIDENT_PASSWORD` | Unset | Private test-account credential, real-SQL verification only. |
 | `TEST_ADMIN_IDENTIFIER` | Unset | Existing account for opt-in real-SQL verification only. |
@@ -139,7 +144,9 @@ pool lifecycle tests. It exercises real loopback HTTP handlers, bcrypt/JWT fixtu
 role/ownership restrictions, dashboard guards, lazy pooling/outage/recovery,
 health/readiness, exact-origin CORS/preflight, browser API configuration and token
 isolation, private photo reads and upload cleanup/signatures. Tests create and
-remove fixture photos and their own temporary directories. No dependency was added.
+remove fixture photos and their own temporary directories. New Functions/Blob checks
+run in memory with network listeners/connections forbidden. Only the authorised SDK
+declarations were added; exact versions and the audit result are below.
 
 For a separately authorised, real-SQL check only, privately configure the four
 `TEST_*` inputs and run `npm.cmd run test:sql`. **It was not run in this phase.**
@@ -157,7 +164,8 @@ API origin with token isolation, exact-origin CORS, a private local image-storag
 interface and regression coverage. Server export/listener separation is retained.
 
 `image_storage.js` exposes `saveImage(file) -> id`, `getImageStream(id)` and
-`deleteImage(id)`; the only implementation is local disk under `Server/uploads`.
+`deleteImage(id)`; implementations are local disk under `Server/uploads` (default)
+and private Blob storage selected explicitly with `IMAGE_STORAGE=blob`.
 URLs remain `/uploads/<id>` with database owner/admin authorization. Uploads are
 buffered in memory up to 5 MiB per request, checked against JPEG/PNG/GIF/WebP magic
 bytes plus MIME/extension, then written only after report validation. Failed inserts
@@ -166,10 +174,170 @@ or decompression limit. Concurrent upload memory still needs capacity/rate plann
 Cleanup failure is logged generically; disk failures or process crashes can still
 need reconciliation. SQL and files are not one transaction.
 
-Remaining: privately resolve historical credential exposure (assessment F01),
-inventory the live database/photos, verify current Azure runtime/region/offer/costs,
-choose and test a hosting adapter, implement durable private Blob storage, and
-rehearse an isolated staging migration with authorization/backup/rollback checks.
-No Azure resource, SDK, hosting manifest, live SQL change or data migration was
-created. Password reset, identity-provider migration, throttling, administrator
+The Functions adapter and Blob implementation are now covered by local fake-based
+tests. Remaining: resolve audit findings and historical credential exposure (F01),
+inventory the live database/photos, verify Azure plan/region/offer/costs, and
+rehearse staging authorization, durability, backups and rollback after approval.
+No Azure resource, deployment, real SQL change or data migration was performed.
+Password reset, identity-provider migration, throttling, administrator
 enrolment, polls, geofence, tracked dependencies and Git history remain out of scope.
+
+## Azure Functions HTTP adapter
+
+`host.json` uses format `2.0` and an empty HTTP `routePrefix`. The sole v4 HTTP
+function registers `{*path}` for GET, POST, PUT, PATCH, DELETE and OPTIONS with
+`authLevel: anonymous`; existing Express JWT/account/role/ownership middleware still
+protects data. There are no Functions keys in the browser and no route rewrites.
+`server.js` is unchanged for the standalone local listener.
+
+`src/http-adapter.js` maps the Functions absolute URL, method, query, headers and
+raw body into Node IncomingMessage/ServerResponse types with an in-memory
+transport. It preserves multipart bytes, status, end-to-end headers and binary
+photo data, while stripping transport framing. It never opens a network connection
+or logs request headers/bodies. The scheme and Host come from the Functions URL;
+arbitrary forwarded headers are not trusted.
+
+The adapter buffers the incoming request and the complete outgoing body; it is
+not end-to-end HTTP streaming. Express's 16 KiB JSON/urlencoded limit and the 5 MiB
+image limit remain; multipart overhead consumes additional memory. Overall host
+request/response limits, timeouts, cancellation, concurrency, memory, cold starts,
+plan-specific Node support and proxy URL handling **need verification on real
+Azure**. Existing SQL connection/request timeouts remain separate from host limits.
+Readiness probes execute SQL and can prevent future SQL auto-pause.
+
+`.funcignore` excludes tests, uploads, `.env`/examples, local settings/examples,
+database scripts and frontend docs. Publish from `Server/` only in a later approved
+phase. The frontend stays on GitHub Pages; no UI or API-origin setting was changed.
+
+## Private Blob storage
+
+The application does not create containers or change permissions. The operator
+must provide a private container, preferably with account-level public access
+disabled. Before every Blob operation, the adapter checks the container properties
+and rejects public access. This is a fail-closed check, not a substitute for Azure
+policy; ACL changes can race an application request.
+
+Hosted configuration uses `AZURE_STORAGE_ACCOUNT_URL` and DefaultAzureCredential,
+which can use managed identity once configured by an operator. No key/SAS/browser
+storage URL is generated. A connection string is accepted only for loopback emulator
+endpoints (or the development-storage shortcut with an optional loopback proxy);
+remote account-key connection strings are rejected.
+
+New Blob names are random UUIDs plus extensions selected from a fixed validated
+image-type map; submitted filenames are discarded. The original magic-byte/MIME/
+extension checks and size limit are shared with disk storage. Blob Content-Type is
+set from the validated type. `/uploads/<id>` retains owner/admin checks, no-store
+and adds `X-Content-Type-Options: nosniff` for both backends. Missing blobs retain
+the existing generic missing-photo response; failed SQL inserts delete the newly
+saved blob. No existing disk photos are migrated automatically when switching.
+Storage outages and ambiguous upload outcomes can still require reconciliation;
+SQL and Blob are not one transaction. Versions, soft-deleted objects and retention
+require an operator-approved policy. Per-operation privacy checks add storage calls.
+
+## Operator-only Functions + Azurite local run
+
+These commands were **not executed** in this phase. They assume Node >=22,
+dependencies, Azure Functions Core Tools v4 and Azurite are already installed.
+Do not install global tools as part of this phase. Use isolated development data
+only; no real SQL or Azure service was used for the implementation tests.
+
+Terminal 1, for the local emulator only:
+
+```powershell
+azurite --location "$env:TEMP\civictrack-azurite" --blobHost 127.0.0.1 --queueHost 127.0.0.1 --tableHost 127.0.0.1 --silent
+```
+
+Terminal 2, from the repository root:
+
+```powershell
+Set-Location -LiteralPath .\Server
+node --version
+npm.cmd ci
+if (-not (Test-Path -LiteralPath local.settings.json)) {
+    Copy-Item -LiteralPath local.settings.json.example -Destination local.settings.json
+}
+notepad.exe local.settings.json
+npm.cmd test
+func start --port 7071
+```
+
+All template Values are placeholders, not working credentials. Set
+`FUNCTIONS_WORKER_RUNTIME` to `node`. `AzureWebJobsStorage` is a Functions host
+setting with no application default; use the local development-storage shortcut
+for this emulator run. It is independent of `AZURE_STORAGE_CONNECTION_STRING`,
+which configures report photos only. Core Tools loads `local.settings.json`; the
+standalone Node listener does not. Host-injected settings override dotenv.
+
+For local Blob verification choose `IMAGE_STORAGE=blob`, an existing **private**
+emulator container, and the loopback emulator connection setting. Create that
+container in the emulator using an operator's local Storage Explorer connection;
+the application never creates it. Remove unused account-URL/optional placeholders.
+Use only separately approved isolated development SQL settings for real manual
+report flows. With SQL unconfigured, health works and readiness/sign-in remain
+unavailable. Do not run the real-SQL test script in this code-only phase.
+
+In a third terminal, after the operator has started Core Tools:
+
+```powershell
+Invoke-RestMethod -Uri http://localhost:7071/api/health
+# Returns 503 until the operator configures an approved development SQL instance:
+Invoke-RestMethod -Uri http://localhost:7071/api/health/ready
+```
+
+Functions uses port 7071 from `func start`; `PORT` remains the standalone listener
+setting. The frontend's unchanged same-origin API setting does not automatically
+point to 7071; use direct API requests for this phase. A later approved integration
+will set its single API origin and matching CORS allowlist. Azurite/SDK API-version
+compatibility and actual Core Tools routing remain untested here.
+
+## Pinned SDKs and dependency audit
+
+Public npm publication metadata checked 17 November 2026:
+
+| Dependency | Exact version | Published | Reason |
+| --- | --- | --- | --- |
+| `@azure/functions` | `4.17.0` | 22 October 2026 | Stable v4 release older than 14 days; HTTP registration and request/response models. |
+| `@azure/storage-blob` | `12.34.0` | 24 September 2026 | Stable release older than 14 days; private Blob client with Node >=22 floor. |
+| `@azure/identity` | `4.13.1` | 20 March 2026 | Existing transitive version promoted to an exact direct dependency for DefaultAzureCredential; version retained to avoid an unrequested upgrade. Audit finding below remains. |
+
+Sources: public registry metadata for
+[@azure/functions](https://registry.npmjs.org/@azure%2Ffunctions),
+[@azure/storage-blob](https://registry.npmjs.org/@azure%2Fstorage-blob) and
+[@azure/identity](https://registry.npmjs.org/@azure%2Fidentity).
+Only these direct SDK declarations were added. npm updated their required
+transitive dependencies in the lockfile; install lifecycle scripts were disabled.
+
+`npm.cmd audit --json` on 17 November 2026 exited 1: **6 affected packages**,
+1 critical, 4 high, 1 moderate; no low/info findings. No auto-fix was run.
+
+| Package | Severity |
+| --- | --- |
+| `proxy-addr` | Critical |
+| `@azure/identity` | High |
+| `@azure/msal-node` | High |
+| `body-parser` | High |
+| `multer` | High |
+| `qs` | Moderate |
+
+The audit proposed Identity 4.14.1 for its affected chain and updates for the other
+packages. This phase deliberately leaves those remediations unapplied. These
+findings are **deployment blockers**, even though functional regression tests pass.
+Review advisories and approve targeted updates/regression checks before any rollout.
+
+## Deploy checklist (not done yet)
+
+- Resolve the audit findings and confirm historical secret rotation privately;
+  revoke affected sessions. Never restore an exposed secret.
+- Select the currently supported Functions runtime/plan, region and approved cost
+  ceiling; verify limits and cold-start behaviour. Create nothing without approval.
+- Configure protected app settings, Functions host storage and managed identity.
+  For production report photos select Blob, omit the emulator connection string,
+  and grant least-privilege Blob data access to an existing private container.
+- Configure CORS with the exact GitHub Pages origin and later update its one API
+  setting. Verify host-level CORS does not bypass or conflict with Express checks.
+- Approve SQL access/firewall/network rules, validated TLS and least privilege.
+  Verify real SQL sign-in and role/ownership regressions against staging data.
+- Reconcile/copy photos and preserve their IDs before switching storage. Test
+  private downloads, failed inserts, missing objects, backups and rollback.
+- Configure redacted monitoring, retention, alerts, budget alert recipients and
+  operational ownership; verify actual usage/costs and avoid secret-bearing logs.

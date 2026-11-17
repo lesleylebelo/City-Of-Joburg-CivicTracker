@@ -1,0 +1,25 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "FUNCTIONS_WORKER_RUNTIME": "<node>",
+    "AzureWebJobsStorage": "<local-emulator-host-storage-setting>",
+    "DB_HOST": "<isolated-development-sql-hostname>",
+    "DB_NAME": "<development-database-name>",
+    "DB_PORT": "<tcp-port>",
+    "DB_USER": "<development-sql-login>",
+    "DB_PASSWORD": "<set-locally>",
+    "DB_ENCRYPT": "<true-or-false>",
+    "DB_TRUST_SERVER_CERT": "<true-or-false>",
+    "DB_POOL_MAX": "<positive-integer>",
+    "DB_CONNECT_TIMEOUT_MS": "<positive-milliseconds>",
+    "DB_REQUEST_TIMEOUT_MS": "<positive-milliseconds>",
+    "PORT": "<standalone-express-port-not-functions-port>",
+    "JWT_SECRET": "<set-locally>",
+    "JWT_EXPIRES_IN": "<jwt-duration>",
+    "CORS_ALLOWED_ORIGINS": "<exact-frontend-origins-or-empty>",
+    "IMAGE_STORAGE": "<local-or-blob>",
+    "AZURE_STORAGE_ACCOUNT_URL": "<https-account-origin-or-remove-for-emulator>",
+    "AZURE_STORAGE_CONTAINER": "<existing-private-container-name>",
+    "AZURE_STORAGE_CONNECTION_STRING": "<loopback-emulator-only-or-remove>"
+  }
+}
