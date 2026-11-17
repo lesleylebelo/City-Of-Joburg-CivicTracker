@@ -1,21 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
-const types = {
-    '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png',
-    '.gif': 'image/gif', '.webp': 'image/webp'
-};
-function acceptsImageType(file) {
-    return types[path.extname(file.originalname).toLowerCase()] === file.mimetype;
-}
-function imageType(bytes) {
-    if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'image/jpeg';
-    if (bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from('89504e470d0a1a0a', 'hex'))) return 'image/png';
-    if (bytes.length >= 6 && ['GIF87a', 'GIF89a'].includes(bytes.toString('ascii', 0, 6))) return 'image/gif';
-    if (bytes.length >= 12 && bytes.toString('ascii', 0, 4) === 'RIFF' && bytes.toString('ascii', 8, 12) === 'WEBP') return 'image/webp';
-    return null;
-}
+const { MAX_IMAGE_BYTES, acceptsImageType, validateImage } = require('./image_validation');
 
 // Routes depend only on these three operations. A future private Blob adapter can
 // implement the same contract without exposing storage paths or changing URLs.
@@ -28,10 +14,7 @@ function createLocalImageStorage(root = path.join(__dirname, 'uploads')) {
     }
     return {
         async saveImage(file) {
-            if (!Buffer.isBuffer(file.buffer) || file.buffer.length > MAX_IMAGE_BYTES ||
-                !acceptsImageType(file) || imageType(file.buffer) !== file.mimetype) {
-                throw Object.assign(new Error('Only image files allowed!'), { status: 400, imageValidation: true });
-            }
+            validateImage(file);
             const id = 'issue-' + Date.now() + '-' + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
             await fs.promises.mkdir(root, { recursive: true });
             const destination = imagePath(id);
@@ -56,4 +39,11 @@ function createLocalImageStorage(root = path.join(__dirname, 'uploads')) {
         }
     };
 }
-module.exports = { ...createLocalImageStorage(), createLocalImageStorage, acceptsImageType, MAX_IMAGE_BYTES };
+function createImageStorage(env = process.env, dependencies = {}) {
+    const mode = env.IMAGE_STORAGE || 'local';
+    if (mode === 'local') return createLocalImageStorage();
+    if (mode !== 'blob') throw new Error('Invalid IMAGE_STORAGE configuration.');
+    const { createBlobImageStorage, createBlobContainerProvider } = require('./blob_image_storage');
+    return createBlobImageStorage(dependencies.getContainer || createBlobContainerProvider(env, dependencies));
+}
+module.exports = { ...createImageStorage(), createImageStorage, createLocalImageStorage, acceptsImageType, MAX_IMAGE_BYTES };

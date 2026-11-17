@@ -75,6 +75,10 @@ applied when the optional variable is absent; placeholders are not configuration
 | `JWT_SECRET` | Required by standalone entry point | Private HMAC signing key; preserve the existing account/session contract. |
 | `JWT_EXPIRES_IN` | `7d` | Existing jsonwebtoken duration setting. |
 | `CORS_ALLOWED_ORIGINS` | Empty | Comma-separated exact frontend origins, with scheme and optional port; no paths, trailing slash, credentials or wildcards. |
+| `IMAGE_STORAGE` | `local` | Select `local` disk or `blob`; other values fail configuration. |
+| `AZURE_STORAGE_ACCOUNT_URL` | Unset | Required HTTPS account origin for Blob with DefaultAzureCredential; no SAS, keys or URL credentials. |
+| `AZURE_STORAGE_CONTAINER` | Unset | Required existing private container for Blob; never created or modified by the application. |
+| `AZURE_STORAGE_CONNECTION_STRING` | Unset | Optional loopback-emulator connection only; remote connection strings are rejected. |
 | `TEST_RESIDENT_IDENTIFIER` | Unset | Existing account for opt-in real-SQL verification only. |
 | `TEST_RESIDENT_PASSWORD` | Unset | Private test-account credential, real-SQL verification only. |
 | `TEST_ADMIN_IDENTIFIER` | Unset | Existing account for opt-in real-SQL verification only. |

@@ -36,6 +36,7 @@ app.get('/uploads/:filename', verifyToken, async (req, res, next) => {
             return res.sendStatus(404);
         }
         res.set('Cache-Control', 'no-store');
+        res.set('X-Content-Type-Options', 'nosniff');
         const stream = await images.getImageStream(filename);
         res.type(filename);
         stream.on('error', () => {
