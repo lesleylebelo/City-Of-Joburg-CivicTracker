@@ -10,7 +10,9 @@ The checked-in dependency tree declares a minimum of **Node 20.0.0**: Express
 5.2.1 needs >=18, mssql 12.5.4 >=18.19, tedious 19.2.1 >=18.17 and bcrypt 6 >=18,
 but the transitive Azure core/identity packages and typespec HTTP runtime need >=20.
 All declared dependency engine ranges in `package-lock.json` accept 20.0.0.
-`package.json` therefore declares `node >=20`; this is a compatibility floor,
+The Functions adapter phase raises `package.json` to `node >=22` for the supported
+Functions runtime family. The dependency floor remains 20; the application floor
+is now 22. This is a compatibility floor,
 **not a production runtime selection or lifecycle recommendation**. Confirm the
 chosen host's current supported Node LTS list before deploying. Fixture tests for
 this change ran on local Node 24.19.0, not on every version allowed by `engines`.

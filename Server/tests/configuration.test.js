@@ -27,7 +27,7 @@ test('environment template has placeholders for every application and real-SQL t
 test('backend runtime metadata matches lockfile and the documented dependency floor', () => {
     const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
     const lock = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8'));
-    assert.equal(manifest.engines.node, '>=20');
+    assert.equal(manifest.engines.node, '>=22');
     assert.deepEqual(lock.packages[''].engines, manifest.engines);
     assert.equal(lock.packages['node_modules/@azure/core-auth'].engines.node, '>=20.0.0');
     assert.equal(lock.packages['node_modules/@azure/identity'].engines.node, '>=20.0.0');
