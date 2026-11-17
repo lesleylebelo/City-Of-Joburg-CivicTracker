@@ -1,5 +1,6 @@
 Server/node_modules/
 Server/.env
+Server/local.settings.json
 *.env
 .vscode/
 *.log
