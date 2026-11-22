@@ -1,5 +1,5 @@
 const express = require("express");
-const { sql, poolPromise } = require("./db_sqlserver");
+const { poolPromise } = require("./database");
 const verifyToken = require("./auth_middleware");
 const { requireRole } = verifyToken;
 
@@ -14,13 +14,13 @@ router.get("/projects", verifyToken, async (req, res) => {
         const result = await pool.request().query(`
             SELECT project_id, title, description, category, status,
                    location_address, start_date, expected_end_date, created_at
-            FROM development_projects
+            FROM civictrack.development_projects
             ORDER BY created_at DESC
         `);
         return res.status(200).json(result.recordset);
     } catch (error) {
-        console.error("Get projects error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -32,11 +32,11 @@ router.get("/projects/stats", verifyToken, requireRole("admin"), async (req, res
             SELECT
                 COUNT(*) AS total,
                 SUM(CASE WHEN status = 'In Progress' THEN 1 ELSE 0 END) AS active
-            FROM development_projects
+            FROM civictrack.development_projects
         `);
         return res.status(200).json(result.recordset[0]);
     } catch (error) {
-        return res.status(500).json({ message: "Server error." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -54,24 +54,24 @@ router.post("/projects", verifyToken, async (req, res) => {
     try {
         const pool = await poolPromise;
         await pool.request()
-            .input("title",             sql.NVarChar, title)
-            .input("description",       sql.NVarChar, description)
-            .input("category",          sql.NVarChar, category)
-            .input("status",            sql.NVarChar, status || "Planned")
-            .input("location_address",  sql.NVarChar, location_address)
-            .input("start_date",        sql.Date,     start_date        || null)
-            .input("expected_end_date", sql.Date,     expected_end_date || null)
-            .input("created_by_admin",  sql.Int,      req.user.id)
+            .input("title", title)
+            .input("description", description)
+            .input("category", category)
+            .input("status", status || "Planned")
+            .input("location_address", location_address)
+            .input("start_date", start_date        || null)
+            .input("expected_end_date", expected_end_date || null)
+            .input("created_by_admin", req.user.id)
             .query(`
-                INSERT INTO development_projects
+                INSERT INTO civictrack.development_projects
                     (title, description, category, status, location_address, start_date, expected_end_date, created_by_admin)
                 VALUES
                     (@title, @description, @category, @status, @location_address, @start_date, @expected_end_date, @created_by_admin)
             `);
         return res.status(201).json({ message: "Project added successfully!" });
     } catch (error) {
-        console.error("Add project error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -96,16 +96,16 @@ router.put("/projects/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("project_id", sql.Int, req.params.id)
-            .input("title", sql.NVarChar, title)
-            .input("description", sql.NVarChar, description)
-            .input("category", sql.NVarChar, category)
-            .input("status", sql.NVarChar, status)
-            .input("location_address", sql.NVarChar, location_address)
-            .input("start_date", sql.Date, start_date || null)
-            .input("expected_end_date", sql.Date, expected_end_date || null)
+            .input("project_id", req.params.id)
+            .input("title", title)
+            .input("description", description)
+            .input("category", category)
+            .input("status", status)
+            .input("location_address", location_address)
+            .input("start_date", start_date || null)
+            .input("expected_end_date", expected_end_date || null)
             .query(`
-                UPDATE development_projects
+                UPDATE civictrack.development_projects
                 SET
                     title=@title,
                     description=@description,
@@ -122,8 +122,8 @@ router.put("/projects/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -142,9 +142,9 @@ router.delete("/projects/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("project_id", sql.Int, req.params.id)
+            .input("project_id", req.params.id)
             .query(`
-                DELETE FROM development_projects
+                DELETE FROM civictrack.development_projects
                 WHERE project_id=@project_id
             `);
 
@@ -153,8 +153,8 @@ router.delete("/projects/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -164,21 +164,21 @@ router.delete("/projects/:id", verifyToken, async (req, res) => {
 
 // GET /api/notices
 router.get("/notices", verifyToken, async (req, res) => {
-    const limit = parseInt(req.query.limit) || 100;
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 1000);
     try {
         const pool = await poolPromise;
         const result = await pool.request()
-            .input("limit", sql.Int, limit)
+            .input("limit", limit)
             .query(`
-                SELECT TOP (@limit) notice_id, title, content, category, published_at, created_at
-                FROM notices
-                WHERE is_published = 1
-                ORDER BY created_at DESC
+                SELECT notice_id, title, content, category, published_at, created_at
+                FROM civictrack.notices
+                WHERE is_published=TRUE
+                ORDER BY created_at DESC LIMIT @limit
             `);
         return res.status(200).json(result.recordset);
     } catch (error) {
-        console.error("Get notices error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -196,18 +196,18 @@ router.post("/notices", verifyToken, async (req, res) => {
     try {
         const pool = await poolPromise;
         await pool.request()
-            .input("title",            sql.NVarChar, title)
-            .input("content",          sql.NVarChar, content)
-            .input("category",         sql.NVarChar, category || "General")
-            .input("created_by_admin", sql.Int,      req.user.id)
+            .input("title", title)
+            .input("content", content)
+            .input("category", category || "General")
+            .input("created_by_admin", req.user.id)
             .query(`
-                INSERT INTO notices (title, content, category, is_published, published_at, created_by_admin)
-                VALUES (@title, @content, @category, 1, GETDATE(), @created_by_admin)
+                INSERT INTO civictrack.notices (title, content, category, is_published, published_at, created_by_admin)
+                VALUES (@title, @content, @category, TRUE, CURRENT_TIMESTAMP, @created_by_admin)
             `);
         return res.status(201).json({ message: "Notice published successfully!" });
     } catch (error) {
-        console.error("Add notice error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -230,12 +230,12 @@ router.put("/notices/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("notice_id", sql.Int, req.params.id)
-            .input("title", sql.NVarChar, title)
-            .input("content", sql.NVarChar, content)
-            .input("category", sql.NVarChar, category)
+            .input("notice_id", req.params.id)
+            .input("title", title)
+            .input("content", content)
+            .input("category", category)
             .query(`
-                UPDATE notices
+                UPDATE civictrack.notices
                 SET
                     title=@title,
                     content=@content,
@@ -248,7 +248,7 @@ router.put("/notices/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -267,9 +267,9 @@ router.delete("/notices/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("notice_id", sql.Int, req.params.id)
+            .input("notice_id", req.params.id)
             .query(`
-                DELETE FROM notices
+                DELETE FROM civictrack.notices
                 WHERE notice_id=@notice_id
             `);
 
@@ -278,7 +278,7 @@ router.delete("/notices/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -292,19 +292,19 @@ router.get("/polls", verifyToken, async (req, res) => {
         const pool = await poolPromise;
         const polls = await pool.request().query(`
             SELECT poll_id, question, description, is_active, start_date, end_date
-            FROM polls
-            WHERE is_active = 1
+            FROM civictrack.polls
+            WHERE is_active=TRUE
             ORDER BY created_at DESC
         `);
 
         // Get options for each poll
         for (let poll of polls.recordset) {
             const options = await pool.request()
-                .input("poll_id", sql.Int, poll.poll_id)
+                .input("poll_id", poll.poll_id)
                 .query(`
                     SELECT option_id, option_text,
-                           (SELECT COUNT(*) FROM poll_votes WHERE option_id = po.option_id) AS votes
-                    FROM poll_options po
+                           (SELECT COUNT(*) FROM civictrack.poll_votes WHERE option_id = po.option_id) AS votes
+                    FROM civictrack.poll_options po
                     WHERE poll_id = @poll_id
                     ORDER BY display_order
                 `);
@@ -313,8 +313,8 @@ router.get("/polls", verifyToken, async (req, res) => {
 
         return res.status(200).json(polls.recordset);
     } catch (error) {
-        console.error("Get polls error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -326,7 +326,7 @@ router.get("/polls/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         const pollResult = await pool.request()
-            .input("poll_id", sql.Int, req.params.id)
+            .input("poll_id", req.params.id)
             .query(`
                 SELECT
                     poll_id,
@@ -335,7 +335,7 @@ router.get("/polls/:id", verifyToken, async (req, res) => {
                     is_active,
                     start_date,
                     end_date
-                FROM polls
+                FROM civictrack.polls
                 WHERE poll_id=@poll_id
             `);
 
@@ -346,13 +346,13 @@ router.get("/polls/:id", verifyToken, async (req, res) => {
         }
 
         const optionsResult = await pool.request()
-            .input("poll_id", sql.Int, req.params.id)
+            .input("poll_id", req.params.id)
             .query(`
                 SELECT
                     option_id,
                     option_text,
                     display_order
-                FROM poll_options
+                FROM civictrack.poll_options
                 WHERE poll_id=@poll_id
                 ORDER BY display_order
             `);
@@ -364,9 +364,9 @@ router.get("/polls/:id", verifyToken, async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Database operation failed.");
 
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -388,14 +388,13 @@ router.post("/polls", verifyToken, async (req, res) => {
 
         // Insert poll
         const pollResult = await pool.request()
-            .input("question",         sql.NVarChar, question)
-            .input("description",      sql.NVarChar, description || null)
-            .input("end_date",         sql.DateTime, end_date    || null)
-            .input("created_by_admin", sql.Int,      req.user.id)
+            .input("question", question)
+            .input("description", description || null)
+            .input("end_date", end_date    || null)
+            .input("created_by_admin", req.user.id)
             .query(`
-                INSERT INTO polls (question, description, end_date, created_by_admin)
-                OUTPUT INSERTED.poll_id
-                VALUES (@question, @description, @end_date, @created_by_admin)
+                INSERT INTO civictrack.polls (question, description, end_date, created_by_admin)
+                VALUES (@question, @description, @end_date, @created_by_admin) RETURNING poll_id
             `);
 
         const poll_id = pollResult.recordset[0].poll_id;
@@ -403,19 +402,19 @@ router.post("/polls", verifyToken, async (req, res) => {
         // Insert options
         for (let i = 0; i < options.length; i++) {
             await pool.request()
-                .input("poll_id",       sql.Int,      poll_id)
-                .input("option_text",   sql.NVarChar, options[i])
-                .input("display_order", sql.Int,      i + 1)
+                .input("poll_id", poll_id)
+                .input("option_text", options[i])
+                .input("display_order", i + 1)
                 .query(`
-                    INSERT INTO poll_options (poll_id, option_text, display_order)
+                    INSERT INTO civictrack.poll_options (poll_id, option_text, display_order)
                     VALUES (@poll_id, @option_text, @display_order)
                 `);
         }
 
         return res.status(201).json({ message: "Poll created successfully!" });
     } catch (error) {
-        console.error("Add poll error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -439,12 +438,12 @@ router.put("/polls/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("poll_id", sql.Int, req.params.id)
-            .input("question", sql.NVarChar, question)
-            .input("description", sql.NVarChar, description || null)
-            .input("end_date", sql.DateTime, end_date || null)
+            .input("poll_id", req.params.id)
+            .input("question", question)
+            .input("description", description || null)
+            .input("end_date", end_date || null)
             .query(`
-                UPDATE polls
+                UPDATE civictrack.polls
                 SET
                     question=@question,
                     description=@description,
@@ -455,20 +454,20 @@ router.put("/polls/:id", verifyToken, async (req, res) => {
         if (Array.isArray(options) && options.length >= 2) {
 
             await pool.request()
-                .input("poll_id", sql.Int, req.params.id)
+                .input("poll_id", req.params.id)
                 .query(`
-                    DELETE FROM poll_options
+                    DELETE FROM civictrack.poll_options
                     WHERE poll_id=@poll_id
                 `);
 
             for (let i = 0; i < options.length; i++) {
 
                 await pool.request()
-                    .input("poll_id", sql.Int, req.params.id)
-                    .input("option_text", sql.NVarChar, options[i])
-                    .input("display_order", sql.Int, i + 1)
+                    .input("poll_id", req.params.id)
+                    .input("option_text", options[i])
+                    .input("display_order", i + 1)
                     .query(`
-                        INSERT INTO poll_options
+                        INSERT INTO civictrack.poll_options
                         (poll_id, option_text, display_order)
                         VALUES
                         (@poll_id, @option_text, @display_order)
@@ -482,9 +481,9 @@ router.put("/polls/:id", verifyToken, async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Database operation failed.");
 
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -505,24 +504,24 @@ router.post("/polls/:id/vote", verifyToken, requireRole("resident"), async (req,
 
         // Check already voted
         const existing = await pool.request()
-            .input("poll_id",     sql.Int, poll_id)
-            .input("resident_id", sql.Int, resident_id)
-            .query(`SELECT vote_id FROM poll_votes WHERE poll_id = @poll_id AND resident_id = @resident_id`);
+            .input("poll_id", poll_id)
+            .input("resident_id", resident_id)
+            .query(`SELECT vote_id FROM civictrack.poll_votes WHERE poll_id = @poll_id AND resident_id = @resident_id`);
 
         if (existing.recordset.length > 0) {
             return res.status(409).json({ message: "You have already voted on this poll!" });
         }
 
         await pool.request()
-            .input("poll_id",     sql.Int, poll_id)
-            .input("option_id",   sql.Int, option_id)
-            .input("resident_id", sql.Int, resident_id)
-            .query(`INSERT INTO poll_votes (poll_id, option_id, resident_id) VALUES (@poll_id, @option_id, @resident_id)`);
+            .input("poll_id", poll_id)
+            .input("option_id", option_id)
+            .input("resident_id", resident_id)
+            .query(`INSERT INTO civictrack.poll_votes (poll_id, option_id, resident_id) VALUES (@poll_id, @option_id, @resident_id)`);
 
         return res.status(201).json({ message: "Vote recorded successfully!" });
     } catch (error) {
-        console.error("Vote error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -539,10 +538,10 @@ router.patch("/polls/:id/close", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("poll_id", sql.Int, req.params.id)
+            .input("poll_id", req.params.id)
             .query(`
-                UPDATE polls
-                SET is_active = 0
+                UPDATE civictrack.polls
+                SET is_active=FALSE
                 WHERE poll_id=@poll_id
             `);
 
@@ -552,9 +551,9 @@ router.patch("/polls/:id/close", verifyToken, async (req, res) => {
 
     } catch (err) {
 
-        console.error(err);
+        console.error("Database operation failed.");
 
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -573,16 +572,16 @@ router.delete("/polls/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("poll_id", sql.Int, req.params.id)
+            .input("poll_id", req.params.id)
             .query(`
-                DELETE FROM poll_options
-                WHERE poll_id=@poll_id;
-
-                DELETE FROM poll_votes
-                WHERE poll_id=@poll_id;
-
-                DELETE FROM polls
-                WHERE poll_id=@poll_id;
+                WITH deleted_votes AS (
+                    DELETE FROM civictrack.poll_votes WHERE poll_id=@poll_id RETURNING vote_id
+                ), deleted_options AS (
+                    DELETE FROM civictrack.poll_options WHERE poll_id=@poll_id
+                    AND (SELECT COUNT(*) FROM deleted_votes) >= 0 RETURNING option_id
+                )
+                DELETE FROM civictrack.polls WHERE poll_id=@poll_id
+                AND (SELECT COUNT(*) FROM deleted_options) >= 0
             `);
 
         return res.status(200).json({
@@ -590,8 +589,8 @@ router.delete("/polls/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        console.error(err);
-        return res.status(500).json({
+        console.error("Database operation failed.");
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -602,24 +601,24 @@ router.delete("/polls/:id", verifyToken, async (req, res) => {
 
 // GET /api/events
 router.get("/events", verifyToken, async (req, res) => {
-    const limit = parseInt(req.query.limit) || 100;
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 100, 1), 1000);
     try {
         const pool = await poolPromise;
         const result = await pool.request()
-            .input("limit", sql.Int, limit)
+            .input("limit", limit)
             .query(`
-                SELECT TOP (@limit)
+                SELECT
                     event_id, title, description, category,
                     location_address, event_date, start_time, end_time
-                FROM events
-                WHERE is_published = 1
-                AND event_date >= CAST(GETDATE() AS DATE)
-                ORDER BY event_date ASC
+                FROM civictrack.events
+                WHERE is_published=TRUE
+                AND event_date >= CAST(CURRENT_TIMESTAMP AS DATE)
+                ORDER BY event_date ASC LIMIT @limit
             `);
         return res.status(200).json(result.recordset);
     } catch (error) {
-        console.error("Get events error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -637,24 +636,24 @@ router.post("/events", verifyToken, async (req, res) => {
     try {
         const pool = await poolPromise;
         await pool.request()
-            .input("title",            sql.NVarChar, title)
-            .input("description",      sql.NVarChar, description)
-            .input("category",         sql.NVarChar, category || "Community Meeting")
-            .input("location_address", sql.NVarChar, location_address)
-            .input("event_date",       sql.Date,     event_date)
-            .input("start_time",       sql.NVarChar, start_time)
-            .input("end_time",         sql.NVarChar, end_time   || null)
-            .input("created_by_admin", sql.Int,      req.user.id)
+            .input("title", title)
+            .input("description", description)
+            .input("category", category || "Community Meeting")
+            .input("location_address", location_address)
+            .input("event_date", event_date)
+            .input("start_time", start_time)
+            .input("end_time", end_time   || null)
+            .input("created_by_admin", req.user.id)
             .query(`
-                INSERT INTO events
+                INSERT INTO civictrack.events
                     (title, description, category, location_address, event_date, start_time, end_time, is_published, created_by_admin)
                 VALUES
-                    (@title, @description, @category, @location_address, @event_date, @start_time, @end_time, 1, @created_by_admin)
+                    (@title, @description, @category, @location_address, @event_date, @start_time, @end_time, TRUE, @created_by_admin)
             `);
         return res.status(201).json({ message: "Event created successfully!" });
     } catch (error) {
-        console.error("Add event error:", error);
-        return res.status(500).json({ message: "Server error." });
+        console.error("Database operation failed.");
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 
@@ -681,16 +680,16 @@ router.put("/events/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("event_id", sql.Int, req.params.id)
-            .input("title", sql.NVarChar, title)
-            .input("description", sql.NVarChar, description)
-            .input("category", sql.NVarChar, category)
-            .input("location_address", sql.NVarChar, location_address)
-            .input("event_date", sql.Date, event_date)
-            .input("start_time", sql.NVarChar, start_time)
-            .input("end_time", sql.NVarChar, end_time)
+            .input("event_id", req.params.id)
+            .input("title", title)
+            .input("description", description)
+            .input("category", category)
+            .input("location_address", location_address)
+            .input("event_date", event_date)
+            .input("start_time", start_time)
+            .input("end_time", end_time)
             .query(`
-                UPDATE events
+                UPDATE civictrack.events
                 SET
                     title=@title,
                     description=@description,
@@ -707,7 +706,7 @@ router.put("/events/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -726,9 +725,9 @@ router.delete("/events/:id", verifyToken, async (req, res) => {
         const pool = await poolPromise;
 
         await pool.request()
-            .input("event_id", sql.Int, req.params.id)
+            .input("event_id", req.params.id)
             .query(`
-                DELETE FROM events
+                DELETE FROM civictrack.events
                 WHERE event_id=@event_id
             `);
 
@@ -737,7 +736,7 @@ router.delete("/events/:id", verifyToken, async (req, res) => {
         });
 
     } catch (err) {
-        return res.status(500).json({
+        return res.status(err.status === 503 ? 503 : 500).json({
             message: "Server error."
         });
     }
@@ -749,11 +748,11 @@ router.get("/residents/stats", verifyToken, requireRole("admin"), async (req, re
     try {
         const pool = await poolPromise;
         const result = await pool.request().query(`
-            SELECT COUNT(*) AS total FROM residents WHERE is_active = 1
+            SELECT COUNT(*) AS total FROM civictrack.residents WHERE is_active=TRUE
         `);
         return res.status(200).json(result.recordset[0]);
     } catch (error) {
-        return res.status(500).json({ message: "Server error." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error." });
     }
 });
 

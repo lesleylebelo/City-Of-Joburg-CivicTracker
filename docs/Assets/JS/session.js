@@ -24,12 +24,11 @@
     }
 
     async function authenticatedFetch(url, options = {}) {
-        const target = new URL(url, window.location.href);
-        if (target.origin !== window.location.origin) throw new Error('Invalid API origin');
+        const target = window.CivicConfig.apiUrl(url);
         const headers = new Headers(options.headers);
         const token = localStorage.getItem('civictrack_token');
         if (token) headers.set('Authorization', `Bearer ${token}`);
-        const response = await fetch(target, { ...options, headers, cache: 'no-store' });
+        const response = await fetch(target, { ...options, headers, cache: 'no-store', credentials: 'omit', redirect: 'error' });
         if (response.status === 401) signOut();
         return response;
     }
@@ -60,8 +59,8 @@
         photoUrls.clear();
         await Promise.all([...container.querySelectorAll('[data-report-image]')].map(async image => {
             try {
-                const target = new URL(image.dataset.reportImage, location.origin);
-                if (target.origin !== location.origin || !target.pathname.startsWith('/uploads/')) return;
+                const target = window.CivicConfig.apiUrl(image.dataset.reportImage);
+                if (!target.pathname.startsWith('/uploads/')) return;
                 const response = await authenticatedFetch(target.href);
                 if (!response.ok) throw new Error('Photo unavailable');
                 const blob = await response.blob();

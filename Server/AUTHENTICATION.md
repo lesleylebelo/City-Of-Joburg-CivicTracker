@@ -1,13 +1,28 @@
 # Shared authentication review
 
+## SQL connection readiness
+
+Connections are lazy and shared, with a 250 ms retry backoff after a failed connection.
+An unavailable connection returns a generic 503; it never exits the application process.
+`GET /api/health` is public and does not contact SQL. `GET /api/health/ready` performs
+`SELECT 1` and returns 503 without driver details if SQL is unavailable.
+
+The backend now uses PostgreSQL via `database.js`. TLS defaults to verified
+encryption (`DB_SSL_MODE=require`); disabling TLS is limited to loopback development.
+An optional provider CA certificate is configured with `DB_SSL_CA_FILE`.
+See `README.md` for the fresh Supabase test setup.
+`DB_POOL_MAX` defaults to 5 connections per process; `DB_CONNECT_TIMEOUT_MS` and
+`DB_REQUEST_TIMEOUT_MS` each default to 15000 ms. Positive integers override them.
+
 The Express-served frontend is `docs/`. `Client/` is an older copy and is unchanged.
 The shared page is `docs/Pages/Public/Sign-In/Sign-In.html`. The old resident,
 administrator and role-selection pages redirect there, including on a GitHub Pages project path.
-GitHub Pages can preview the interface; it cannot run Express or SQL Server authentication.
+GitHub Pages can preview the interface; it cannot run Express or database authentication.
 
 ## Accounts and identifiers
 
-No schema migration or password reset is needed. Existing bcrypt hashes and account IDs stay intact.
+The Supabase setup starts empty with test accounts; existing SQL Server data is not imported.
+The bcrypt/JWT account contract and separate account-ID namespaces are retained.
 Residents use `residents.email`; administrators can use either `administrators.employee_number`
 or `administrators.email`. Each table has its own email uniqueness constraint; emails are not
 unique across the tables. Both ID sequences can also contain the same number. Employee numbers
@@ -15,7 +30,7 @@ are unique within administrators, but the SQL schema does not constrain their fo
 values that also match an email.
 
 `POST /api/auth/login` accepts `{ identifier, password }`. A parameterized query
-looks in both tables, retaining SQL Server's existing comparison/collation rules. It verifies
+looks in both tables, using case-insensitive email comparisons and exact employee-ID comparisons. It verifies
 the existing bcrypt hash and requires an active record. It never uses a submitted ID or role
 to create the JWT identity. No candidate or no active password match returns the same generic
 401 message. If exactly one active account matches the credentials, it signs in that account.
@@ -25,8 +40,8 @@ If multiple active accounts match the same identifier and password, it returns t
 table. An existing unique alternate identifier can still be used (for example, an employee
 number); otherwise the project operator must resolve the duplicate identifier/credential pair
 through an authorised account-maintenance process. There is no self-service collision-resolution
-flow or working password recovery yet. No uniqueness constraint or schema change is introduced;
-all existing accounts and hashes remain intact.
+flow or working password recovery yet. PostgreSQL enforces case-insensitive email uniqueness within each account table;
+cross-table ambiguity remains handled by the shared sign-in flow.
 
 The old `/api/auth/resident/login` and `/api/auth/admin/login` URLs delegate to this handler.
 Their success response is now the shared `{ token, user }` format. They translate old input

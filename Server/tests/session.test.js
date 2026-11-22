@@ -4,8 +4,9 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '../../docs/Assets/JS/session.js'), 'utf8');
+const configSource = fs.readFileSync(path.join(__dirname, '../../docs/Assets/JS/config.js'), 'utf8');
 
-function browser({ token = 'test-token', responseRole = 'resident', status = 200, expires = Date.now() / 1000 + 3600, prefix = '/City-Of-Joburg-CivicTracker/', boot = false } = {}) {
+function browser({ token = 'test-token', responseRole = 'resident', status = 200, expires = Date.now() / 1000 + 3600, prefix = '/City-Of-Joburg-CivicTracker/', boot = false, apiOrigin = '' } = {}) {
     const storage = new Map([['civictrack_user', JSON.stringify({ role: 'admin', full_names: 'Untrusted browser value' })]]);
     if (token) storage.set('civictrack_token', token);
     const result = { redirects: [], scripts: [], fetches: [], timers: [], storage };
@@ -21,8 +22,9 @@ function browser({ token = 'test-token', responseRole = 'resident', status = 200
         window, document, location, URL, Headers, console,
         localStorage: { getItem: key => storage.get(key) ?? null, setItem: (key, value) => storage.set(key, value), removeItem: key => storage.delete(key) },
         setTimeout: (callback, delay) => { result.timers.push({ callback, delay }); return 1; }, clearTimeout() {},
-        fetch: async (url, options) => { result.fetches.push({ url: url.href, options }); return { status, ok: status === 200, json: async () => ({ user: { id: 1, role: responseRole, full_names: 'Verified Account' }, expires_at: expires }) }; }
+        fetch: async (url, options) => { result.fetches.push({ url: url.href, options }); return { status, ok: status === 200, blob: async () => new Blob(['fixture'], { type: 'image/png' }), json: async () => ({ user: { id: 1, role: responseRole, full_names: 'Verified Account' }, expires_at: expires }) }; }
     };
+    vm.runInNewContext(configSource.replace("const API_BASE_URL = '';", `const API_BASE_URL = ${JSON.stringify(apiOrigin)};`), context);
     vm.runInNewContext(source, context);
     result.session = window.CivicSession;
     return result;
@@ -34,6 +36,49 @@ test('signed-out dashboards redirect to the shared sign-in page for root and pro
         assert.equal(await page.session.requireRole('resident'), null);
         assert.equal(page.redirects[0], 'https://example.test' + prefix + 'Pages/Public/Sign-In/Sign-In.html');
         assert.equal(page.fetches.length, 0);
+    }
+});
+
+test('configured API origin receives session and photo requests; all other origins are denied before fetching', async () => {
+    const page = browser({ apiOrigin: 'https://api.example.test' });
+    await page.session.requireRole('resident');
+    assert.equal(page.fetches[0].url, 'https://api.example.test/api/auth/session');
+    assert.equal(page.fetches[0].options.headers.get('Authorization'), 'Bearer test-token');
+    assert.equal(page.fetches[0].options.credentials, 'omit');
+    assert.equal(page.fetches[0].options.redirect, 'error');
+    for (const url of ['https://example.test/api/issues', 'https://other.test/api/issues',
+        '//other.test/api/issues', 'https://user@api.example.test/api/issues', '/unrelated']) {
+        await assert.rejects(page.session.fetch(url));
+    }
+    assert.equal(page.fetches.length, 1);
+    const image = { dataset: { reportImage: '/uploads/fixture.png' } };
+    await page.session.loadReportImages({ querySelectorAll: () => [image] });
+    assert.equal(page.fetches[1].url, 'https://api.example.test/uploads/fixture.png');
+    assert.match(image.src, /^blob:/);
+    page.session.clear();
+});
+
+test('same-origin defaults preserve root API and upload paths under a GitHub Pages project path', async () => {
+    const page = browser();
+    await page.session.fetch('/api/issues?limit=5');
+    assert.equal(page.fetches[0].url, 'https://example.test/api/issues?limit=5');
+    const image = { dataset: { reportImage: '/uploads/fixture.png' } };
+    await page.session.loadReportImages({ querySelectorAll: () => [image] });
+    assert.equal(page.fetches[1].url, 'https://example.test/uploads/fixture.png');
+    page.session.clear();
+});
+
+test('every API page loads the shared configuration before its dependent script', () => {
+    for (const [page, dependency] of [
+        ['Public/Sign-In/Sign-In.html', 'Assets/JS/session.js'],
+        ['Public/Create-Account/Create-Account.html', 'Assets/JS/auth-registration.js'],
+        ['Public/Activate-Account/Activate-Account.html', 'Assets/JS/auth-registration.js'],
+        ['Resident/Dashboard/Dashboard.html', 'Assets/JS/session.js'],
+        ['Administrator/Dashboard/Dashboard.html', 'Assets/JS/session.js']
+    ]) {
+        const html = fs.readFileSync(path.join(__dirname, '../../docs/Pages', page), 'utf8');
+        assert.ok(html.indexOf('Assets/JS/config.js') >= 0, page);
+        assert.ok(html.indexOf('Assets/JS/config.js') < html.indexOf(dependency), page);
     }
 });
 

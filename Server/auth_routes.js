@@ -6,7 +6,7 @@
 const express   = require("express");
 const bcrypt    = require("bcrypt");
 const jwt       = require("jsonwebtoken");
-const { sql, poolPromise } = require("./db_sqlserver");
+const { poolPromise } = require("./database");
 
 const router = express.Router();
 const SALT_ROUNDS = 10;
@@ -62,10 +62,10 @@ router.post("/verify-employee", async (req, res) => {
     try {
         const pool = await poolPromise;
         const result = await pool.request()
-            .input("employee_number", sql.NVarChar, employee_number)
+            .input("employee_number", employee_number)
             .query(`
                 SELECT employee_number, full_names, role, is_registered
-                FROM authorised_employees
+                FROM civictrack.authorised_employees
                 WHERE employee_number = @employee_number
             `);
 
@@ -87,7 +87,7 @@ router.post("/verify-employee", async (req, res) => {
         });
 
     } catch (error) {
-        return res.status(500).json({ message: "Server error. Please try again." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error. Please try again." });
     }
 });
 
@@ -106,9 +106,9 @@ router.post("/admin/register", async (req, res) => {
 
         // Double-check employee is authorised and not yet registered
         const authCheck = await pool.request()
-            .input("employee_number", sql.NVarChar, employee_number)
+            .input("employee_number", employee_number)
             .query(`
-                SELECT is_registered FROM authorised_employees
+                SELECT is_registered FROM civictrack.authorised_employees
                 WHERE employee_number = @employee_number
             `);
 
@@ -122,8 +122,8 @@ router.post("/admin/register", async (req, res) => {
 
         // Check email not already in use
         const emailCheck = await pool.request()
-            .input("email", sql.NVarChar, email)
-            .query(`SELECT admin_id FROM administrators WHERE email = @email`);
+            .input("email", email)
+            .query(`SELECT admin_id FROM civictrack.administrators WHERE LOWER(email) = LOWER(@email)`);
 
         if (emailCheck.recordset.length > 0) {
             return res.status(409).json({ message: "An account with this email already exists!" });
@@ -133,20 +133,29 @@ router.post("/admin/register", async (req, res) => {
         const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
         // Insert only after the authorised-employee and registration checks above.
-        await pool.request()
-            .input("full_names",      sql.NVarChar, full_names)
-            .input("email",           sql.NVarChar, email)
-            .input("employee_number", sql.NVarChar, employee_number)
-            .input("password_hash",   sql.NVarChar, password_hash)
+        const registered = await pool.request()
+            .input("full_names", full_names)
+            .input("email", email)
+            .input("employee_number", employee_number)
+            .input("password_hash", password_hash)
             .query(`
-                INSERT INTO administrators (full_names, email, employee_number, password_hash)
-                VALUES (@full_names, @email, @employee_number, @password_hash)
+                WITH employee AS (
+                    UPDATE civictrack.authorised_employees SET is_registered=TRUE
+                    WHERE employee_number=@employee_number AND NOT COALESCE(is_registered, FALSE)
+                    RETURNING employee_number
+                )
+                INSERT INTO civictrack.administrators (full_names, email, employee_number, password_hash)
+                SELECT @full_names, @email, employee_number, @password_hash FROM employee
+                RETURNING admin_id
             `);
+
+        if (!registered.rowsAffected[0]) return res.status(409).json({ message: "This employee number is already registered!" });
 
         return res.status(201).json({ message: "Administrator account created successfully!" });
 
     } catch (error) {
-        return res.status(500).json({ message: "Server error. Please try again." });
+        if (error.code === '23505') return res.status(409).json({ message: "Account details already registered." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error. Please try again." });
     }
 });
 
@@ -174,8 +183,8 @@ router.post("/resident/register", async (req, res) => {
 
         // Check email not already in use
         const emailCheck = await pool.request()
-            .input("email", sql.NVarChar, email)
-            .query(`SELECT resident_id FROM residents WHERE email = @email`);
+            .input("email", email)
+            .query(`SELECT resident_id FROM civictrack.residents WHERE LOWER(email) = LOWER(@email)`);
 
         if (emailCheck.recordset.length > 0) {
             return res.status(409).json({ message: "An account with this email already exists!" });
@@ -184,19 +193,19 @@ router.post("/resident/register", async (req, res) => {
         const password_hash = await bcrypt.hash(password, SALT_ROUNDS);
 
         await pool.request()
-            .input("full_names",    sql.NVarChar, full_names)
-            .input("email",         sql.NVarChar, email)
-            .input("phone_number",  sql.NVarChar, phone_number)
-            .input("password_hash", sql.NVarChar, password_hash)
+            .input("full_names", full_names)
+            .input("email", email)
+            .input("phone_number", phone_number)
+            .input("password_hash", password_hash)
             .query(`
-                INSERT INTO residents (full_names, email, phone_number, password_hash)
+                INSERT INTO civictrack.residents (full_names, email, phone_number, password_hash)
                 VALUES (@full_names, @email, @phone_number, @password_hash)
             `);
 
         return res.status(201).json({ message: "Resident account created successfully!" });
 
     } catch (error) {
-        return res.status(500).json({ message: "Server error. Please try again." });
+        return res.status(error.status === 503 ? 503 : 500).json({ message: "Server error. Please try again." });
     }
 });
 

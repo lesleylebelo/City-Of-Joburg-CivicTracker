@@ -39,13 +39,13 @@ The system restricts access or submissions to within the **City of Joburg** muni
 
 ## Tech Stack
 
-Local setup, shared sign-in behavior and verification: [Authentication review](Server/AUTHENTICATION.md).
+Local PostgreSQL/Supabase setup: [Backend guide](Server/README.md). Shared sign-in behavior: [Authentication review](Server/AUTHENTICATION.md).
 
 | Layer | Technology |
 |---|---|
 | **Frontend** | HTML, CSS, JavaScript |
 | **Backend** | Node.js, Express.js |
-| **Database** | Microsoft SQL Server (SSMS) |
+| **Database** | PostgreSQL / Supabase (hosted test connectivity and API sign-in verified) |
 | **API** | RESTful API via Node Express |
 
 ---

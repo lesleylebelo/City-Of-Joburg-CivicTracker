@@ -35,6 +35,74 @@ before(async () => {
     }
 });
 beforeEach(async () => { database.reset(); await fs.writeFile(photo, photoBytes); });
+
+test('upload validation and failed report insertion do not orphan image files', async () => {
+    const directory = path.join(__dirname, '../uploads');
+    const initial = (await fs.readdir(directory)).sort();
+    async function upload(fields, bytes = photoBytes) {
+        const form = new FormData();
+        for (const [name, value] of Object.entries(fields)) form.set(name, value);
+        form.set('issueImage', new Blob([bytes], { type: 'image/png' }), 'fixture.png');
+        return fetch(base + '/api/issues', { method: 'POST', headers: { Authorization: 'Bearer ' + tokens.resident }, body: form });
+    }
+    const valid = { title: 'Test report', category: 'Other', location_address: 'Johannesburg',
+        description: 'Fixture only', latitude: '-26.2', longitude: '28.04' };
+    for (const fields of [{}, { ...valid, latitude: '' }, { ...valid, latitude: '0' }]) {
+        assert.equal((await upload(fields)).status, 400);
+        assert.deepEqual((await fs.readdir(directory)).sort(), initial);
+    }
+    const spoofed = await upload(valid, Buffer.from('<script>not an image</script>'));
+    assert.equal(spoofed.status, 400);
+    assert.deepEqual(await spoofed.json(), { message: 'Only image files allowed!' });
+    assert.deepEqual((await fs.readdir(directory)).sort(), initial);
+    const oversized = await upload(valid, Buffer.alloc(5 * 1024 * 1024 + 1));
+    assert.equal(oversized.status, 500); // Preserve the existing Multer error response contract.
+    assert.deepEqual(await oversized.json(), { message: 'Unable to complete this request.' });
+    assert.deepEqual((await fs.readdir(directory)).sort(), initial);
+    database.state.failIssueInsert = true;
+    const failed = await upload(valid);
+    assert.equal(failed.status, 500);
+    assert.deepEqual(await failed.json(), { message: 'Server error.' });
+    assert.deepEqual((await fs.readdir(directory)).sort(), initial);
+    assert.equal(database.state.issues.length, 3);
+});
+
+test('accepted upload keeps its private URL, authorized byte stream and deletion behaviour', async () => {
+    const form = new FormData();
+    for (const [name, value] of Object.entries({ title: 'Photo fixture', category: 'Other', location_address: 'Johannesburg',
+        description: 'Fixture only', latitude: '-26.2', longitude: '28.04' })) form.set(name, value);
+    form.set('issueImage', new Blob([photoBytes], { type: 'image/png' }), 'fixture.png');
+    const response = await fetch(base + '/api/issues', { method: 'POST', headers: { Authorization: 'Bearer ' + tokens.resident }, body: form });
+    assert.equal(response.status, 201);
+    assert.deepEqual(await response.json(), { message: 'Issue reported successfully!' });
+    const issue = database.state.issues.find(issue => issue.issue_id === 10);
+    assert.match(issue.image_url, /^\/uploads\/issue-.*\.png$/);
+    const id = issue.image_url.slice('/uploads/'.length);
+    try {
+        const other = jwt.sign({ id: 2, role: 'resident' }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        assert.equal((await request(issue.image_url)).status, 401);
+        assert.equal((await request(issue.image_url, { token: other })).status, 404);
+        for (const role of ['resident', 'admin']) {
+            const image = await fetch(base + issue.image_url, { headers: { Authorization: 'Bearer ' + tokens[role] } });
+            assert.equal(image.status, 200);
+            assert.equal(image.headers.get('content-type'), 'image/png');
+            assert.deepEqual(Buffer.from(await image.arrayBuffer()), photoBytes);
+        }
+        assert.equal((await request('/api/issues/10', { role: 'resident', method: 'DELETE' })).status, 200);
+        await assert.rejects(fs.access(path.join(__dirname, '../uploads', id)), { code: 'ENOENT' });
+    } finally { await require('../image_storage').deleteImage(id); }
+});
+
+test('health is independent of SQL; readiness reports outage and next request recovery', async () => {
+    database.state.unavailable = true;
+    assert.equal((await request('/api/health')).status, 200);
+    const outage = await request('/api/health/ready');
+    assert.equal(outage.status, 503);
+    assert.deepEqual(outage.data, { message: 'Database service unavailable.' });
+    database.state.unavailable = false;
+    assert.equal((await request('/api/health/ready')).status, 200);
+    assert.ok(database.state.queries.some(query => query.text === 'SELECT 1'));
+});
 after(async () => {
     if (server) await new Promise(resolve => server.close(resolve));
     await fs.unlink(photo);
