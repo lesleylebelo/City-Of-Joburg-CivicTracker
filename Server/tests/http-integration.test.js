@@ -20,7 +20,7 @@ Object.assign(images, {
     getImageStream: (...args) => storage.getImageStream(...args),
     deleteImage: (...args) => storage.deleteImage(...args)
 });
-const { createHandler } = require('../src/http-adapter');
+const { createHandler } = require('./helpers/http.cjs');
 const handler = createHandler(require('../app'));
 const tokens = {};
 const photoBytes = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jx1sAAAAASUVORK5CYII=', 'base64');
@@ -53,22 +53,6 @@ after(async () => {
     await fs.rmdir(imageDirectory);
 });
 
-test('Functions registers exactly one anonymous catch-all with unchanged API paths', () => {
-    const sdk = require('@azure/functions');
-    const original = sdk.app.http;
-    const calls = [];
-    sdk.app.http = (...args) => calls.push(args);
-    try { require('../src/functions/api'); } finally { sdk.app.http = original; }
-    assert.equal(calls.length, 1);
-    assert.equal(calls[0][1].route, '{*path}');
-    assert.equal(calls[0][1].authLevel, 'anonymous');
-    assert.deepEqual(calls[0][1].methods, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']);
-    assert.equal(typeof calls[0][1].handler, 'function');
-    const host = require('../host.json');
-    assert.equal(host.version, '2.0');
-    assert.equal(host.extensions.http.routePrefix, '');
-});
-
 test('health is cheap; readiness outage returns a clean error and next request recovers', async () => {
     database.state.unavailable = true;
     const health = await invoke('/api/health');
@@ -82,19 +66,12 @@ test('health is cheap; readiness outage returns a clean error and next request r
     assert.equal((await invoke('/api/health/ready')).status, 200);
 });
 
-test('the installed Functions SDK HttpRequest is accepted directly', async () => {
-    const { HttpRequest } = require('@azure/functions');
-    const response = await handler(new HttpRequest({ method: 'GET', url: 'https://api.example.invalid/api/health' }));
-    assert.equal(response.status, 200);
-    assert.deepEqual(JSON.parse(response.body.toString()), { status: 'CivicTrack running!' });
-});
-
 test('protected routes preserve JWT, ownership and role checks through the adapter', async () => {
     assert.equal((await invoke('/api/issues')).status, 401);
     const own = await invoke('/api/issues?limit=5', { role: 'resident' });
     assert.equal(own.status, 200);
     assert.ok(own.json().every(issue => issue.resident_id === 1));
-    assert.match(database.state.queries.at(-1).text, /TOP 5/);
+    assert.match(database.state.queries.at(-1).text, /LIMIT @limit/);
     assert.equal((await invoke('/api/issues/2', { role: 'resident' })).status, 403);
     assert.equal((await invoke('/api/issues/2/status', { role: 'resident', method: 'PATCH', body: { status: 'Resolved' } })).status, 403);
     assert.equal((await invoke('/api/issues/2/status', { role: 'admin', method: 'PATCH', body: { status: 'Resolved' } })).status, 200);
@@ -102,6 +79,32 @@ test('protected routes preserve JWT, ownership and role checks through the adapt
     assert.equal((await invoke('/api/issues', { role: 'resident' })).status, 503);
     database.state.unavailable = false;
     assert.equal((await invoke('/api/issues', { role: 'resident' })).status, 200);
+});
+
+test('image-storage outages block readiness without affecting cheap health or exposing provider details', async () => {
+    const original = images.checkReady;
+    try {
+        images.checkReady = async () => { throw new Error('Private storage credential or provider detail'); };
+        assert.equal((await invoke('/api/health')).status, 200);
+        const response = await invoke('/api/health/ready');
+        assert.equal(response.status, 503);
+        assert.deepEqual(response.json(), { message: 'Image storage unavailable.' });
+    } finally { images.checkReady = original; }
+    assert.equal((await invoke('/api/health/ready')).status, 200);
+});
+
+test('Render single-proxy HTTPS origin is accepted while unrelated origins stay denied', async () => {
+    const app = require('../app');
+    const original = app.get('trust proxy');
+    app.set('trust proxy', 1);
+    try {
+        for (const [origin, expected] of [['https://api.example.invalid', 204], ['https://unrelated.example.invalid', 403]]) {
+            const response = await handler(new Request('http://api.example.invalid/api/issues', {
+                method: 'OPTIONS', headers: { Origin: origin, 'X-Forwarded-Proto': 'https', 'Access-Control-Request-Method': 'GET' }
+            }));
+            assert.equal(response.status, expected);
+        }
+    } finally { app.set('trust proxy', original); }
 });
 
 test('CORS preflight preserves allowed/disallowed origins and same-origin HTTPS handling', async () => {

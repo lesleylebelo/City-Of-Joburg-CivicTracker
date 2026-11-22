@@ -17,7 +17,9 @@ test('environment template has placeholders for every application and real-SQL t
         const text = fs.readFileSync(path.join(root, entry), 'utf8');
         for (const match of text.matchAll(/\b(?:process\.env|env)\.([A-Z_]+)/g)) names.add(match[1]);
     }
-    const sqlTest = fs.readFileSync(path.join(root, 'tests/sql-sign-in.cjs'), 'utf8');
+    const sqlTest = fs.readFileSync(path.join(root, 'tests/sql-sign-in.cjs'), 'utf8') +
+        fs.readFileSync(path.join(root, 'scripts/seed-test-accounts.cjs'), 'utf8');
+    for (const match of sqlTest.matchAll(/\bprocess\.env\.([A-Z_]+)/g)) names.add(match[1]);
     for (const match of sqlTest.matchAll(/['"](TEST_[A-Z_]*[A-Z])['"]/g)) names.add(match[1]);
     const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
     assert.deepEqual([...documented].sort(), [...names].sort());
@@ -28,7 +30,7 @@ test('backend runtime metadata matches lockfile and the documented dependency fl
     const manifest = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
     const lock = JSON.parse(fs.readFileSync(path.join(root, 'package-lock.json'), 'utf8'));
     assert.equal(manifest.engines.node, '>=22');
+    assert.equal(manifest.main, 'server.js');
+    assert.equal(manifest.scripts.start, 'node server.js');
     assert.deepEqual(lock.packages[''].engines, manifest.engines);
-    assert.equal(lock.packages['node_modules/@azure/core-auth'].engines.node, '>=20.0.0');
-    assert.equal(lock.packages['node_modules/@azure/identity'].engines.node, '>=20.0.0');
 });

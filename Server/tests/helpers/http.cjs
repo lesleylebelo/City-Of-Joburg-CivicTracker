@@ -1,7 +1,7 @@
 const { IncomingMessage, ServerResponse } = require('node:http');
 const { Duplex, Writable } = require('node:stream');
 
-// Transport belongs to Functions. Do not forward HTTP/1 framing to its response.
+// In-memory test transport: do not forward HTTP/1 framing to its response.
 const hopByHop = new Set(['connection', 'keep-alive', 'proxy-authenticate',
     'proxy-authorization', 'te', 'trailer', 'transfer-encoding', 'upgrade']);
 

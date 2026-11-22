@@ -2,8 +2,10 @@ const express = require('express');
 const path = require('path');
 const verifyToken = require('./auth_middleware');
 const images = require('./image_storage');
-const { sql, poolPromise } = require('./db_sqlserver');
+const { poolPromise } = require('./database');
 const app = express();
+// Render terminates HTTPS at its single ingress proxy.
+if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 
 app.use(['/api', '/uploads'], require('./cors_policy')());
 app.use(express.json({ limit: '16kb' }));
@@ -17,10 +19,12 @@ app.get('/api/health/ready', async (req, res) => {
     try {
         const pool = await poolPromise;
         await pool.request().query('SELECT 1');
-        return res.json({ status: 'ready' });
     } catch {
         return res.status(503).json({ message: 'Database service unavailable.' });
     }
+    try { await images.checkReady(); }
+    catch { return res.status(503).json({ message: 'Image storage unavailable.' }); }
+    return res.json({ status: 'ready' });
 });
 app.use('/api', (req, res) => res.status(404).json({ message: 'Endpoint not found.' }));
 
@@ -30,8 +34,8 @@ app.get('/uploads/:filename', verifyToken, async (req, res, next) => {
     if (filename !== path.basename(filename) || /[\\/]/.test(filename)) return res.sendStatus(404);
     try {
         const pool = await poolPromise;
-        const result = await pool.request().input('image_url', sql.NVarChar, '/uploads/' + filename)
-            .query('SELECT resident_id FROM reported_issues WHERE image_url=@image_url');
+        const result = await pool.request().input('image_url', '/uploads/' + filename)
+            .query('SELECT resident_id FROM civictrack.reported_issues WHERE image_url=@image_url');
         if (!result.recordset.some(issue => req.user.role === 'admin' || issue.resident_id === req.user.id)) {
             return res.sendStatus(404);
         }

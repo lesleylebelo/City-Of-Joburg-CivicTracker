@@ -1,0 +1,47 @@
+# Isolated free API staging. No Render database or paid disk is provisioned.
+services:
+  - type: web
+    name: civictrack-api-staging
+    runtime: node
+    plan: free
+    region: frankfurt
+    branch: azure-functions-adapter
+    autoDeployTrigger: "off"
+    buildCommand: npm --prefix Server ci --omit=dev --ignore-scripts --no-audit --fund=false
+    startCommand: npm --prefix Server start
+    healthCheckPath: /api/health/ready
+    envVars:
+      - key: NODE_VERSION
+        value: 24.19.0
+      - key: NODE_ENV
+        value: production
+      - key: DB_HOST
+        value: aws-1-eu-west-1.pooler.supabase.com
+      - key: DB_NAME
+        value: postgres
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_USER
+        value: civictrack_app.ogzurumjuxwrvpsewwra
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_SSL_MODE
+        value: require
+      - key: DB_SSL_CA_FILE
+        value: certs/supabase-prod-ca-2021.crt
+      - key: DB_POOL_MAX
+        value: "3"
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://lesleylebelo.github.io
+      - key: IMAGE_STORAGE_PROVIDER
+        value: supabase
+      - key: SUPABASE_URL
+        value: https://ogzurumjuxwrvpsewwra.supabase.co
+      - key: SUPABASE_SECRET_KEY
+        sync: false
+      - key: SUPABASE_IMAGE_BUCKET
+        value: civictrack-issue-images

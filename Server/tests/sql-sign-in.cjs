@@ -1,4 +1,4 @@
-// Opt-in, read-only account verification against the real SQL Server configuration.
+// Opt-in, read-only account verification against the real PostgreSQL configuration.
 const path = require('node:path');
 const assert = require('node:assert/strict');
 const { once } = require('node:events');
@@ -10,7 +10,7 @@ if (missing.length) {
     process.exitCode = 1;
 } else {
     (async () => {
-        const { poolPromise } = require('../db_sqlserver');
+        const { poolPromise } = require('../database');
         const pool = await poolPromise;
         const server = require('../app').listen(0, '127.0.0.1');
         try {
@@ -28,7 +28,7 @@ if (missing.length) {
                 const session = await fetch(base + '/api/auth/session', { headers: { Authorization: 'Bearer ' + login.token } });
                 assert.equal(session.status, 200);
                 assert.equal((await session.json()).user.role, role);
-                console.log(role + ': real Express + SQL sign-in/session verification passed');
+                console.log(role + ': real Express + PostgreSQL sign-in/session verification passed');
             }
         } finally {
             await new Promise(resolve => server.close(resolve));

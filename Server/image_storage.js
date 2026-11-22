@@ -3,8 +3,7 @@ const path = require('node:path');
 
 const { MAX_IMAGE_BYTES, acceptsImageType, validateImage } = require('./image_validation');
 
-// Routes depend only on these three operations. A future private Blob adapter can
-// implement the same contract without exposing storage paths or changing URLs.
+// Both providers retain private /uploads URLs; Express authorizes every read.
 function createLocalImageStorage(root = path.join(__dirname, 'uploads')) {
     function imagePath(id) {
         if (typeof id !== 'string' || !id || id.startsWith('.') || /[\\/]/.test(id) || id !== path.basename(id)) {
@@ -39,11 +38,12 @@ function createLocalImageStorage(root = path.join(__dirname, 'uploads')) {
         }
     };
 }
-function createImageStorage(env = process.env, dependencies = {}) {
-    const mode = env.IMAGE_STORAGE || 'local';
-    if (mode === 'local') return createLocalImageStorage();
-    if (mode !== 'blob') throw new Error('Invalid IMAGE_STORAGE configuration.');
-    const { createBlobImageStorage, createBlobContainerProvider } = require('./blob_image_storage');
-    return createBlobImageStorage(dependencies.getContainer || createBlobContainerProvider(env, dependencies));
+function createImageStorage(env = process.env, request) {
+    const provider = env.IMAGE_STORAGE_PROVIDER || 'local';
+    if (provider === 'supabase') return require('./supabase_image_storage').createSupabaseImageStorage(env, request);
+    if (provider !== 'local' || env.NODE_ENV === 'production') {
+        throw new Error('Production requires durable private Supabase image storage.');
+    }
+    return { ...createLocalImageStorage(), async checkReady() {} };
 }
 module.exports = { ...createImageStorage(), createImageStorage, createLocalImageStorage, acceptsImageType, MAX_IMAGE_BYTES };

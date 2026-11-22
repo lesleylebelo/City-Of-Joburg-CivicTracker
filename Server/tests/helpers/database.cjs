@@ -1,7 +1,6 @@
-// Isolated database substitute: never opens a SQL Server connection.
+// Isolated database substitute: never opens a database connection.
 // Deliberately colliding resident/admin IDs exercise the separate ID namespaces.
 const bcrypt = require('bcrypt');
-const sql = require('mssql');
 const fixturePassword = 'test-only-civictrack-password';
 const hash = bcrypt.hashSync(fixturePassword, 4);
 const otherHash = bcrypt.hashSync('different-test-only-password', 4);
@@ -37,7 +36,7 @@ reset();
 
 async function query(statement, inputs) {
     if (state.unavailable) throw new Error('Simulated database outage');
-    const text = statement.replace(/\s+/g, ' ').trim();
+    const text = statement.replace(/civictrack\./g, '').replace(/LOWER\(email\) = LOWER\(@(identifier|email)\)/g, 'email = @$1').replace(/\s+/g, ' ').trim();
     state.queries.push({ text, inputs: { ...inputs } });
     const rows = records => ({ recordset: structuredClone(records), rowsAffected: [records.length] });
     if (text.includes('UNION ALL')) {
@@ -49,6 +48,7 @@ async function query(statement, inputs) {
         const role = text.includes('FROM administrators') ? 'admin' : 'resident';
         return rows(state.accounts.filter(account => account.role === role && account.id === inputs.id));
     }
+    if (text.includes('INSERT INTO administrators')) return rows([{ admin_id: 1 }]);
     if (text.includes('FROM authorised_employees')) return rows(state.employees.filter(employee => employee.employee_number === inputs.employee_number));
     if (text.includes('INSERT INTO reported_issues')) {
         if (state.failIssueInsert) throw new Error('Simulated report insertion failure');
@@ -86,7 +86,7 @@ async function query(statement, inputs) {
     }
     if (text.includes('SELECT resident_id FROM residents WHERE email')) return rows([]);
     if (text.includes('SELECT admin_id FROM administrators WHERE email')) return rows([]);
-    if (text.includes('OUTPUT INSERTED.poll_id')) return rows([{ poll_id: 1 }]);
+    if (text.includes('RETURNING poll_id')) return rows([{ poll_id: 1 }]);
     if (text.includes('FROM polls WHERE poll_id=')) return rows([{ poll_id: 1, question: 'Test poll', is_active: true }]);
     if (text.includes('COUNT(*)')) return rows([{ total: 1, active: 1 }]);
     if (/^(INSERT|UPDATE|DELETE)/.test(text)) return { recordset: [], rowsAffected: [1] };
@@ -95,12 +95,12 @@ async function query(statement, inputs) {
 
 const pool = { request() {
     const inputs = {};
-    return { input(name, type, value) { inputs[name] = value; return this; }, query(text) { return query(text, inputs); } };
+    return { input(name, value) { inputs[name] = value; return this; }, query(text) { return query(text, inputs); } };
 } };
 
 function install() {
-    const filename = require.resolve('../../db_sqlserver');
-    require.cache[filename] = { id: filename, filename, loaded: true, exports: { sql, poolPromise: Promise.resolve(pool) } };
+    const filename = require.resolve('../../database');
+    require.cache[filename] = { id: filename, filename, loaded: true, exports: { poolPromise: Promise.resolve(pool) } };
 }
 
 module.exports = { install, state, reset, fixturePassword };
