@@ -19,6 +19,7 @@ Server/uploads/
 .env*
 local.settings.json
 artifacts/
+Server/tests/helpers/
 *.key
 *.pem
 *.pfx
