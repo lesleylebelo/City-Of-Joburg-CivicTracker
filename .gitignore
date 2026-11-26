@@ -16,6 +16,16 @@ Server/.env
 Server/local.settings.json
 Server/uploads/
 *.env
+.env*
+!.env.example
+local.settings.json
+artifacts/
+*.key
+*.pem
+*.pfx
+*.p12
+*.pgpass
+.pgpass
 .vscode/
 *.log
 Client/Assets/Images/kl\ lebelo.jpeg
