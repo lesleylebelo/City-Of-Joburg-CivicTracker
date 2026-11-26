@@ -123,13 +123,13 @@ From the repository root, in PowerShell:
 ```powershell
 Set-Location Server
 npm.cmd ci
-Copy-Item -LiteralPath .env.example -Destination .env
+# Configure the ignored .env file privately; preserve any existing settings.
 notepad.exe .env
 npm.cmd test
 npm.cmd start
 ```
 
-Skip `Copy-Item` if `.env` already exists. Fill in actual local values for `DB_HOST`, `DB_NAME`,
+Create `.env` only if it does not already exist. Fill in actual local values for `DB_HOST`, `DB_NAME`,
 `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `PORT`, `JWT_SECRET` and `JWT_EXPIRES_IN`. For a named
 SQLEXPRESS instance, obtain the actual enabled TCP port from SQL Server configuration; use its
 hostname and that port rather than assuming the instance listens on 1433. Use a development SQL

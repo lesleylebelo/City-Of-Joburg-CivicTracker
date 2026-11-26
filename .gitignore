@@ -17,7 +17,6 @@ Server/local.settings.json
 Server/uploads/
 *.env
 .env*
-!.env.example
 local.settings.json
 artifacts/
 *.key
