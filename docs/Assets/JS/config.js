@@ -1,10 +1,10 @@
-/* The only public API-origin setting. Empty means the frontend's own origin.
- * For a separate API host, replace '' with its exact https://hostname[:port].
+/* GitHub Pages uses the verified Render API. Local and Express-served pages
+ * keep using their own origin, including their local development database.
  * This is public configuration: never put credentials here. No path or wildcard.
  */
 (() => {
     'use strict';
-    const API_BASE_URL = '';
+    const API_BASE_URL = window.location.origin === 'https://lesleylebelo.github.io' ? 'https://civictrack-api-staging.onrender.com' : '';
     const base = new URL(API_BASE_URL || window.location.origin);
     if (!['http:', 'https:'].includes(base.protocol) || base.username || base.password ||
         base.pathname !== '/' || base.search || base.hash) throw new Error('Invalid API origin');
