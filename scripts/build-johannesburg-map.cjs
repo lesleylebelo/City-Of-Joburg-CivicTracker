@@ -1,5 +1,5 @@
 // Rebuild with: node scripts/build-johannesburg-map.cjs
-// Source and refresh instructions: docs/Assets/Data/README.md
+// Source and refresh instructions: README.md#map-sources-and-third-party-attribution
 const fs = require('node:fs');
 const path = require('node:path');
 const assert = require('node:assert/strict');

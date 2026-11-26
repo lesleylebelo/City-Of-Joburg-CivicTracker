@@ -1,4 +1,17 @@
-Server/node_modules/
+# Dependencies at every directory level
+node_modules/
+
+# Local database files, schema folders and backups
+[Dd]atabase/
+*.db
+*.sqlite
+*.sqlite3
+*.sqlite-wal
+*.sqlite-shm
+*.mdf
+*.ldf
+*.bak
+*.dump
 Server/.env
 Server/local.settings.json
 Server/uploads/
@@ -10,4 +23,3 @@ Client/Assets/Images/kamo.jpeg
 Client/Assets/Images/musa.jpeg
 Client/Assets/Images/t.thomo.jpeg
 Client/Assets/Images/tadiwa.jpg
-Client/node_modules/
