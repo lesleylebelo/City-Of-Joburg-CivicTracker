@@ -4,13 +4,22 @@ const verifyToken = require('./auth_middleware');
 const images = require('./image_storage');
 const { poolPromise } = require('./database');
 const app = express();
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+    res.set({
+        'X-Content-Type-Options': 'nosniff',
+        'X-Frame-Options': 'DENY',
+        'Referrer-Policy': 'strict-origin-when-cross-origin'
+    });
+    next();
+});
 // Render terminates HTTPS at its single ingress proxy.
 if (process.env.NODE_ENV === 'production') app.set('trust proxy', 1);
 
+app.use(['/api', '/uploads'], (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 app.use(['/api', '/uploads'], require('./cors_policy')());
 app.use(express.json({ limit: '16kb' }));
 app.use(express.urlencoded({ extended: false, limit: '16kb' }));
-app.use('/api', (req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
 app.use('/api/auth', require('./auth_routes'));
 app.use('/api/issues', require('./issues_routes'));
 app.use('/api', require('./data_routes'));

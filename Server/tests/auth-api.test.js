@@ -306,6 +306,35 @@ test('administrator registration rejects registered employees and retains the au
 });
 
 test('backend source/schema/configuration are not public static files', async () => {
-    for (const url of ['/server.js', '/auth_routes.js', '/Database/Schema/civictrack.sql', '/.env']) assert.equal((await request(url)).status, 404);
+    for (const url of ['/server.js', '/auth_routes.js', '/Database/Schema/civictrack.sql', '/.env',
+        '/.env.local', '/.git/config', '/Server/.env', '/package-lock.json', '/artifacts/deployment.zip']) {
+        assert.equal((await request(url)).status, 404);
+    }
     assert.equal((await request('/Pages/Public/Sign-In/Sign-In.html')).status, 200);
+});
+
+test('anonymous employee checks disclose no employee name, role or registration state', async () => {
+    database.state.employees = [{ employee_number: '2001', full_names: 'Private Employee', role: 'admin', is_registered: false }];
+    const eligible = await request('/api/auth/verify-employee', { method: 'POST', body: { employee_number: '2001' } });
+    assert.equal(eligible.status, 200);
+    assert.deepEqual(Object.keys(eligible.data), ['message']);
+    assert.equal(JSON.stringify(eligible.data).includes('Private Employee'), false);
+    database.state.employees[0].is_registered = true;
+    const registered = await request('/api/auth/verify-employee', { method: 'POST', body: { employee_number: '2001' } });
+    const unknown = await request('/api/auth/verify-employee', { method: 'POST', body: { employee_number: 'unknown' } });
+    assert.equal(registered.status, 403);
+    assert.equal(unknown.status, 403);
+    assert.deepEqual(registered.data, unknown.data);
+    assert.equal((await request('/api/auth/verify-employee', { method: 'POST', body: { employee_number: {} } })).status, 400);
+});
+
+test('security headers hide the framework and prevent caching of denied private requests', async () => {
+    for (const url of ['/api/health', '/api/issues', '/uploads/not-a-public-photo.png']) {
+        const response = await request(url);
+        assert.equal(response.headers.get('x-powered-by'), null);
+        assert.equal(response.headers.get('x-content-type-options'), 'nosniff');
+        assert.equal(response.headers.get('x-frame-options'), 'DENY');
+        assert.equal(response.headers.get('referrer-policy'), 'strict-origin-when-cross-origin');
+        assert.equal(response.headers.get('cache-control'), 'no-store');
+    }
 });

@@ -55,7 +55,7 @@ router.get('/session', verifyToken, (req, res) => {
 router.post("/verify-employee", async (req, res) => {
     const { employee_number } = req.body;
 
-    if (!employee_number) {
+    if (typeof employee_number !== 'string' || !employee_number.trim() || employee_number.length > 100) {
         return res.status(400).json({ message: "Employee number is required!" });
     }
 
@@ -64,26 +64,21 @@ router.post("/verify-employee", async (req, res) => {
         const result = await pool.request()
             .input("employee_number", employee_number)
             .query(`
-                SELECT employee_number, full_names, role, is_registered
+                SELECT is_registered
                 FROM civictrack.authorised_employees
                 WHERE employee_number = @employee_number
             `);
 
         // Not in authorised list
-        if (result.recordset.length === 0) {
+        if (result.recordset.length === 0 || result.recordset[0].is_registered) {
             return res.status(403).json({
-                message: "This employee number is not authorised to register as an administrator!"
+                message: "Unable to verify eligibility. Contact project support."
             });
         }
 
-        const employee = result.recordset[0];
-
-        // Return authorisation status
+        // Public callers need eligibility only, never employee identity or role.
         return res.status(200).json({
-            message:       "Employee number verified.",
-            full_names:    employee.full_names,
-            role:          employee.role,
-            is_registered: employee.is_registered === true || employee.is_registered === 1
+            message: "Eligible to continue account setup."
         });
 
     } catch (error) {
