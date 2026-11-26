@@ -6,6 +6,7 @@ const escapeHTML = CivicSession.escapeHTML;
 // Set user info
 if (user.full_names) {
     document.getElementById("topbar-name").textContent   = user.full_names;
+    document.getElementById("admin-welcome-name").textContent = user.full_names.split(" ")[0];
     document.getElementById("topbar-avatar").textContent = user.full_names.charAt(0).toUpperCase();
 }
 
@@ -48,10 +49,15 @@ navLinks.forEach(link => {
         const target = this.dataset.section;
         navLinks.forEach(l => l.classList.remove("active"));
         this.classList.add("active");
+        navLinks.forEach(l => l.removeAttribute("aria-current"));
+        this.setAttribute("aria-current", "page");
         sections.forEach(s => s.classList.remove("active"));
         document.getElementById("section-" + target).classList.add("active");
         pageTitle.textContent = sectionTitles[target] || "Dashboard";
 
+        pageTitle.focus({ preventScroll: true });
+        window.scrollTo({ top: 0 });
+        if (target === "dashboard") loadStats();
         if (target === "issues")    loadIssues();
         if (target === "projects")  loadProjects();
         if (target === "notices")   loadNotices();
@@ -71,20 +77,18 @@ document.querySelectorAll(".view-all").forEach(link => {
 
 // ── Load Dashboard Stats ──
 async function loadStats() {
-    const { data: issues }    = await apiFetch("/api/issues/stats");
-    const { data: projects }  = await apiFetch("/api/projects/stats");
-    const { data: residents } = await apiFetch("/api/residents/stats");
-
-    if (issues) {
-        document.getElementById("count-issues").textContent  = issues.total  || 0;
-        document.getElementById("count-pending").textContent = issues.pending || 0;
+    const results = await Promise.all([apiFetch('/api/issues/stats'), apiFetch('/api/projects/stats'), apiFetch('/api/residents/stats')]);
+    const fields = [[0, 'total', 'count-issues'], [0, 'pending', 'count-pending'], [1, 'active', 'count-projects'], [2, 'total', 'count-residents']];
+    let failed = false;
+    for (const [index, field, id] of fields) {
+        const result = results[index];
+        const valid = result.ok && result.data && Object.hasOwn(result.data, field) &&
+            (result.data[field] === null || Number.isFinite(Number(result.data[field])));
+        document.getElementById(id).textContent = valid ? Number(result.data[field] ?? 0) : '--';
+        if (!valid) failed = true;
     }
-    if (projects)  document.getElementById("count-projects").textContent  = projects.active   || 0;
-    if (residents) document.getElementById("count-residents").textContent = residents.total   || 0;
-
-    loadRecentIssues();
-    loadRecentNotices();
-    loadRecentEvents();
+    document.getElementById('stats-feedback').textContent = failed ? 'Some summaries are unavailable. Return to Dashboard to try again.' : '';
+    await Promise.all([loadRecentIssues(), loadRecentNotices(), loadRecentEvents()]);
 }
 
 // ── Recent Issues (dashboard table) ──
@@ -92,10 +96,8 @@ async function loadRecentIssues() {
     const tbody = document.getElementById("recent-issues-body");
     const { ok, data } = await apiFetch("/api/issues?limit=5");
 
-    if (!ok || !data.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="loading-text">No issues found.</td></tr>';
-        return;
-    }
+    if (!ok || !Array.isArray(data)) { tbody.innerHTML = '<tr><td colspan="5">' + adminEmpty('Reports could not load', 'Please try again.', 'overview') + '</td></tr>'; return; }
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="5">' + adminEmpty('No reports to review yet', 'New resident reports will appear here.') + '</td></tr>'; return; }
 
     tbody.innerHTML = data.map(issue => `
         <tr>
@@ -113,10 +115,8 @@ async function loadRecentNotices() {
     const container = document.getElementById("admin-notices-list");
     const { ok, data } = await apiFetch("/api/notices?limit=4");
 
-    if (!ok || !data.length) {
-        container.innerHTML = '<p class="loading-text">No notices.</p>';
-        return;
-    }
+    if (!ok || !Array.isArray(data)) { container.innerHTML = adminEmpty('Notices could not load', 'Please try again.', 'overview'); return; }
+    if (!data.length) { container.innerHTML = adminEmpty('No notices published yet', 'Use Publish a notice to share a community update.'); return; }
 
     container.innerHTML = data.map(n => `
         <div class="mini-item">
@@ -131,15 +131,14 @@ async function loadRecentEvents() {
     const container = document.getElementById("admin-events-list");
     const { ok, data } = await apiFetch("/api/events?limit=4");
 
-    if (!ok || !data.length) {
-        container.innerHTML = '<p class="loading-text">No events.</p>';
-        return;
-    }
+    if (!ok || !Array.isArray(data)) { container.innerHTML = adminEmpty('Events could not load', 'Please try again.', 'overview'); return; }
+    const upcoming = data.filter(ev => new Date(ev.event_date) >= new Date(new Date().setHours(0,0,0,0))).sort((a,b) => new Date(a.event_date) - new Date(b.event_date));
+    if (!upcoming.length) { container.innerHTML = adminEmpty('Nothing on the calendar yet', 'Create an event to keep residents connected.'); return; }
 
-    container.innerHTML = data.map(ev => `
+    container.innerHTML = upcoming.slice(0, 4).map(ev => `
         <div class="mini-item">
             <div class="mini-item-title">${escapeHTML(ev.title)}</div>
-            <div class="mini-item-meta">${ev.event_date} | ${ev.start_time}</div>
+            <div class="mini-item-meta">${new Date(ev.event_date).toLocaleDateString("en-ZA")} | ${escapeHTML(ev.start_time?.substring(0, 5) || "")}</div>
         </div>
     `).join("");
 }
@@ -155,10 +154,8 @@ async function loadIssues() {
     if (category) url += `category=${category}`;
 
     const { ok, data } = await apiFetch(url);
-    if (!ok || !data.length) {
-        tbody.innerHTML = '<tr><td colspan="8" class="loading-text">No issues found.</td></tr>';
-        return;
-    }
+    if (!ok || !Array.isArray(data)) { tbody.innerHTML = '<tr><td colspan="8">' + adminEmpty('Reports could not load', 'Your filters are retained. Try again.', 'issues') + '</td></tr>'; return; }
+    if (!data.length) { tbody.innerHTML = '<tr><td colspan="8">' + adminEmpty('No reports match these filters', 'Choose another category or status to review more reports.') + '</td></tr>'; return; }
     tbody.innerHTML = data.map(issue => `
         <tr>
             <td>#${issue.issue_id}</td>
@@ -190,7 +187,7 @@ async function updateIssueStatus(id) {
     const status = prompt("Enter new status:\nPending | In Progress | Resolved | Rejected");
     if (!status) return;
     const { ok, data } = await apiFetch(`/api/issues/${id}/status`, "PATCH", { status });
-    if (ok) { alert("Status updated!"); loadIssues(); }
+    if (ok) { alert("Status updated!"); loadIssues(); loadStats(); }
     else alert(data.message || "Update failed.");
 }
 
@@ -225,7 +222,8 @@ async function loadProjects() {
     const container = document.getElementById("projects-list");
     container.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/projects");
-    if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No projects.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { container.innerHTML = adminEmpty('Updates could not load', 'Choose this section again to retry.'); return; }
+    if (!data.length) { container.innerHTML = adminEmpty('No projects published yet', 'Add a project to share its progress with residents.'); return; }
    container.innerHTML = data.map(p => `
     <div class="data-card">
 
@@ -412,7 +410,8 @@ async function loadNotices() {
     const container = document.getElementById("notices-list");
     container.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/notices");
-    if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No notices.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { container.innerHTML = adminEmpty('Updates could not load', 'Choose this section again to retry.'); return; }
+    if (!data.length) { container.innerHTML = adminEmpty('No notices published yet', 'Publish a notice to share a community update.'); return; }
     container.innerHTML = data.map(n => `
         <div class="data-card">
             <h4>${escapeHTML(n.title)}</h4>
@@ -447,7 +446,8 @@ async function loadPolls() {
     const container = document.getElementById("polls-list");
     container.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/polls");
-    if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No polls.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { container.innerHTML = adminEmpty('Updates could not load', 'Choose this section again to retry.'); return; }
+    if (!data.length) { container.innerHTML = adminEmpty('No community polls yet', 'Create a poll to invite residents to have their say.'); return; }
     container.innerHTML = data.map(p => `
         <div class="data-card">
             <h4>${escapeHTML(p.question)}</h4>
@@ -488,7 +488,8 @@ async function loadEvents() {
     const container = document.getElementById("events-list");
     container.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/events");
-    if (!ok || !data.length) { container.innerHTML = '<p class="loading-text">No events.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { container.innerHTML = adminEmpty('Updates could not load', 'Choose this section again to retry.'); return; }
+    if (!data.length) { container.innerHTML = adminEmpty('No events published yet', 'Create an event to keep residents connected.'); return; }
     container.innerHTML = data.map(ev => `
         <div class="data-card">
             <h4>${escapeHTML(ev.title)}</h4>
@@ -529,16 +530,17 @@ document.getElementById("Submit-Event-Btn").addEventListener("click", async func
 // ── Analytics ──
 async function loadAnalytics() {
     const { ok, data } = await apiFetch("/api/issues/analytics");
-    if (!ok || !data) return;
-
     const categoryChart = document.getElementById("chart-category");
     const statusChart   = document.getElementById("chart-status");
 
-    if (data.byCategory) {
+    if (!ok || !data) { categoryChart.innerHTML = statusChart.innerHTML = adminEmpty('Analytics could not load', 'Choose Analytics again to retry.'); return; }
+    if (Array.isArray(data.byCategory) && !data.byCategory.length) categoryChart.innerHTML = adminEmpty('No category data yet', 'Category totals appear when residents submit reports.');
+    if (Array.isArray(data.byStatus) && !data.byStatus.length) statusChart.innerHTML = adminEmpty('No status data yet', 'Report status totals will appear here.');
+    if (data.byCategory?.length) {
         const max = Math.max(...data.byCategory.map(c => c.count));
         categoryChart.innerHTML = data.byCategory.map(c => `
             <div class="bar-row">
-                <span class="bar-label">${c.category}</span>
+                <span class="bar-label">${escapeHTML(c.category)}</span>
                 <div class="bar-track">
                     <div class="bar-fill" style="width: ${(c.count/max)*100}%"></div>
                 </div>
@@ -547,11 +549,11 @@ async function loadAnalytics() {
         `).join("");
     }
 
-    if (data.byStatus) {
+    if (data.byStatus?.length) {
         const max = Math.max(...data.byStatus.map(s => s.count));
         statusChart.innerHTML = data.byStatus.map(s => `
             <div class="bar-row">
-                <span class="bar-label">${s.status}</span>
+                <span class="bar-label">${escapeHTML(s.status)}</span>
                 <div class="bar-track">
                     <div class="bar-fill" style="width: ${(s.count/max)*100}%"></div>
                 </div>
@@ -567,5 +569,28 @@ document.getElementById("nav-logout").addEventListener("click", function(e) {
     CivicSession.signOut();
 });
 
-// ── Initial load ──
 loadStats();
+
+function adminEmpty(title, description, retry = '') {
+    return '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 21V3c5-3 9 3 14 0v11c-5 3-9-3-14 0"/></svg><h4>' + escapeHTML(title) + '</h4><p>' + escapeHTML(description) + '</p>' + (retry ? '<button type="button" data-admin-retry="' + retry + '">Try again</button>' : '') + '</div>';
+}
+document.querySelectorAll('[data-review-status]').forEach(button => button.addEventListener('click', () => {
+    document.getElementById('filterStatus').value = button.dataset.reviewStatus;
+    document.getElementById('filterCategory').value = '';
+    document.querySelector('[data-section="issues"]').click();
+}));
+document.querySelectorAll('[data-admin-create]').forEach(button => button.addEventListener('click', () => {
+    const forms = { notices: ['add-notice-form', 'noticeTitle'], events: ['add-event-form', 'eventTitle'], polls: ['add-poll-form', 'pollQuestion'] };
+    const section = button.dataset.adminCreate;
+    document.querySelector('[data-section="' + section + '"]').click();
+    const [form, input] = forms[section];
+    document.getElementById(form).style.display = 'block';
+    document.getElementById(input).focus();
+}));
+document.getElementById('dashboard-content').addEventListener('click', event => {
+    const button = event.target.closest('[data-admin-retry]');
+    if (!button) return;
+    if (button.dataset.adminRetry === 'overview') loadStats();
+    if (button.dataset.adminRetry === 'issues') loadIssues();
+});
+document.querySelector('[data-section="dashboard"]').setAttribute('aria-current', 'page');

@@ -6,22 +6,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
 
 :root {
-    --gold: #F5C518;
-    --gold-dark: #D4A800;
-    --gold-light: #FFD54F;
-    --charcoal: #1E1E1E;
-    --charcoal-mid: #2A2A2A;
-    --charcoal-light: #363636;
-    --charcoal-card: #2D2D2D;
-    --white: #FFFFFF;
-    --white-muted: #C8C8C8;
-    --white-dim: #8A8A8A;
+    --gold: var(--civic-accent);
+    --gold-dark: var(--civic-accent);
+    --gold-light: var(--civic-accent-hover);
+    --charcoal: var(--civic-background);
+    --charcoal-mid: var(--civic-surface);
+    --charcoal-light: var(--civic-raised);
+    --charcoal-card: var(--civic-surface);
+    --white: var(--civic-heading);
+    --white-muted: var(--civic-text);
+    --white-dim: var(--civic-muted);
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Barlow', sans-serif;
     --font-condensed: 'Barlow Condensed', sans-serif;
     --radius: 4px;
     --shadow: 0 8px 32px rgba(0,0,0,0.5);
-    --shadow-gold: 0 0 28px rgba(245, 197, 24, 0.22);
+    --shadow-gold: 0 0 28px rgba(var(--civic-accent-rgb),0.22);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -43,9 +43,9 @@ header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(20, 20, 20, 0.97);
+    background: rgba(var(--civic-background-rgb),0.97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(245, 197, 24, 0.2);
+    border-bottom: 1px solid rgba(var(--civic-accent-rgb),0.2);
     padding: 0 56px;
     height: 72px;
     display: flex;
@@ -115,7 +115,7 @@ main {
     text-align: center;
     padding: 80px 48px 56px;
     background: var(--charcoal-mid);
-    border-bottom: 1px solid rgba(245, 197, 24, 0.1);
+    border-bottom: 1px solid rgba(var(--civic-accent-rgb),0.1);
     position: relative;
     overflow: hidden;
 }
@@ -130,15 +130,15 @@ main {
             0deg,
             transparent,
             transparent 48px,
-            rgba(245, 197, 24, 0.03) 48px,
-            rgba(245, 197, 24, 0.03) 49px
+            rgba(var(--civic-accent-rgb),0.03) 48px,
+            rgba(var(--civic-accent-rgb),0.03) 49px
         ),
         repeating-linear-gradient(
             90deg,
             transparent,
             transparent 48px,
-            rgba(245, 197, 24, 0.03) 48px,
-            rgba(245, 197, 24, 0.03) 49px
+            rgba(var(--civic-accent-rgb),0.03) 48px,
+            rgba(var(--civic-accent-rgb),0.03) 49px
         );
     pointer-events: none;
 }
@@ -215,7 +215,7 @@ main {
 /* Team Card */
 .team-card {
     background: var(--charcoal-card);
-    border: 1px solid rgba(245, 197, 24, 0.1);
+    border: 1px solid rgba(var(--civic-accent-rgb),0.1);
     border-radius: 6px;
     overflow: hidden;
     box-shadow: var(--shadow);
@@ -276,7 +276,7 @@ main {
     background: linear-gradient(
         to bottom,
         transparent 50%,
-        rgba(245, 197, 24, 0.08) 100%
+        rgba(var(--civic-accent-rgb),0.08) 100%
     );
     pointer-events: none;
 }
@@ -301,7 +301,7 @@ main {
 /* Card Info */
 .card-info {
     padding: 22px 24px 24px;
-    border-top: 2px solid rgba(245, 197, 24, 0.15);
+    border-top: 2px solid rgba(var(--civic-accent-rgb),0.15);
     transition: border-color 0.3s;
 }
 
@@ -339,7 +339,7 @@ main {
 /* Footer */
 footer {
     background: var(--charcoal-mid);
-    border-top: 1px solid rgba(245, 197, 24, 0.15);
+    border-top: 1px solid rgba(var(--civic-accent-rgb),0.15);
     padding: 24px 56px;
 }
 

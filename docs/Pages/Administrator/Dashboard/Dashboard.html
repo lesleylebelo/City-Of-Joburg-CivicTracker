@@ -2,29 +2,32 @@
 <html lang="en-ZA" class="session-pending">
     <head>
         <meta charset="UTF-8">
+        <link rel="stylesheet" href="../../../Assets/CSS/theme.css?v=2891daac503a">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Admin Dashboard | CivicTrack</title>
-        <link rel="stylesheet" href="Dashboard.css">
-        <link rel="stylesheet" href="../../../Assets/CSS/session.css">
-    <link rel="stylesheet" href="../../../Assets/CSS/navigation.css">
-    <link rel="stylesheet" href="../../../Assets/CSS/city-brand.css?v=3d750b249636">
+        <link rel="stylesheet" href="Dashboard.css?v=cd34df7e60b3">
+        <link rel="stylesheet" href="../../../Assets/CSS/session.css?v=c937d08207af">
+    <link rel="stylesheet" href="../../../Assets/CSS/navigation.css?v=465e657d230e">
+    <link rel="stylesheet" href="../../../Assets/CSS/city-brand.css?v=9daaba17e978">
     <link rel="icon" href="../../../Assets/Images/CivicTrack-Mark.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="../../../Assets/CSS/sidebar.css?v=8e1f70770784">
 </head>
     <body>
+        <a class="skip-link" href="#dashboard-content">Skip to content</a>
 
         <!-- ── Sidebar ── -->
-        <aside id="sidebar">
+        <aside id="sidebar" aria-label="Navigation menu"><div class="sidebar-drawer-heading"><span>Navigation</span><button type="button" class="sidebar-close" id="sidebar-close" aria-label="Close navigation menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M6 18 18 6"/></svg></button></div>
             <div id="sidebar-logo">
                 <span class="city-logo-shell"><img class="city-logo" src="../../../Assets/Images/Joburg%20Logo.jpg" alt="City of Joburg" id="sidebar-logo-img"></span>
                 <div id="sidebar-brand-text">
-                    <span id="sidebar-coj">City of Joburg</span>
+                    <span id="sidebar-coj">Johannesburg</span>
                     <span id="sidebar-civictrack">CivicTrack</span>
                 </div>
             </div>
 
             <div id="portal-label">Administrator Portal</div>
 
-            <nav id="sidebar-nav">
+            <nav id="sidebar-nav" aria-label="Administrator navigation">
                 <a href="#" class="nav-link active" data-section="dashboard">
                     <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" class="ui-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-0.2em;flex-shrink:0"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span> Dashboard
                 </a>
@@ -32,7 +35,7 @@
                     <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" class="ui-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-0.2em;flex-shrink:0"><path d="M5 21V3c5-3 9 3 14 0v11c-5 3-9-3-14 0"/></svg></span> Manage Issues
                 </a>
                 <a href="#" class="nav-link" data-section="projects">
-                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" class="ui-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-0.2em;flex-shrink:0"><path d="M3 21h18M5 21V7h8v14m0-10h6v10M8 10h2m-2 4h2m-2 4h2m6-4h1m-1 4h1"/></svg></span> Development Projects
+                    <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" class="ui-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-0.2em;flex-shrink:0"><path d="M3 21h18M5 21V7h8v14m0-10h6v10M8 10h2m-2 4h2m-2 4h2m6-4h1m-1 4h1"/></svg></span> Projects
                 </a>
                 <a href="#" class="nav-link" data-section="notices">
                     <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" class="ui-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-0.2em;flex-shrink:0"><path d="M8 3h8l4 4v14H4V3h4m6 0v5h6M8 12h8m-8 4h8"/></svg></span> Notices
@@ -48,7 +51,7 @@
                 </a>
             </nav>
 
-            <div id="sidebar-bottom">
+            <div id="sidebar-bottom"><p class="sidebar-note">Your city. Your voice.<br>Make it count.</p>
                 <a href="../../Public/Sign-In/Sign-In.html" class="nav-link" id="nav-logout">
                     <span class="nav-icon"><svg xmlns="http://www.w3.org/2000/svg" class="ui-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" style="vertical-align:-0.2em;flex-shrink:0"><path d="M9 4H4v16h5m5-13 5 5-5 5M9 12h11"/></svg></span> Logout
                 </a>
@@ -56,11 +59,19 @@
         </aside>
 
         <!-- ── Main Content ── -->
-        <div id="main-wrapper">
+        <button type="button" class="sidebar-backdrop" id="sidebar-backdrop" aria-label="Close navigation menu" aria-hidden="true" tabindex="-1" hidden></button>
+        <main id="main-wrapper">
+            <div class="sidebar-toolbar"><button type="button" class="sidebar-toggle" id="sidebar-toggle" aria-controls="sidebar" aria-expanded="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><span id="sidebar-toggle-label">Menu</span></button></div>
 
+<h1 id="page-title" class="sr-only" tabindex="-1">Dashboard</h1>
+<!-- Dashboard Sections -->
+            <div id="dashboard-content" tabindex="-1">
+
+                <!-- SECTION: Dashboard Home -->
+                <section class="dash-section active" id="section-dashboard">
             <!-- Top Bar -->
             <header id="topbar">
-                <h1 id="page-title">Dashboard</h1>
+                <div><p class="eyebrow">CivicTrack management workspace</p><p class="overview-title">Dashboard</p></div>
                 <div id="topbar-user">
                     <div id="topbar-user-info">
                         <span id="topbar-name">Loading...</span>
@@ -69,12 +80,14 @@
                     <div id="topbar-avatar">A</div>
                 </div>
             </header>
-
-            <!-- Dashboard Sections -->
-            <div id="dashboard-content">
-
-                <!-- SECTION: Dashboard Home -->
-                <section class="dash-section active" id="section-dashboard">
+                    <section id="admin-welcome" aria-labelledby="admin-welcome-heading">
+                        <p class="eyebrow">Keep your community informed</p>
+                        <h2 id="admin-welcome-heading">Hi, <span id="admin-welcome-name">Administrator</span></h2>
+                        <p>Review resident reports, keep progress up to date, and share what matters across Johannesburg.</p>
+                        <button type="button" class="primary-action" data-review-status="Pending">Review pending reports <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M6 18 18 6M6 6h12v12"/></svg></button>
+                        <div class="review-shortcuts"><span>Report queue</span><button type="button" data-review-status="">All reports</button><button type="button" data-review-status="Pending">Pending</button><button type="button" data-review-status="In Progress">In progress</button><button type="button" data-review-status="Resolved">Resolved</button></div>
+                    </section>
+                    <p id="stats-feedback" role="status"></p>
 
                     <!-- Stat Cards -->
                     <div id="stat-cards">
@@ -114,7 +127,7 @@
                             <h3>Recent Issues</h3>
                             <a href="#" class="view-all" data-target="issues">View all</a>
                         </div>
-                        <div id="recent-issues-table">
+                        <div id="recent-issues-table" role="region" aria-label="Recent issues table" tabindex="0">
                             <table>
                                 <thead>
                                     <tr>
@@ -152,6 +165,7 @@
                                 <p class="loading-text">Loading...</p>
                             </div>
                         </div>
+                        <div class="dash-card"><div class="section-header"><h3>Keep residents informed</h3></div><p class="quick-intro">Share useful updates with your community.</p><div class="admin-quick-actions"><button type="button" data-admin-create="notices">Publish a notice <span aria-hidden="true">+</span></button><button type="button" data-admin-create="events">Create an event <span aria-hidden="true">+</span></button><button type="button" data-admin-create="polls">Start a community poll <span aria-hidden="true">+</span></button></div></div>
                     </div>
 
                 </section>
@@ -161,14 +175,14 @@
                     <div class="section-header">
                         <h3>Manage Issues</h3>
                         <div id="issue-filters">
-                            <select id="filterStatus">
+                            <select id="filterStatus" aria-label="Filter reports by status">
                                 <option value="">All Statuses</option>
                                 <option>Pending</option>
                                 <option>In Progress</option>
                                 <option>Resolved</option>
                                 <option>Rejected</option>
                             </select>
-                            <select id="filterCategory">
+                            <select id="filterCategory" aria-label="Filter reports by category">
                                 <option value="">All Categories</option>
                                 <option>Pothole</option>
                                 <option>Broken Streetlight</option>
@@ -180,7 +194,7 @@
                             </select>
                         </div>
                     </div>
-                    <div id="issues-table-wrapper">
+                    <div id="issues-table-wrapper" role="region" aria-label="Issue management table" tabindex="0">
                         <table id="issues-table">
                             <thead>
                                 <tr>
@@ -214,12 +228,12 @@
                             New Development Project
                         </h4>
                         <div class="form-group">
-                            <label>Title</label>
+                            <label for="projectTitle">Title</label>
                             <input type="text" id="projectTitle" placeholder="Project title">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Category</label>
+                                <label for="projectCategory">Category</label>
                                 <select id="projectCategory">
                                     <option>Road Construction</option>
                                     <option>Building Construction</option>
@@ -230,7 +244,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Status</label>
+                                <label for="projectStatus">Status</label>
                                 <select id="projectStatus">
                                     <option>Planned</option>
                                     <option>In Progress</option>
@@ -240,26 +254,26 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Location Address</label>
+                            <label for="projectLocation">Location Address</label>
                             <input type="text" id="projectLocation" placeholder="Project location">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Start Date</label>
+                                <label for="projectStartDate">Start Date</label>
                                 <input type="date" id="projectStartDate">
                             </div>
                             <div class="form-group">
-                                <label>Expected End Date</label>
+                                <label for="projectEndDate">Expected End Date</label>
                                 <input type="date" id="projectEndDate">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Description</label>
+                            <label for="projectDescription">Description</label>
                             <textarea id="projectDescription" rows="3" placeholder="Project description..."></textarea>
                         </div>
                         <button type="button" id="Submit-Project-Btn">Save Project</button>
-                        <p id="Project-Error"></p>
-                        <p id="Project-Success"></p>
+                        <p id="Project-Error" role="alert"></p>
+                        <p id="Project-Success" role="status"></p>
                     </div>
 
                     <div id="projects-list" class="cards-grid">
@@ -276,11 +290,11 @@
                     <div id="add-notice-form" class="admin-form" style="display:none;">
                         <h4>New Notice</h4>
                         <div class="form-group">
-                            <label>Title</label>
+                            <label for="noticeTitle">Title</label>
                             <input type="text" id="noticeTitle" placeholder="Notice title">
                         </div>
                         <div class="form-group">
-                            <label>Category</label>
+                            <label for="noticeCategory">Category</label>
                             <select id="noticeCategory">
                                 <option>General</option>
                                 <option>Water</option>
@@ -292,12 +306,12 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label>Content</label>
+                            <label for="noticeContent">Content</label>
                             <textarea id="noticeContent" rows="4" placeholder="Notice content..."></textarea>
                         </div>
                         <button type="button" id="Submit-Notice-Btn">Publish Notice</button>
-                        <p id="Notice-Error"></p>
-                        <p id="Notice-Success"></p>
+                        <p id="Notice-Error" role="alert"></p>
+                        <p id="Notice-Success" role="status"></p>
                     </div>
                     <div id="notices-list" class="cards-grid">
                         <p class="loading-text">Loading notices...</p>
@@ -313,24 +327,24 @@
                     <div id="add-poll-form" class="admin-form" style="display:none;">
                         <h4>New Poll</h4>
                         <div class="form-group">
-                            <label>Question</label>
+                            <label for="pollQuestion">Question</label>
                             <input type="text" id="pollQuestion" placeholder="Poll question">
                         </div>
                         <div class="form-group">
-                            <label>Description (optional)</label>
+                            <label for="pollDescription">Description (optional)</label>
                             <textarea id="pollDescription" rows="2" placeholder="Additional context..."></textarea>
                         </div>
                         <div class="form-group">
-                            <label>End Date</label>
+                            <label for="pollEndDate">End Date</label>
                             <input type="datetime-local" id="pollEndDate">
                         </div>
                         <div class="form-group">
-                            <label>Options (one per line)</label>
+                            <label for="pollOptions">Options (one per line)</label>
                             <textarea id="pollOptions" rows="4" placeholder="Option 1&#10;Option 2&#10;Option 3"></textarea>
                         </div>
                         <button type="button" id="Submit-Poll-Btn">Create Poll</button>
-                        <p id="Poll-Error"></p>
-                        <p id="Poll-Success"></p>
+                        <p id="Poll-Error" role="alert"></p>
+                        <p id="Poll-Success" role="status"></p>
                     </div>
                     <div id="polls-list" class="cards-grid">
                         <p class="loading-text">Loading polls...</p>
@@ -346,12 +360,12 @@
                     <div id="add-event-form" class="admin-form" style="display:none;">
                         <h4>New Event</h4>
                         <div class="form-group">
-                            <label>Title</label>
+                            <label for="eventTitle">Title</label>
                             <input type="text" id="eventTitle" placeholder="Event title">
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Category</label>
+                                <label for="eventCategory">Category</label>
                                 <select id="eventCategory">
                                     <option>Community Meeting</option>
                                     <option>Public Hearing</option>
@@ -362,31 +376,31 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Event Date</label>
+                                <label for="eventDate">Event Date</label>
                                 <input type="date" id="eventDate">
                             </div>
                         </div>
                         <div class="form-row">
                             <div class="form-group">
-                                <label>Start Time</label>
+                                <label for="eventStartTime">Start Time</label>
                                 <input type="time" id="eventStartTime">
                             </div>
                             <div class="form-group">
-                                <label>End Time</label>
+                                <label for="eventEndTime">End Time</label>
                                 <input type="time" id="eventEndTime">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label>Location</label>
+                            <label for="eventLocation">Location</label>
                             <input type="text" id="eventLocation" placeholder="Event location">
                         </div>
                         <div class="form-group">
-                            <label>Description</label>
+                            <label for="eventDescription">Description</label>
                             <textarea id="eventDescription" rows="3" placeholder="Event description..."></textarea>
                         </div>
                         <button type="button" id="Submit-Event-Btn">Create Event</button>
-                        <p id="Event-Error"></p>
-                        <p id="Event-Success"></p>
+                        <p id="Event-Error" role="alert"></p>
+                        <p id="Event-Success" role="status"></p>
                     </div>
                     <div id="events-list" class="cards-grid">
                         <p class="loading-text">Loading events...</p>
@@ -415,8 +429,9 @@
                 </section>
 
             </div>
-        </div>
+        </main>
 
+        <script src="../../../Assets/JS/sidebar.js" defer></script>
         <script src="../../../Assets/JS/config.js" defer></script>
         <script src="../../../Assets/JS/session.js" data-role="admin" data-dashboard="./Dashboard.js" defer></script>
     </body>

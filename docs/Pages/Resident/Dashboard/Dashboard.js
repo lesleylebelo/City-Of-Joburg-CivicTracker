@@ -20,6 +20,7 @@ const navLinks  = document.querySelectorAll(".nav-link[data-section]");
 const sections  = document.querySelectorAll(".dash-section");
 const pageTitle = document.getElementById("page-title");
 
+let reportSearch = "";
 const sectionTitles = {
     dashboard: "Dashboard", report: "Report Issue",
     projects: "Development Projects", notices: "Notices",
@@ -32,9 +33,14 @@ navLinks.forEach(link => {
         const target = this.dataset.section;
         navLinks.forEach(l => l.classList.remove("active"));
         this.classList.add("active");
+        navLinks.forEach(l => l.removeAttribute("aria-current"));
+        this.setAttribute("aria-current", "page");
         sections.forEach(s => s.classList.remove("active"));
         document.getElementById("section-" + target).classList.add("active");
         pageTitle.textContent = sectionTitles[target] || "Dashboard";
+        pageTitle.focus({ preventScroll: true });
+        window.scrollTo({ top: 0 });
+        if (target === "dashboard") loadOverview();
         if (target === "projects") loadProjects();
         if (target === "notices")  loadNotices();
         if (target === "polls")    loadPolls();
@@ -89,7 +95,8 @@ async function loadProjects() {
     const c = document.getElementById("projects-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/projects");
-    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No projects found.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { c.innerHTML = emptyState("Updates could not load", "Please check your connection and try again.", "projects-list", true); return; }
+    if (!data.length) { c.innerHTML = emptyState("No projects to show yet", "Development projects will appear here when updates are published.", "projects-list"); return; }
     c.innerHTML = data.map(p => `
         <div class="data-card">
             <h4>${escapeHTML(p.title)}</h4><p>${escapeHTML(p.description)}</p>
@@ -106,7 +113,8 @@ async function loadNotices() {
     const c = document.getElementById("full-notices-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/notices");
-    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No notices.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { c.innerHTML = emptyState("Updates could not load", "Please check your connection and try again.", "full-notices-list", true); return; }
+    if (!data.length) { c.innerHTML = emptyState("You are all caught up", "New community notices will appear here.", "full-notices-list"); return; }
     c.innerHTML = data.map(n => `
         <div class="data-card">
             <h4>${escapeHTML(n.title)}</h4><p>${escapeHTML(n.content)}</p>
@@ -119,7 +127,8 @@ async function loadPolls() {
     const c = document.getElementById("polls-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/polls");
-    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No active polls.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { c.innerHTML = emptyState("Updates could not load", "Please check your connection and try again.", "polls-list", true); return; }
+    if (!data.length) { c.innerHTML = emptyState("No active polls right now", "Check back for opportunities to have your say.", "polls-list"); return; }
     c.innerHTML = data.map(poll => `
         <div class="poll-card" id="poll-${poll.poll_id}">
             <div class="poll-header">
@@ -142,16 +151,16 @@ async function loadPolls() {
 
 async function castVote(pollId, optionId, btn) {
     const msgEl = document.getElementById(`poll-msg-${pollId}`);
-    msgEl.style.color = "#F5C518"; msgEl.textContent = "Submitting...";
+    msgEl.style.color = "var(--civic-accent)"; msgEl.textContent = "Submitting...";
     const { ok, data } = await apiFetch(`/api/polls/${pollId}/vote`, "POST", { option_id: optionId });
     if (ok) {
-        msgEl.style.color = "#4CAF50"; msgEl.innerHTML = reportIcon("check"); msgEl.append(" Vote submitted!");
+        msgEl.style.color = "var(--civic-success)"; msgEl.innerHTML = reportIcon("check"); msgEl.append(" Vote submitted!");
         document.querySelectorAll(`#poll-${pollId} .poll-option-btn`).forEach(b => {
             b.disabled = true; b.style.opacity = "0.6"; b.style.cursor = "default";
         });
-        btn.style.borderColor = "#F5C518"; btn.style.background = "rgba(245,197,24,0.1)"; btn.style.opacity = "1";
+        btn.style.borderColor = "var(--civic-accent)"; btn.style.background = "rgba(var(--civic-accent-rgb),.1)"; btn.style.opacity = "1";
     } else {
-        msgEl.style.color = "#FF5252"; msgEl.textContent = data.message || "Failed.";
+        msgEl.style.color = "var(--civic-error)"; msgEl.textContent = data.message || "Failed.";
     }
 }
 
@@ -160,7 +169,8 @@ async function loadEvents() {
     const c = document.getElementById("full-events-list");
     c.innerHTML = '<p class="loading-text">Loading...</p>';
     const { ok, data } = await apiFetch("/api/events");
-    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">No upcoming events.</p>'; return; }
+    if (!ok || !Array.isArray(data)) { c.innerHTML = emptyState("Updates could not load", "Please check your connection and try again.", "full-events-list", true); return; }
+    if (!data.length) { c.innerHTML = emptyState("Your community calendar is clear", "Upcoming community events will appear here.", "full-events-list"); return; }
     c.innerHTML = data.map(ev => {
         const d = new Date(ev.event_date);
         const day = d.toLocaleDateString("en-ZA", { day: "2-digit" });
@@ -189,11 +199,15 @@ async function loadMyHistory() {
     const c = document.getElementById("history-list");
     c.innerHTML = '<p class="loading-text">Loading your history...</p>';
     const { ok, data } = await apiFetch("/api/issues/my-history");
-    if (!ok || !data.length) { c.innerHTML = '<p class="loading-text">You have not submitted any issues yet.</p>'; return; }
-    c.innerHTML = data.map(issue => `
+    if (!ok || !Array.isArray(data)) { c.innerHTML = emptyState("Updates could not load", "Please check your connection and try again.", "history-list", true); return; }
+    if (!data.length) { c.innerHTML = emptyState("Your first report starts here", "See something that needs attention? Submit a report and follow its progress here.", "history-list"); return; }
+    const matches = reportSearch ? data.filter(issue => String(issue.issue_id) === reportSearch.replace(/^#/, '') || issue.title.toLowerCase().includes(reportSearch.toLowerCase())) : data;
+    if (!matches.length) { c.innerHTML = emptyState('No matching reports', 'Try a different report number or title.', 'history-list'); return; }
+    c.innerHTML = matches.map(issue => `
         <div class="history-card">
             <div class="history-header">
                 <div class="history-title-block">
+                    <span class="report-reference">Report #${escapeHTML(issue.issue_id)}</span>
                     <h4>${escapeHTML(issue.title)}</h4>
                     <span class="history-category">${escapeHTML(issue.category)}</span>
                 </div>
@@ -348,7 +362,8 @@ document.getElementById("Report-Issue-Form").addEventListener("submit", async fu
     const { ok, data } = await apiFetch("/api/issues", "POST", formData);
 
     if (ok) {
-        successMsg.textContent = "Issue reported successfully!";
+        successMsg.textContent = "Issue reported successfully! Track updates in Reported Issues.";
+        loadOverview();
         document.getElementById("Report-Issue-Form").reset();
         document.getElementById("image-preview-wrap").style.display = "none";
     } else {
@@ -390,7 +405,7 @@ function setupAddressAutocomplete() {
 
     const dropdown = document.createElement("div");
     dropdown.id = "address-dropdown";
-    dropdown.style.cssText = "position:absolute;z-index:9999;width:100%;background:#2A2A2A;border:1px solid rgba(245,197,24,0.3);border-radius:4px;max-height:220px;overflow-y:auto;display:none;";
+    dropdown.style.cssText = "position:absolute;z-index:9999;width:100%;background:var(--civic-surface);border:1px solid rgba(245,197,24,0.3);border-radius:4px;max-height:220px;overflow-y:auto;display:none;";
     input.parentNode.style.position = "relative";
     input.parentNode.appendChild(dropdown);
 
@@ -431,16 +446,16 @@ function setupAddressAutocomplete() {
     item.textContent = result.display_name;
 
     item.style.cssText =
-        "padding:10px 14px;color:#C8C8C8;font-size:13px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);";
+        "padding:10px 14px;color:var(--civic-text);font-size:13px;cursor:pointer;border-bottom:1px solid rgba(255,255,255,0.05);";
 
     item.addEventListener("mouseenter", function() {
-        this.style.background = "rgba(245,197,24,0.1)";
-        this.style.color = "#F5C518";
+        this.style.background = "rgba(var(--civic-accent-rgb),.1)";
+        this.style.color = "var(--civic-accent)";
     });
 
     item.addEventListener("mouseleave", function() {
         this.style.background = "";
-        this.style.color = "#C8C8C8";
+        this.style.color = "var(--civic-text)";
     });
 
     item.addEventListener("click", function() {
@@ -477,3 +492,63 @@ document.addEventListener("click", function(e) {
 // initialize
 if (document.readyState === "complete") setupAddressAutocomplete();
 else window.addEventListener("load", setupAddressAutocomplete);
+
+// Presentation helpers use fixed copy and escaped server content only.
+function emptyState(title, description, target = '', retry = false) {
+    return '<div class="empty-state">' + reportIcon(retry ? 'clock' : 'pin') +
+        '<h4>' + escapeHTML(title) + '</h4><p>' + escapeHTML(description) + '</p>' +
+        (retry ? '<button type="button" data-retry="' + target + '">Try again</button>' :
+        target === 'history-list' ? '<a href="#section-report" data-open-section="report">Report your first issue</a>' : '') + '</div>';
+}
+document.getElementById('dashboard-content').addEventListener('click', event => {
+    const action = event.target.closest('[data-open-section], [data-retry]');
+    if (!action) return;
+    event.preventDefault();
+    if (action.dataset.openSection) document.querySelector('[data-section="' + action.dataset.openSection + '"]').click();
+    const loaders = { 'projects-list': loadProjects, 'full-notices-list': loadNotices,
+        'polls-list': loadPolls, 'full-events-list': loadEvents, 'history-list': loadMyHistory,
+        overview: loadOverview };
+    if (action.dataset.retry && loaders[action.dataset.retry]) loaders[action.dataset.retry]();
+});
+async function loadOverview() {
+    const [history, notices, events] = await Promise.all([
+        apiFetch('/api/issues/my-history'), apiFetch('/api/notices'), apiFetch('/api/events')
+    ]);
+    const validHistory = history.ok && Array.isArray(history.data);
+    const reports = validHistory ? history.data : [];
+    const values = { total: reports.length, pending: reports.filter(r => r.status === 'Pending').length, progress: reports.filter(r => r.status === 'In Progress').length,
+        resolved: reports.filter(r => r.status === 'Resolved').length };
+    for (const [name, value] of Object.entries(values)) document.getElementById('stat-' + name).textContent = validHistory ? value : '--';
+    document.getElementById('overview-feedback').textContent = validHistory ? '' : 'Your report summary is temporarily unavailable. Open Reported Issues to try again.';
+    const badge = document.getElementById('nav-report-count');
+    badge.textContent = validHistory ? reports.length : '';
+    badge.hidden = !validHistory || !reports.length;
+    const latest = [...reports].sort((a,b) => new Date(b.created_at) - new Date(a.created_at))[0];
+    document.getElementById('latest-report').innerHTML = !validHistory ? emptyState('Reports could not load', 'Please try again.', 'overview', true) : !latest ? emptyState('Your first report starts here', 'Report a local issue and follow its progress here.', 'history-list') :
+        '<article class="latest-report-card"><span class="report-reference">Report #' + escapeHTML(latest.issue_id) + '</span><h4>' + escapeHTML(latest.title) + '</h4>' + statusBadge(latest.status) + '<p>' + escapeHTML(latest.location_address || '') + '</p><a href="#section-history" data-open-section="history">Follow this report</a></article>';
+    const noticeList = document.getElementById('notices-list');
+    noticeList.innerHTML = !notices.ok || !Array.isArray(notices.data) ? emptyState('Notices could not load', 'Try again when your connection is available.', 'overview', true) :
+        !notices.data.length ? emptyState('You are all caught up', 'New notices will appear here when published.') : notices.data.slice(0, 3).map(n =>
+        '<article class="notice-card"><div class="notice-thumb">' + reportIcon('pin') + '</div><div class="notice-body"><span class="notice-badge">' + escapeHTML(n.category || 'Notice') + '</span><h4>' + escapeHTML(n.title) + '</h4><p>' + escapeHTML(n.content) + '</p></div></article>').join('');
+    const eventList = document.getElementById('events-list');
+    const upcoming = events.ok && Array.isArray(events.data) ? events.data.filter(e => new Date(e.event_date) >= new Date(new Date().setHours(0,0,0,0))).sort((a,b) => new Date(a.event_date) - new Date(b.event_date)) : null;
+    eventList.innerHTML = !upcoming ? emptyState('Events could not load', 'Try again when your connection is available.', 'overview', true) :
+        !upcoming.length ? emptyState('Nothing on the calendar yet', 'Discover upcoming community events here.') : upcoming.slice(0, 3).map(e => {
+            const d = new Date(e.event_date);
+            return '<article class="event-card"><div class="event-date"><span class="event-day">' + d.toLocaleDateString('en-ZA', {day:'2-digit'}) + '</span><span class="event-month">' + d.toLocaleDateString('en-ZA', {month:'short'}) + '</span></div><div class="event-info"><h4>' + escapeHTML(e.title) + '</h4><p>' + escapeHTML(e.location_address || '') + '</p><p class="event-time">' + escapeHTML(formatTime(e.start_time)) + '</p></div></article>';
+        }).join('');
+}
+document.getElementById('nav-dashboard').setAttribute('aria-current', 'page');
+loadOverview();
+
+// Shortcuts use existing categories and the same report form and guards.
+document.querySelectorAll('[data-report-category]').forEach(button => button.addEventListener('click', () => {
+    document.querySelector('[data-section="report"]').click();
+    document.getElementById('issueCategory').value = button.dataset.reportCategory;
+    document.getElementById('issueTitle').focus();
+}));
+document.getElementById('report-search').addEventListener('submit', event => {
+    event.preventDefault();
+    reportSearch = document.getElementById('report-query').value.trim();
+    document.querySelector('[data-section="history"]').click();
+});
