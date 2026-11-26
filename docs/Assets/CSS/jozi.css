@@ -13,12 +13,12 @@
     width: 100%; min-height: 50px; padding: 12px 16px;
     display: flex; align-items: center; justify-content: space-between; gap: 16px;
     border: 1px solid var(--gold); border-radius: 8px;
-    background: var(--surface, #252825); color: var(--heading, #f3f2ed);
+    background: var(--surface, var(--civic-surface)); color: var(--heading, var(--civic-heading));
     font: 700 15px/1.4 'Segoe UI', Arial, sans-serif; text-align: left;
     box-shadow: 0 8px 20px rgba(0, 0, 0, .28);
     pointer-events: auto; cursor: pointer;
 }
-.jozi-launcher svg { flex-shrink: 0; width: 24px; height: 24px; color: var(--gold, #f5c518); }
+.jozi-launcher svg { flex-shrink: 0; width: 24px; height: 24px; color: var(--gold, var(--civic-accent)); }
 .jozi-launcher:focus-visible { outline: 3px solid var(--gold); outline-offset: 4px; }
 @media (max-width: 560px) {
     .jozi-widget { right: max(16px, env(safe-area-inset-right)); bottom: max(16px, env(safe-area-inset-bottom)); width: 210px; }
@@ -44,10 +44,10 @@
 }
 
 /* Jozi is an interface preview. Conversation state exists only while this dialog is open. */
-.jozi-launcher:hover { background: #343731; }
+.jozi-launcher:hover { background: var(--civic-raised); }
 .jozi-chat {
-    --jozi-gold: #f5c518; --jozi-background: #202321; --jozi-surface: #2b2d2a;
-    --jozi-heading: #f3f2ed; --jozi-text: #c9c6bb; --jozi-line: #4a4d45;
+    --jozi-gold: var(--civic-accent); --jozi-background: var(--civic-chrome); --jozi-surface: var(--civic-raised);
+    --jozi-heading: var(--civic-heading); --jozi-text: var(--civic-text); --jozi-line: var(--civic-border);
     position: fixed; inset: auto max(22px, env(safe-area-inset-right)) max(24px, env(safe-area-inset-bottom)) auto;
     margin: 0; padding: 0; width: min(392px, calc(100vw - 32px));
     height: min(640px, calc(100svh - 48px)); max-height: calc(100svh - 32px);
@@ -73,7 +73,7 @@
 .jozi-message { max-width: 94%; padding: 12px 14px; background: var(--jozi-surface); border: 1px solid var(--jozi-line); border-radius: 10px 10px 10px 2px; }
 .jozi-message strong { display: block; margin-bottom: 4px; color: var(--jozi-heading); font-size: 13px; }
 .jozi-message p { color: var(--jozi-text); font-size: 14px; white-space: pre-wrap; }
-.jozi-message-user { align-self: flex-end; background: #343731; border-radius: 10px 10px 2px 10px; }
+.jozi-message-user { align-self: flex-end; background: var(--civic-raised); border-radius: 10px 10px 2px 10px; }
 .jozi-message-user strong { color: var(--jozi-gold); }
 .jozi-message a { display: inline-flex; align-items: center; min-height: 44px; color: var(--jozi-gold); font-size: 14px; text-underline-offset: 4px; }
 .jozi-suggestions { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 20px; }
@@ -83,7 +83,7 @@
 .jozi-composer { flex-shrink: 0; padding: 16px 20px; border-top: 1px solid var(--jozi-line); background: var(--jozi-background); }
 .jozi-composer label { display: block; margin-bottom: 8px; color: var(--jozi-heading); font-size: 14px; font-weight: 700; }
 .jozi-input-row { display: flex; align-items: flex-end; gap: 10px; }
-.jozi-composer textarea { display: block; width: 100%; min-width: 0; height: 68px; max-height: 120px; resize: vertical; padding: 11px 12px; border: 1px solid #9a988f; border-radius: 6px; color: var(--jozi-heading); background: var(--jozi-surface); font: 16px/1.4 'Segoe UI', Arial, sans-serif; }
+.jozi-composer textarea { display: block; width: 100%; min-width: 0; height: 68px; max-height: 120px; resize: vertical; padding: 11px 12px; border: 1px solid var(--civic-input-border); border-radius: 6px; color: var(--jozi-heading); background: var(--jozi-surface); font: 16px/1.4 'Segoe UI', Arial, sans-serif; }
 .jozi-composer textarea::placeholder { color: var(--jozi-text); }
 .jozi-send { display: inline-flex; align-items: center; justify-content: center; min-width: 44px; height: 44px; padding: 10px; border: 1px solid var(--jozi-gold); border-radius: 6px; color: var(--jozi-background); background: var(--jozi-gold); }
 .jozi-input-hint { margin-top: 8px !important; color: var(--jozi-text); font-size: 12px; }

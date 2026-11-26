@@ -1,0 +1,41 @@
+﻿/* CivicTrack default dark palette. Layout and typography stay in page stylesheets. */
+:root {
+    color-scheme: dark;
+    --civic-background: #151719;
+    --civic-background-rgb: 21, 23, 25;
+    --civic-chrome: #101214;
+    --civic-chrome-rgb: 16, 18, 20;
+    --civic-surface: #1e2125;
+    --civic-raised: #2b3035;
+    --civic-border: #33383e;
+    --civic-input-border: #727a83;
+    --civic-heading: #f6f3ea;
+    --civic-text: #c9c6bb;
+    --civic-muted: #b1b4a9;
+    --civic-accent: #f5c518;
+    --civic-accent-hover: #ffda52;
+    --civic-accent-rgb: 245, 197, 24;
+    --civic-on-accent: #151719;
+    --civic-error: #ff9b95;
+    --civic-error-rgb: 255, 155, 149;
+    --civic-success: #9cd6ad;
+    --civic-success-rgb: 156, 214, 173;
+    --civic-pending: #ffb454;
+    --civic-pending-rgb: 255, 180, 84;
+    --civic-progress: #83b3ff;
+    --civic-progress-rgb: 131, 179, 255;
+    --civic-resolved: #7bd4a8;
+    --civic-rejected: #ffaaa3;
+    --civic-pending-fill: #453921;
+    --civic-progress-fill: #263b4d;
+    --civic-success-fill: #2b4031;
+    --civic-error-fill: #472e2c;
+    --civic-danger-border: #8c5753;
+}
+/* Defaults also cover legacy redirect pages before their destination loads. */
+body { background-color: var(--civic-background); color: var(--civic-text); }
+a { color: var(--civic-accent); }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid var(--civic-accent);
+    outline-offset: 4px;
+}

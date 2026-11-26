@@ -3,21 +3,21 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;500;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap');
 
 :root {
-    --gold: #F5C518;
-    --gold-dark: #D4A800;
-    --gold-light: #FFD54F;
-    --charcoal: #1E1E1E;
-    --charcoal-mid: #2A2A2A;
-    --charcoal-light: #363636;
-    --charcoal-card: #2D2D2D;
-    --white: #FFFFFF;
-    --white-muted: #C8C8C8;
-    --white-dim: #8A8A8A;
+    --gold: var(--civic-accent);
+    --gold-dark: var(--civic-accent);
+    --gold-light: var(--civic-accent-hover);
+    --charcoal: var(--civic-background);
+    --charcoal-mid: var(--civic-surface);
+    --charcoal-light: var(--civic-raised);
+    --charcoal-card: var(--civic-surface);
+    --white: var(--civic-heading);
+    --white-muted: var(--civic-text);
+    --white-dim: var(--civic-muted);
     --font-display: 'Bebas Neue', sans-serif;
     --font-body: 'Barlow', sans-serif;
     --font-condensed: 'Barlow Condensed', sans-serif;
     --radius: 4px;
-    --shadow-gold: 0 0 24px rgba(245, 197, 24, 0.25);
+    --shadow-gold: 0 0 24px rgba(var(--civic-accent-rgb),0.25);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -39,7 +39,7 @@ body::before {
     content: '';
     position: fixed;
     inset: 0;
-    background: rgba(20, 20, 20, 0.82);
+    background: rgba(var(--civic-background-rgb),0.82);
     z-index: 0;
 }
 
@@ -48,8 +48,8 @@ header, main, footer { position: relative; z-index: 1; }
 
 header {
     padding: 20px 48px;
-    border-bottom: 1px solid rgba(245,197,24,0.15);
-    background: rgba(30,30,30,0.7);
+    border-bottom: 1px solid rgba(var(--civic-accent-rgb),0.15);
+    background: rgba(var(--civic-background-rgb),0.7);
     backdrop-filter: blur(8px);
 }
 
@@ -81,7 +81,7 @@ main {
 
 main > div {
     background: var(--charcoal-card);
-    border: 1px solid rgba(245,197,24,0.2);
+    border: 1px solid rgba(var(--civic-accent-rgb),0.2);
     border-radius: 8px;
     padding: 56px 64px;
     text-align: center;
@@ -160,6 +160,6 @@ main > div > div:last-child a:hover { color: var(--gold-light); }
 
 footer {
     padding: 20px 48px;
-    border-top: 1px solid rgba(245,197,24,0.1);
-    background: rgba(30,30,30,0.7);
+    border-top: 1px solid rgba(var(--civic-accent-rgb),0.1);
+    background: rgba(var(--civic-background-rgb),0.7);
 }
