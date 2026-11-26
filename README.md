@@ -74,7 +74,7 @@ npm.cmd --prefix Server start
 ```
 
 Open http://localhost:3000. Express loads the ignored `Server/.env`.
-If that file does not exist, copy `Server/.env.example` and configure it privately.
+If that file does not exist, create `Server/.env` and configure it privately using the settings below.
 Never overwrite an existing environment file or commit passwords, signing keys,
 test credentials or Storage secret keys. Local and Render-served pages use their
 own API origin; GitHub Pages uses the configured Render API.
