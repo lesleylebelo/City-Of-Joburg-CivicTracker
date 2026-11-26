@@ -21,7 +21,7 @@ test('environment template has placeholders for every application and real-SQL t
         fs.readFileSync(path.join(root, 'scripts/seed-test-accounts.cjs'), 'utf8');
     for (const match of sqlTest.matchAll(/\bprocess\.env\.([A-Z_]+)/g)) names.add(match[1]);
     for (const match of sqlTest.matchAll(/['"](TEST_[A-Z_]*[A-Z])['"]/g)) names.add(match[1]);
-    const readme = fs.readFileSync(path.join(root, 'README.md'), 'utf8');
+    const readme = fs.readFileSync(path.join(root, '..', 'README.md'), 'utf8');
     assert.deepEqual([...documented].sort(), [...names].sort());
     for (const name of names) assert.ok(readme.includes('`' + name + '`'), name);
 });

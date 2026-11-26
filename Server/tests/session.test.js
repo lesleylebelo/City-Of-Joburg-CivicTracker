@@ -24,11 +24,23 @@ function browser({ token = 'test-token', responseRole = 'resident', status = 200
         setTimeout: (callback, delay) => { result.timers.push({ callback, delay }); return 1; }, clearTimeout() {},
         fetch: async (url, options) => { result.fetches.push({ url: url.href, options }); return { status, ok: status === 200, blob: async () => new Blob(['fixture'], { type: 'image/png' }), json: async () => ({ user: { id: 1, role: responseRole, full_names: 'Verified Account' }, expires_at: expires }) }; }
     };
-    vm.runInNewContext(configSource.replace("const API_BASE_URL = '';", `const API_BASE_URL = ${JSON.stringify(apiOrigin)};`), context);
+    vm.runInNewContext(configSource.replace(/const API_BASE_URL = [^;]*;/, `const API_BASE_URL = ${JSON.stringify(apiOrigin)};`), context);
     vm.runInNewContext(source, context);
     result.session = window.CivicSession;
     return result;
 }
+
+test('published Pages uses Render while local and Express previews retain their own API origin', () => {
+    for (const origin of ['https://lesleylebelo.github.io', 'http://localhost:3000',
+        'http://127.0.0.1:3000', 'https://civictrack-api-staging.onrender.com']) {
+        const window = { location: { origin } };
+        vm.runInNewContext(configSource, { window, URL });
+        const expected = origin === 'https://lesleylebelo.github.io' ? 'https://civictrack-api-staging.onrender.com' : origin;
+        assert.equal(window.CivicConfig.apiUrl('/api/auth/session').href, expected + '/api/auth/session');
+        assert.equal(window.CivicConfig.apiUrl('/uploads/fixture.png').href, expected + '/uploads/fixture.png');
+        assert.throws(() => window.CivicConfig.apiUrl('https://unrelated.invalid/api/issues'));
+    }
+});
 
 test('signed-out dashboards redirect to the shared sign-in page for root and project-path hosting', async () => {
     for (const prefix of ['/', '/City-Of-Joburg-CivicTracker/']) {

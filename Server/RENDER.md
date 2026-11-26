@@ -7,7 +7,26 @@ service. Render Free sleeps after 15 minutes idle; waking can take about a minut
 Files on its disk disappear on restarts, redeploys and spin-down. Free usage quotas
 still apply. No paid disk, Render database or plan upgrade is needed by this setup.
 
-## Current status — 2026-11-22
+## Staging verification - 2026-11-26
+
+- Render Free service `civictrack-api-staging` is live at
+  https://civictrack-api-staging.onrender.com, deployed from `c88707c`.
+- Public HTTPS checks returned 200 for health, readiness and the shared sign-in
+  page. Readiness covers PostgreSQL and the configured private image bucket.
+- CORS preflight allowed `https://lesleylebelo.github.io` and rejected an
+  unrelated origin with 403 and no allow-origin header.
+- The operator confirmed resident and administrator sign-in and confirmed the
+  same uploaded report photo remained readable after a manual redeployment.
+  These browser and persistence checks are operator-reported.
+- The public configuration now routes only the GitHub Pages origin to Render;
+  local Express and Render-served pages retain same-origin API requests.
+- After Pages publishes this change, verify both sign-ins and authorised photo
+  access from the Pages URL. Browser sessions are separate between origins.
+- Credential rotation is not confirmed by these deployment checks. IDE-selected
+  passwords have been exposed; rotate the affected credential privately and keep
+  database-role and Render settings consistent if the database password changes.
+
+## Historical preparation status — 2026-11-22
 
 The deployment files and storage adapter are prepared for staging. All 94 local
 tests pass, including private Storage contract tests, bounded streaming, readiness

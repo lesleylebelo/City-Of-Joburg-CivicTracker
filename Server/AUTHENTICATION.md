@@ -10,7 +10,7 @@ An unavailable connection returns a generic 503; it never exits the application 
 The backend now uses PostgreSQL via `database.js`. TLS defaults to verified
 encryption (`DB_SSL_MODE=require`); disabling TLS is limited to loopback development.
 An optional provider CA certificate is configured with `DB_SSL_CA_FILE`.
-See `README.md` for the fresh Supabase test setup.
+See the [general README](../README.md#deployment-and-local-setup) for Supabase setup.
 `DB_POOL_MAX` defaults to 5 connections per process; `DB_CONNECT_TIMEOUT_MS` and
 `DB_REQUEST_TIMEOUT_MS` each default to 15000 ms. Positive integers override them.
 
